@@ -15,6 +15,7 @@ local props = {
 	'prop_gas_pump_old3',
 }
 local refueling = false
+
 -- Functions
 local function ManageFuelUsage(vehicle)
 	if not DecorExistOn(vehicle, Config.FuelDecor) then
@@ -31,10 +32,11 @@ local function ManageFuelUsage(vehicle)
 	end
 end
 
-RegisterCommand('setfuel', function ()
-	local vehicle = QBCore.Functions.GetClosestVehicle()
-	SetFuel(vehicle, 15)
-end, false)
+-- THIS IS A TEST COMMAND! DO NOT HAVE THIS ENABLED ON YOUR LIVE SERVER!!!
+-- RegisterCommand('setfuel', function ()
+-- 	local vehicle = QBCore.Functions.GetClosestVehicle()
+-- 	SetFuel(vehicle, 15)
+-- end, false)
 
 local function GlobalTax(value)
 	local tax = (value / 100 * Config.GlobalTax)
@@ -318,7 +320,6 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 end)
 
 -- Target Exports --
-
 exports['qb-target']:AddTargetModel(props, {
 	options = {
 		{
