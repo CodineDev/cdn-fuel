@@ -95,5 +95,5 @@ Here's a video showcasing the script in action!
 
 ### Credits:
 
-Massive shoutout once again to the team at Project Sloth!(https://github.com/Project-Sloth) They create super sick scripts that have changed the game when it comes to fivem server development.
+Massive shoutout once again to the team at Project Sloth! (https://github.com/Project-Sloth) They create super sick scripts that have changed the game when it comes to fivem server development.
 This script is based off of thier ps-fuel script. (https://github.com/Project-Sloth/ps-fuel)
