@@ -29,7 +29,7 @@ Here, we shall provide a step-by-step guide on installing cdn-fuel to your serve
 
 First, we will start by renaming the resource "cdn-fuel-main" to just "cdn-fuel". Next, we will drag the "cdn-fuel" resource into your desired folder in your servers resources directory.
 
-![step_1](https://i.imgur.com/8kg0LWe.gif)
+![step 1](https://i.imgur.com/8kg0LWe.gif)
 
 ### Step 2:
 
