@@ -236,10 +236,12 @@ RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function()
 		exports['qb-menu']:openMenu({
 			{
 				header = "Gas Station",
+				icon = "fas fa-gas-pump",
 				isMenuHeader = true,
 			},
 			{
 				header = "Cash",
+				icon = "fas fa-money-bill",
 				txt = "Pay with cash. <br> (You have: $"..playercashamount..")", 
 				params = {
 					event = "cdn-fuel:client:FinalMenu",
@@ -248,6 +250,7 @@ RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function()
 			},
 			{
 				header = "Bank",
+				icon = "fas fa-credit-card",
 				txt = "Pay with card.", 
 				params = {
 					event = "cdn-fuel:client:FinalMenu",
@@ -256,6 +259,7 @@ RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function()
 			},
 			{
 				header = "Cancel",
+				icon = "fas fa-circle-arrow-left",
 				txt = "I actually don't want gas anymore.", 
 			},
 		})
