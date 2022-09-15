@@ -80,16 +80,18 @@ end
 if Config.LeaveEngineRunning then
 	CreateThread(function()
 		while true do
-			local ped = PlayerPedId()
-			if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) then
-				Wait(150)
-				local veh = GetVehiclePedIsIn(ped, false)
-				SetVehicleEngineOn(veh, true, true, false)
-				TaskLeaveVehicle(ped, veh, keepDoorOpen and 256 or 0)
-			else
-				Wait(150)
+			Wait(100)
+			local ped = GetPlayerPed(-1)
+			if DoesEntityExist(ped) and IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) and not IsPauseMenuActive() then
+				local engineWasRunning = GetIsVehicleEngineRunning(GetVehiclePedIsIn(ped, true))
+				Wait(1000)
+				if DoesEntityExist(ped) and not IsPedInAnyVehicle(ped, false) and not IsEntityDead(ped) and not IsPauseMenuActive() then
+					local veh = GetVehiclePedIsIn(ped, true)
+					if engineWasRunning then
+						SetVehicleEngineOn(veh, true, true, true)
+					end
+				end
 			end
-
 		end
 	end)
 end
@@ -600,6 +602,13 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 		if tonumber(refuel.amount) > jerrycanfuelamount then QBCore.Functions.Notify("The Jerry Can doesn't have this much fuel!", 'error') return end
 		local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
 		if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
+		if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
+			local Chance = math.random(1, 100)
+			if Chance <= Config.BlowUpChance then
+				AddExplosion(vehicleCoords, 5, 50.0, true, false, true)
+				return
+			end
+		end
 		SetBusy(true)
 		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling ' .. tonumber(refuel.amount) .. 'L of Gas', refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
 			disableMovement = true,
