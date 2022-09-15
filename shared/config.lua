@@ -1,16 +1,35 @@
 Config = {}
-Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false)
+Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
-Config.ShowAllGasStations = true -- When enabled, all gas station blips will be shown on map, instead of just when near them Will only work if show nearest gas stations only is disabled.
-Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit.
+Config.ShowAllGasStations = false -- When enabled, all gas station blips will be shown on map, instead of just when near them Will only work if show nearest gas stations only is disabled.
+Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player HOLDS F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
-Config.BlowUpChance = 5 -- percentage for chance of engine explosion (Default: 5 or 5%)
+Config.BlowUpChance = 5 -- percentage for chance of engine explosion (Default: 5% or 5) 
 Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
-Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15.0 or 15%)
-Config.FuelNozzleExplosion = true -- When true, it enables the fuel pump exploding when players run away with the nozzle.
+Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
+Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
-Config.FuelPurchaseDescription = true -- When enabled, transactions will be label with the reasoning, defined in locales.
-Config.Blacklist = { -- Blacklist certain vehicles. Use names or hashes. https://wiki.gtanet.work/index.php?title=Vehicle_Models
+Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
+-- Syphoning --
+Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
+Config.SyphonDebug = false -- Used for Debugging the syphon portion!
+Config.SyphonFuelDecor = Config.FuelDecor -- Do not touch! (Default: "_FUEL_LEVEL")
+Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
+-- Police Stuff --
+Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25% 
+Config.SyphonDispatchSystem = "qb-default" -- Options: "ps-dispatch", "qb-dispatch", "qb-default" (just blips) or "custom" (Custom: you must configure yourself!)
+-- Anims --
+Config.StealAnimDict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@'-- Used for Syphoning
+Config.StealAnim = 'machinic_loop_mechandplayer'-- Used for Syphoning
+Config.RefuelAnimDict = 'weapon@w_sp_jerrycan' -- Used for Syphoning & Jerry Can
+Config.RefuelAnim = 'fire' -- Used for Syphoning & Jerry Can
+--- Jerry Can ----- 
+Config.UseJerryCan = true -- Enable the Jerry Can functionality. Will only work if properly installed.
+Config.JerryCanCap = 50 -- Maximum amount (in L) the jerrycan can fit! (Default: 50L)
+Config.JerryCanPrice = 750 -- + Tax of 15%
+Config.JerryCanGas = 0 -- The amount of Gas that the Jerry Can you purchase comes with. This should not be bigger that your Config.JerryCanCap!
+-- End Jerry Can --
+Config.Blacklist = { -- Blacklist certain vehicles, mostly electric vehicles. Use names or hashes. https://wiki.gtanet.work/index.php?title=Vehicle_Models
 	"surge",
 	"iwagen",
 	"voltic",

@@ -1,9 +1,8 @@
 fx_version 'cerulean'
 game 'gta5'
-
-author 'github.com/CodineDev' -- Base Code from PS, other code by CodineDev. 
+author 'https://www.github.com/CodineDev' -- Base Refuelling System from PS (https://www.github.com/Project-Sloth), other code by CodineDev (https://www.github.com/CodineDev). 
 description 'cdn-fuel, based upon ps-fuel.'
-version '1.0'
+version '1.0.1'
 
 client_scripts {
     '@PolyZone/client.lua',
@@ -16,10 +15,6 @@ server_scripts {
 }
 
 shared_scripts {
-	'@qb-core/shared/locale.lua',
-	'locales/en.lua',	-- Had Trouble with locales, so they are not implemented. Sorry!
-	'locales/de.lua',
-	'locales/fr.lua',
 	'shared/config.lua',
 }
 
@@ -37,3 +32,5 @@ dependencies { -- Make sure these are started before cdn-fuel in your server.cfg
 	'qb-menu',
 	'interact-sound',
 }
+ 
+provide 'cdn-syphoning' --This is used to override cdn-syphoning(https://github.com/CodineDev/cdn-syphoning) if you have it installed. If you don't have it installed, don't worry about this. If you do, we recommend removing it and using this instead.

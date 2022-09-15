@@ -1,13 +1,13 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- Functions
 local function GlobalTax(value)
 	local tax = (value / 100 * Config.GlobalTax)
 	return tax
 end
 
--- Server Events
+--- Events ---
+
 RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype)
 	local src = source
 	if not src then return end
@@ -16,12 +16,27 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelamounttotal = (amount / Config.CostMultiplier)
-	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't fuel a negative amount!", 'error') return end
+	if amount < 1 then
+		TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error')
+		return
+	end
 	if inGasStation == true and not hasWeapon then
 		TriggerClientEvent('qb-menu:client:openMenu', src, {
 			{
-				header = 'Gas Station',
+				header = "Gas Station",
+				isMenuHeader = true,
+				icon = "fas fa-gas-pump",
+			},
+			{
+				header = "",
+				icon = "fas fa-info-circle",
+				isMenuHeader = true,
 				txt = 'The total cost is going to be: $'..total..' including taxes.' ,
+			},
+			{
+				header = "Confirm",
+				icon = "fas fa-check-circle",
+				txt = 'I would like to purchase the fuel.' ,
 				params = {
 					event = "cdn-fuel:client:RefuelVehicle",
 					args = {
@@ -29,6 +44,11 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 						purchasetype = purchasetype,
 					}
 				}
+			},
+			{
+				header = "Cancel",
+				txt = "I actually don't want fuel anymore.", 
+				icon = "fas fa-times-circle",
 			},
 		})
 	end
@@ -48,9 +68,84 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype)
 		moneyremovetype = "cash"
 	end
 	local fuelprice = (Config.CostMultiplier * 1)
-	if Config.FuelPurchaseDescription then
-		player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Fuel")
-	else
-		player.Functions.RemoveMoney(moneyremovetype, total)
-	end
+	player.Functions.RemoveMoney(moneyremovetype, total, "Gasoline @ " ..fuelprice.." / L")
 end)
+
+RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
+	local src = source if not src then return end
+	local Player = QBCore.Functions.GetPlayer(src) if not Player then return end
+	local tax = GlobalTax(Config.JerryCanPrice) local total = math.ceil(Config.JerryCanPrice + tax)
+	local moneyremovetype = purchasetype
+	if purchasetype == "bank" then
+		moneyremovetype = "bank"
+	elseif purchasetype == "cash" then
+		moneyremovetype = "cash"
+	end
+	local info = {
+		gasamount = Config.JerryCanGas,
+	}
+	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money or giveitem if weight > maxweight!
+		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
+		Player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Jerry Can.")
+	end
+
+end)
+
+-- Jerry Can --
+if Config.UseJerryCan then
+	QBCore.Functions.CreateUseableItem("jerrycan", function(source, item)
+		local src = source
+		TriggerClientEvent('cdn-fuel:jerrycan:refuelmenu', src, item)
+	end)
+end
+
+
+--- Syphoning ---
+if Config.UseSyphoning then
+	QBCore.Functions.CreateUseableItem("syphoningkit", function(source, item)
+		local src = source
+		TriggerClientEvent('cdn-syphoning:syphon:menu', src, item)
+	end)
+end
+
+RegisterNetEvent('cdn-fuel:info', function(type, amount, srcPlayerData, itemdata)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local srcPlayerData = srcPlayerData
+	if itemdata.info.name == "jerrycan" then 
+		if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+	elseif itemdata.info.name == "syphoningkit" then
+		if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+	end
+    
+    if type == "add" then
+        srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount + amount
+        Player.Functions.SetInventory(srcPlayerData.items)
+    elseif type == "remove" then
+        srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount - amount
+        Player.Functions.SetInventory(srcPlayerData.items)
+    else
+        if Config.SyphonDebug then print("error, type is invalid!") end
+    end
+end)
+
+RegisterNetEvent('cdn-syphoning:callcops', function(coords)
+    TriggerClientEvent('cdn-syphoning:client:callcops', -1, coords)
+end)
+
+--- Updates ---
+Citizen.CreateThread(function()
+	updatePath = "/CodineDev/cdn-fuel"
+	resourceName = "cdn-fuel ("..GetCurrentResourceName()..")"
+	PerformHttpRequest("https://raw.githubusercontent.com"..updatePath.."/master/version", checkVersion, "GET")
+end)
+
+function checkVersion(err, responseText, headers)
+    curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
+	if responseText == nil then print("^1"..resourceName.." check for updates failed ^7") return end
+    if curVersion ~= nil and responseText ~= nil then
+        print("\n^1----------------------------------------------------------------------------------^7")
+        print(resourceName.."'s latest version is: ^2"..responseText.."^7Installed version: ^1"..curVersion.."^7!\n If needed, update from https://github.com"..updatePath.."")
+        print("^1----------------------------------------------------------------------------------^7")
+    end
+end
