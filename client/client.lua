@@ -531,6 +531,8 @@ RegisterNetEvent('cdn-fuel:client:jerrycanfinalmenu', function(purchasetype)
 	end
 	if Moneyamount > math.ceil(Config.JerryCanPrice + GlobalTax(Config.JerryCanPrice)) then
 		TriggerServerEvent('cdn-fuel:server:purchase:jerrycan', purchasetype)
+	else
+		QBCore.Functions.Notify("You don't have enough money!", 'error')
 	end
 end)
 
