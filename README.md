@@ -188,8 +188,8 @@ You will most likely have to change the slot it is in for it to work properly!
 
 Here's a couple of videos showcasing the script in action!
 
-- [Main Fueling!](https://youtu.be/ihZXGyOpliw) 
-- [Jerry Cans!](https://youtu.be/ihZXGyOpliw)
+- [Main Fueling!](https://www.youtube.com/watch?v=1TimPMCfHsM) 
+- [Jerry Cans!](https://www.youtube.com/watch?v=M14nZTzltB0)
 - [Siphoning!](https://youtu.be/2CJjM_9hmNA)
 
 <br>
@@ -200,6 +200,7 @@ Here's a couple of videos showcasing the script in action!
 ### Future Plans
 
 - Add support for electric vehicles. (Include Mapping for Electric Chargers)
+- Make it work with the oil rig jobs using ps-playgroups and have ownable gas stations!
 - Send suggestions in our discord server!
 
 <br>
