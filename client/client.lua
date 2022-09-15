@@ -65,6 +65,16 @@ local function SetBusy(state)
 	end
 end
 
+local function CanAfford(price, purchasetype)
+	local purchasetype = purchasetype
+	if purchasetype == "bank" then Money = QBCore.Functions.GetPlayerData().money['bank'] elseif purchasetype == 'cash' then Money = QBCore.Functions.GetPlayerData().money['cash'] end
+	if Money < price then
+		return false
+	else
+		return true
+	end
+end
+
 -- Thread Stuff --
 
 if Config.LeaveEngineRunning then
@@ -615,8 +625,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 	local JerryCanMaxRefuel = (Config.JerryCanCap - itemData.info.gasamount)
 	local jerrycanfuelamount = itemData.info.gasamount
 	local refuel = exports['qb-input']:ShowInput({
-		header = "Select how much gas to refuel.",
-		submitText = "Refuel Vehicle",
+		header = "Select how much gas to refuel. (CASH)",
+		submitText = "Refuel Jerry Can",
 		inputs = { {
 			type = 'number',
 			isRequired = true,
@@ -630,6 +640,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 		if tonumber(refuel.amount) > Config.JerryCanCap then QBCore.Functions.Notify('The Jerry Can cannot hold this much gasoline!', 'error') return end
 		local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
 		if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
+		local price = (tonumber(refuel.amount) * Config.CostMultiplier) + GlobalTax(tonumber(refuel.amount) * Config.CostMultiplier)
+		if not CanAfford(price, "cash") then QBCore.Functions.Notify("You don't have enough cash for "..refuel.amount.."L!", 'error') return end
 		SetBusy(true)
 		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling Jerry Can', refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
 			disableMovement = true,
@@ -644,10 +656,11 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			local syphonData = data.itemData
 			local srcPlayerData = QBCore.Functions.GetPlayerData()
 			TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuel.amount), srcPlayerData, syphonData)
+			TriggerServerEvent('cdn-fuel:server:PayForFuel', tonumber(refuel.amount) * Config.CostMultiplier, "cash")
 		end, function() -- Play When Cancel
 			SetBusy(false)
-		StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
-		QBCore.Functions.Notify('Cancelled.', 'error')
+			StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
+			QBCore.Functions.Notify('Cancelled.', 'error')
 		end)
 	end
 end)
