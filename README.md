@@ -158,6 +158,67 @@ Here are some preconfigured shop items if you wish to put them in the shop. (The
 You will most likely have to change the slot it is in for it to work properly!
 <br><br>
 
+### QB-Target Issue Fix 
+
+There is a **possible** issue with *qb-target* if you are using the *Config.GlobalVehicleOptions* or *Config.TargetBones* options. 
+<br>
+### **If you are NOT having this issue occur, do not follow the instructions below, as it could mess up other things.**
+<br>
+
+*Here is a simple fix for that issue:*
+
+<br> 
+
+Firstly, this option will have to be added to your *Config.TargetBones* under the bones you are having trouble with:
+```
+            {
+				type = "client",
+				event = "cdn-fuel:client:SendMenuToServer",
+				icon = "fas fa-gas-pump",
+				label = "Insert Nozzle",
+				canInteract = function() return Allowrefuel end
+            },
+```
+
+*Here is an example of how to add this option:*
+
+![Step5part33 QB-Target](https://i.imgur.com/UOgPJRi.png)
+<br> 
+*This is **specifically** for the "**boot**" bone, but, add it on which bone you are having trouble with.*
+
+<br>
+<br>
+
+*Next, we'll add this simple Function & Export into our QB-Target in the Functions() area:*
+
+```
+local function AllowRefuel(state) 
+    if state then
+        Allowrefuel = true
+    else
+        Allowrefuel = false
+    end
+end exports('AllowRefuel', AllowRefuel)
+```
+
+<br> 
+
+**Example Image:**
+
+![Step5 Part 421421412](https://i.imgur.com/pwpa5Tk.png)
+
+Now, set the *Config.FuelTargetExport* in *cdn-fuel/shared/config.lua* to **true**.
+
+<br> 
+
+![Step5 Part 1421942151251](https://i.imgur.com/InBl500.png)
+
+### You are now officially done installing!
+
+<br> 
+
+Enjoy using **cdn-fuel**, if you have an issues, create an issue on the repository, and we will fix it **ASAP**!
+
 <br>
 <br>
 
@@ -195,12 +256,12 @@ Here's a couple of videos showcasing the script in action!
 <br>
 <br>
 
-![Codine Development Fuel Script Future Plans banner](https://i.imgur.com/1RoBsmo.png)
+![Codine Development Fuel Script Future Plans Banner](https://i.imgur.com/1RoBsmo.png)
 
 ### Future Plans
 
 - Add support for electric vehicles. (Include Mapping for Electric Chargers)
-- Make it work with the oil rig jobs using ps-playgroups and have ownable gas stations!
+- Make it work with the oil rig jobs using ps-playergroups and have ownable gas stations!
 - Send suggestions in our discord server!
 
 <br>

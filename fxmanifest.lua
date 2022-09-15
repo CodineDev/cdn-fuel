@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 author 'https://www.github.com/CodineDev' -- Base Refuelling System from PS (https://www.github.com/Project-Sloth), other code by CodineDev (https://www.github.com/CodineDev). 
 description 'cdn-fuel, based upon ps-fuel.'
-version '1.0.1'
+version '1.0.2'
 
 client_scripts {
     '@PolyZone/client.lua',
@@ -33,4 +33,4 @@ dependencies { -- Make sure these are started before cdn-fuel in your server.cfg
 	'interact-sound',
 }
  
-provide 'cdn-syphoning' --This is used to override cdn-syphoning(https://github.com/CodineDev/cdn-syphoning) if you have it installed. If you don't have it installed, don't worry about this. If you do, we recommend removing it and using this instead.
+provide 'cdn-syphoning' -- This is used to override cdn-syphoning(https://github.com/CodineDev/cdn-syphoning) if you have it installed. If you don't have it installed, don't worry about this. If you do, we recommend removing it and using this instead.

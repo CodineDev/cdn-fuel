@@ -15,7 +15,6 @@ local props = {
 	'prop_gas_pump_old3',
 }
 local refueling = false
-
 -- Debug ---
 if Config.FuelDebug then
 	RegisterCommand('setfuel0', function()
@@ -78,20 +77,22 @@ end
 -- Thread Stuff --
 
 if Config.LeaveEngineRunning then
-	CreateThread(function()
-		while true do
+    CreateThread(function()
+        while true do
+            Wait(100)
 			local ped = PlayerPedId()
 			if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) then
-				Wait(150)
-				local veh = GetVehiclePedIsIn(ped, false)
-				SetVehicleEngineOn(veh, true, true, false)
-				TaskLeaveVehicle(ped, veh, keepDoorOpen and 256 or 0)
-			else
-				Wait(150)
+				local vehicle = GetVehiclePedIsIn(ped, true)
+				local enginerunning = GetIsVehicleEngineRunning(vehicle)
+				if enginerunning then print('true') else print('false') end
+				Wait(900)
+				if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) and GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
+					if enginerunning then SetVehicleEngineOn(vehicle, true, true, false) enginerunning = false end
+					TaskLeaveVehicle(ped, veh, keepDoorOpen and 256 or 0)
+				end
 			end
-
-		end
-	end)
+        end
+    end)
 end
 
 if Config.ShowNearestGasStationOnly and not Config.ShowAllGasStations then
@@ -191,7 +192,11 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 		while holdingnozzle do
 			local currentcoords = GetEntityCoords(ped)
 			local dist = #(grabbednozzlecoords - currentcoords)
+			if not TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(true) end end
+			TargetCreated = true
 			if dist > 12.5 then
+				if TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end end
+				TargetCreated = true
 				holdingnozzle = false
 				DeleteObject(fuelnozzle)
 				if Config.FuelNozzleExplosion then
@@ -209,6 +214,8 @@ end)
 
 RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
 	holdingnozzle = false
+	TargetCreated = false
+	if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end
 	DeleteObject(fuelnozzle)
 	TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
 end)
@@ -232,15 +239,15 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 	local wholetankcostwithtax = math.ceil(FuelPrice * maxfuel + GlobalTax(wholetankcost))
 	local fuel = exports['qb-input']:ShowInput({
 		header = "Select the Amount of Fuel<br>Current Price: $" ..
-			FuelPrice .. " / Liter <br> Current Fuel: " .. finalfuel .. " Liters <br> Full Tank Cost: $" ..
-			wholetankcostwithtax .. "",
+		FuelPrice .. " / Liter <br> Current Fuel: " .. finalfuel .. " Liters <br> Full Tank Cost: $" ..
+		wholetankcostwithtax .. "",
 		submitText = "Insert Nozzle",
 		inputs = { {
 			type = 'number',
 			isRequired = true,
 			name = 'amount',
 			text = 'The Tank Can Hold ' .. maxfuel .. ' More Liters.'
-		} }
+		}}
 	})
 	if fuel then
 		if not fuel.amount then return end
@@ -248,10 +255,11 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 		if (fuel.amount + finalfuel) >= 100 then
 			QBCore.Functions.Notify("Your tank cannot fit this!", "error")
 		else
-			if (fuel.amount * Config.CostMultiplier) <= money then
+			if GlobalTax(fuel.amount * Config.CostMultiplier) + (fuel.amount * Config.CostMultiplier) <= money then
 				local totalcost = (fuel.amount * Config.CostMultiplier)
 				TriggerServerEvent('cdn-fuel:server:OpenMenu', totalcost, inGasStation, false, purchasetype)
 			else
+				QBCore.Functions.Notify("You can't afford this!", 'error', 7500)
 			end
 		end
 
@@ -310,6 +318,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	local vehicle = QBCore.Functions.GetClosestVehicle()
 	local ped = PlayerPedId()
 	local time = amount * Config.RefuelTime
+	if amount < 10 then time = 10 * Config.RefuelTime end
 	local vehicleCoords = GetEntityCoords(vehicle)
 	if inGasStation then
 		if isCloseVeh() then
@@ -645,6 +654,13 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 		if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
 		local price = (tonumber(refuel.amount) * Config.CostMultiplier) + GlobalTax(tonumber(refuel.amount) * Config.CostMultiplier)
 		if not CanAfford(price, "cash") then QBCore.Functions.Notify("You don't have enough cash for "..refuel.amount.."L!", 'error') return end
+		if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
+			local Chance = math.random(1, 100)
+			if Chance <= Config.BlowUpChance then
+				AddExplosion(vehicleCoords, 5, 50.0, true, false, true)
+				return
+			end 
+		end
 		SetBusy(true)
 		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling Jerry Can', refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
 			disableMovement = true,
