@@ -200,6 +200,7 @@ Here's a couple of videos showcasing the script in action!
 ### Future Plans
 
 - Add support for electric vehicles. (Include Mapping for Electric Chargers)
+- Make it work with the oil rig jobs using ps-playgroups and have ownable gas stations!
 - Send suggestions in our discord server!
 
 <br>
