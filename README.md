@@ -260,9 +260,7 @@ Here's a couple of videos showcasing the script in action!
 
 ### Future Plans
 
-- Add support for electric vehicles. (Include Mapping for Electric Chargers)
-- Make it work with the oil rig jobs using ps-playergroups and have ownable gas stations!
-- Send suggestions in our discord server!
+Future Plans are located on the [Wiki Section](https://github.com/CodineDev/cdn-fuel/wiki) of this repository, labeled [CDN-Fuel Roadmap](https://github.com/CodineDev/cdn-fuel/wiki).
 
 <br>
 <br>
