@@ -74,7 +74,6 @@ local function CanAfford(price, purchasetype)
 	end
 end
 
-
 -- Thread Stuff --
 
 if Config.LeaveEngineRunning then
