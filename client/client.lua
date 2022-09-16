@@ -20,17 +20,17 @@ if Config.FuelDebug then
 	RegisterCommand('setfuel0', function()
 		local vehicle = QBCore.Functions.GetClosestVehicle()
 		SetFuel(vehicle, 0)
-		QBCore.Functions.Notify('Set fuel to: 0L', 'success') 
+		QBCore.Functions.Notify('Set fuel to: 0L', 'success')
 	end, false)
 	RegisterCommand('setfuel50', function()
 		local vehicle = QBCore.Functions.GetClosestVehicle()
 		SetFuel(vehicle, 50)
-		QBCore.Functions.Notify('Set fuel to: 50L', 'success') 
+		QBCore.Functions.Notify('Set fuel to: 50L', 'success')
 	end, false)
 	RegisterCommand('setfuel100', function()
 		local vehicle = QBCore.Functions.GetClosestVehicle()
 		SetFuel(vehicle, 0)
-		QBCore.Functions.Notify('Set fuel to: 100L', 'success') 
+		QBCore.Functions.Notify('Set fuel to: 100L', 'success')
 	end, false)
 end
 -- Functions
@@ -74,6 +74,7 @@ local function CanAfford(price, purchasetype)
 	end
 end
 
+
 -- Thread Stuff --
 
 if Config.LeaveEngineRunning then
@@ -88,7 +89,7 @@ if Config.LeaveEngineRunning then
 				Wait(900)
 				if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) and GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
 					if enginerunning then SetVehicleEngineOn(vehicle, true, true, false) enginerunning = false end
-					TaskLeaveVehicle(ped, veh, keepDoorOpen and 256 or 0)
+					TaskLeaveVehicle(ped, veh, keepDooRopen and 256 or 0)
 				end
 			end
         end
@@ -182,23 +183,28 @@ end)
 RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 	local ped = PlayerPedId()
 	if holdingnozzle then return end
+	LoadAnimDict("anim@am_hold_up@male")
+    TaskPlayAnim(ped, "anim@am_hold_up@male", "shoplift_high", 2.0, 8.0, -1, 50, 0, 0, 0, 0)
+	TriggerServerEvent("InteractSound_SV:PlayOnSource", "pickupnozzle", 0.4)
+    Wait(300)
+	StopAnimTask(ped, "anim@am_hold_up@male", "shoplift_high", 1.0)
 	fuelnozzle = CreateObject(GetHashKey('prop_cs_fuel_nozle'), 1.0, 1.0, 1.0, true, true, false)
 	local lefthand = GetPedBoneIndex(ped, 18905)
 	AttachEntityToEntity(fuelnozzle, ped, lefthand, 0.13, 0.04, 0.01, -42.0, -115.0, -63.42, 0, 1, 0, 1, 0, 1)
-	holdingnozzle = true
 	local grabbednozzlecoords = GetEntityCoords(ped)
-	TriggerServerEvent("InteractSound_SV:PlayOnSource", "pickupnozzle", 0.4)
+	holdingnozzle = true
 	Citizen.CreateThread(function()
 		while holdingnozzle do
 			local currentcoords = GetEntityCoords(ped)
 			local dist = #(grabbednozzlecoords - currentcoords)
 			if not TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(true) end end
 			TargetCreated = true
-			if dist > 12.5 then
+			if dist > 7.5 then
 				if TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end end
 				TargetCreated = true
 				holdingnozzle = false
 				DeleteObject(fuelnozzle)
+				QBCore.Functions.Notify("The nozzle can't reach this far!", 'error')
 				if Config.FuelNozzleExplosion then
 					AddExplosion(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z, 'EXP_TAG_PROPANE', 1.0, true,false, 5.0)
 					StartScriptFire(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z - 1,25,false)
@@ -215,9 +221,13 @@ end)
 RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
 	holdingnozzle = false
 	TargetCreated = false
+	LoadAnimDict("pickup_object")
+    TaskPlayAnim(ped, "pickup_object", "putdown_low", 2.0, 8.0, -1, 17, 0, 0, 0, 0)
+	TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
+	StopAnimTask(ped, 'pickup_object', 'putdown_low', 1.0)
+	Wait(250)
 	if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end
 	DeleteObject(fuelnozzle)
-	TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
 end)
 
 AddEventHandler('onResourceStop', function(resource)
@@ -324,7 +334,6 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 		if isCloseVeh() then
 			RequestAnimDict("timetable@gardener@filling_can")
 			while not HasAnimDictLoaded('timetable@gardener@filling_can') do Wait(100) end
-			TaskPlayAnim(ped, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 8.0, 1.0, -1, 1, 0, 0, 0, 0)
 			if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
 				local Chance = math.random(1, 100)
 				if Chance <= Config.BlowUpChance then
@@ -332,6 +341,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					return
 				end
 			end
+			TaskPlayAnim(ped, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 8.0, 1.0, -1, 1, 0, 0, 0, 0)
 			refueling = true
 			Refuelamount = 0
 			CreateThread(function()
@@ -391,6 +401,7 @@ end)
 exports['qb-target']:AddTargetModel(props, {
 	options = {
 		{
+			num = 1,
 			type = "client",
 			event = "cdn-fuel:client:grabnozzle",
 			icon = "fas fa-gas-pump",
@@ -402,17 +413,19 @@ exports['qb-target']:AddTargetModel(props, {
 			end
 		},
 		{
+			num = 2,
 			type = "client",
 			event = "cdn-fuel:client:purchasejerrycan",
 			icon = "fas fa-fire-flame-simple",
 			label = "Purchase Jerry Can",
 			canInteract = function()
-				if not IsPedInAnyVehicle(PlayerPedId()) then
+				if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle then
 					return true
 				end
 			end
 		},
 		{
+			num = 3, -- This is the position number of your option in the list of options in the qb-target context menu (OPTIONAL)
 			type = "client",
 			event = "cdn-fuel:client:returnnozzle",
 			icon = "fas fa-hand",
@@ -610,7 +623,10 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 		local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
 		if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
 		SetBusy(true)
-		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling ' .. tonumber(refuel.amount) .. 'L of Gas', refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
+        JerrycanProp = CreateObject(GetHashKey('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
+        local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
+        AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
+		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling ' .. tonumber(refuel.amount) .. 'L of Gas', refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
 			disableMovement = true,
 			disableCarMovement = true,
 			disableMouse = false,
@@ -618,6 +634,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 		}, { animDict = Config.RefuelAnimDict, anim = Config.RefuelAnim, flags = 17, }, {}, {},
 		function() -- Play When Done
 			SetBusy(false)
+			DeleteObject(JerrycanProp)
 			StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
 			QBCore.Functions.Notify('Successfully put ' .. tonumber(refuel.amount) .. 'L into the vehicle!', 'success')
 			local syphonData = data.itemData
@@ -626,6 +643,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 			SetFuel(vehicle, (vehfuel + refuel.amount))
 		end, function() -- Play When Cancel
 			SetBusy(false)
+			DeleteObject(JerrycanProp)
 			StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
 			QBCore.Functions.Notify('Cancelled.', 'error')
 		end)
@@ -662,6 +680,10 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			end 
 		end
 		SetBusy(true)
+        JerrycanProp = CreateObject(GetHashKey('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
+        local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
+        AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
+		SetEntityVisible(fuelnozzle, false, 0)
 		QBCore.Functions.Progressbar('refuel_gas', 'Refuelling Jerry Can', refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
 			disableMovement = true,
 			disableCarMovement = true,
@@ -669,7 +691,9 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			disableCombat = true,
 		}, { animDict = Config.RefuelAnimDict, anim = Config.RefuelAnim, flags = 17, }, {}, {},
 		function() -- Play When Done
+			SetEntityVisible(fuelnozzle, true, 0)
 			SetBusy(false)
+			DeleteObject(JerrycanProp)
 			StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
 			QBCore.Functions.Notify('Successfully put ' .. tonumber(refuel.amount) .. 'L into the Jerry Can!', 'success')
 			local syphonData = data.itemData
@@ -677,7 +701,9 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuel.amount), srcPlayerData, syphonData)
 			TriggerServerEvent('cdn-fuel:server:PayForFuel', tonumber(refuel.amount) * Config.CostMultiplier, "cash")
 		end, function() -- Play When Cancel
+			SetEntityVisible(fuelnozzle, true, 0)
 			SetBusy(false)
+			DeleteObject(JerrycanProp)
 			StopAnimTask(PlayerPedId(), Config.RefuelAnimDict, Config.RefuelAnim, 1.0)
 			QBCore.Functions.Notify('Cancelled.', 'error')
 		end)

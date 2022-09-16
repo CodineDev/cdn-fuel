@@ -16,10 +16,7 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelamounttotal = (amount / Config.CostMultiplier)
-	if amount < 1 then
-		TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error')
-		return
-	end
+	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
 	if inGasStation == true and not hasWeapon then
 		TriggerClientEvent('qb-menu:client:openMenu', src, {
 			{
@@ -84,7 +81,7 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	local info = {
 		gasamount = Config.JerryCanGas,
 	}
-	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money or giveitem if weight > maxweight!
+	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
 		Player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Jerry Can.")
 	end
