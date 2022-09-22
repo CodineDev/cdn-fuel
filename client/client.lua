@@ -84,7 +84,6 @@ if Config.LeaveEngineRunning then
 			if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) then
 				local vehicle = GetVehiclePedIsIn(ped, true)
 				local enginerunning = GetIsVehicleEngineRunning(vehicle)
-				if enginerunning then print('true') else print('false') end
 				Wait(900)
 				if IsPedInAnyVehicle(ped, false) and IsControlPressed(2, 75) and not IsEntityDead(ped) and GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
 					if enginerunning then SetVehicleEngineOn(vehicle, true, true, false) enginerunning = false end
