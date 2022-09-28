@@ -8,6 +8,14 @@ end
 
 --- Events ---
 
+if Config.RenewedPhonePayment then
+	RegisterNetEvent('cdn-fuel:server:phone:givebackmoney', function(amount)
+		local src = source
+		local player = QBCore.Functions.GetPlayer(src)
+		player.Functions.AddMoney("bank", math.ceil(amount), "Refund of unused fuel amount.")
+	end)
+end
+
 RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype)
 	local src = source
 	if not src then return end
@@ -18,36 +26,40 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	local fuelamounttotal = (amount / Config.CostMultiplier)
 	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
 	if inGasStation == true and not hasWeapon then
-		TriggerClientEvent('qb-menu:client:openMenu', src, {
-			{
-				header = "Gas Station",
-				isMenuHeader = true,
-				icon = "fas fa-gas-pump",
-			},
-			{
-				header = "",
-				icon = "fas fa-info-circle",
-				isMenuHeader = true,
-				txt = 'The total cost is going to be: $'..total..' including taxes.' ,
-			},
-			{
-				header = "Confirm",
-				icon = "fas fa-check-circle",
-				txt = 'I would like to purchase the fuel.' ,
-				params = {
-					event = "cdn-fuel:client:RefuelVehicle",
-					args = {
-						fuelamounttotal = fuelamounttotal, 
-						purchasetype = purchasetype,
+		if Config.RenewedPhonePayment and purchasetype == "bank" then
+			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, amount)
+		else
+			TriggerClientEvent('qb-menu:client:openMenu', src, {
+				{
+					header = "Gas Station",
+					isMenuHeader = true,
+					icon = "fas fa-gas-pump",
+				},
+				{
+					header = "",
+					icon = "fas fa-info-circle",
+					isMenuHeader = true,
+					txt = 'The total cost is going to be: $'..total..' including taxes.' ,
+				},
+				{
+					header = "Confirm",
+					icon = "fas fa-check-circle",
+					txt = 'I would like to purchase the fuel.' ,
+					params = {
+						event = "cdn-fuel:client:RefuelVehicle",
+						args = {
+							fuelamounttotal = fuelamounttotal, 
+							purchasetype = purchasetype,
+						}
 					}
-				}
-			},
-			{
-				header = "Cancel",
-				txt = "I actually don't want fuel anymore.", 
-				icon = "fas fa-times-circle",
-			},
-		})
+				},
+				{
+					header = "Cancel",
+					txt = "I actually don't want fuel anymore.", 
+					icon = "fas fa-times-circle",
+				},
+			})
+		end
 	end
 end)
 
