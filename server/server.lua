@@ -12,7 +12,7 @@ if Config.RenewedPhonePayment then
 	RegisterNetEvent('cdn-fuel:server:phone:givebackmoney', function(amount)
 		local src = source
 		local player = QBCore.Functions.GetPlayer(src)
-		player.Functions.AddMoney("bank", math.ceil(amount), "Refund of unused fuel amount.")
+		player.Functions.AddMoney("bank", math.ceil(amount), "Refund, for Unused Fuel @ Gas Station!")
 	end)
 end
 
@@ -27,7 +27,7 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
 	if inGasStation == true and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
-			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, amount)
+			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, fuelamounttotal)
 		else
 			TriggerClientEvent('qb-menu:client:openMenu', src, {
 				{
@@ -70,14 +70,8 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype)
 	if not player then return end
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
-	local moneyremovetype = purchasetype
-	if purchasetype == "bank" then
-		moneyremovetype = "bank"
-	elseif purchasetype == "cash" then
-		moneyremovetype = "cash"
-	end
 	local fuelprice = (Config.CostMultiplier * 1)
-	player.Functions.RemoveMoney(moneyremovetype, total, "Gasoline @ " ..fuelprice.." / L")
+	player.Functions.RemoveMoney(purchasetype, total, "Gasoline @ " ..fuelprice.." / L")
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
