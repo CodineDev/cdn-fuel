@@ -30,6 +30,9 @@ Config.JerryCanCap = 50 -- Maximum amount (in L) the jerrycan can fit! (Default:
 Config.JerryCanPrice = 750 -- + Tax of 15%
 Config.JerryCanGas = 0 -- The amount of Gas that the Jerry Can you purchase comes with. This should not be bigger that your Config.JerryCanCap!
 -- End Jerry Can --
+-- Phone Stuff -- 
+Config.RenewedPhonePayment = false -- When true, payments will be sent to the players phone with a notification, giving them the opportunity to accept or decline payment. If the cancel after paying for fuel, money will be returned. 
+-- End Phone Stuff -- 
 Config.Blacklist = { -- Blacklist certain vehicles, mostly electric vehicles. Use names or hashes. https://wiki.gtanet.work/index.php?title=Vehicle_Models
 	"surge",
 	"iwagen",
