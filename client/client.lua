@@ -58,10 +58,14 @@ local function GlobalTax(value)
 end
 
 local function SetBusy(state)
-	if state then
-		LocalPlayer.state:set("inv_busy", true, true) -- Busy
-	elseif not state then
-		LocalPlayer.state:set("inv_busy", false, false) -- Not Busy
+	if Config.FuelDebug then print("Attempting to Set Busy State for Inventory!") end
+	if Config.FuelDebug and not Config.InventoryBusy then print("Attempting to Set Busy State for Inventory, but, Config.InventoryBusy is Disabled, meaning busy state will not change!") end
+	if Config.InventoryBusy then
+		if state then
+			LocalPlayer.state:set("inv_busy", true, true) -- Busy
+		elseif not state then
+			LocalPlayer.state:set("inv_busy", false, false) -- Not Busy
+		end
 	end
 end
 
@@ -204,7 +208,7 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 				QBCore.Functions.Notify("The nozzle can't reach this far!", 'error')
 				if Config.FuelNozzleExplosion then
 					AddExplosion(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z, 'EXP_TAG_PROPANE', 1.0, true,false, 5.0)
-					StartScriptFire(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z - 1,25,false)
+					StartScriptFire(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z - 1, 25, false)
 					SetFireSpreadRate(10.0)
 					Wait(5000)
 					StopFireInRange(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z - 1, 3.0)
@@ -413,7 +417,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 				function()
 					SetBusy(false)
 					refueling = false
-					TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype)
+					if not Config.RenewedPhonePayment then TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype) end
 					local curfuel = GetFuel(vehicle)
 					local finalfuel = (curfuel + fuelamount)
 					if finalfuel > 99 and finalfuel < 100 then
