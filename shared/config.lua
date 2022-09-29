@@ -11,6 +11,7 @@ Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump explod
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
 Config.FuelTargetExport = false -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
+Config.InventoryBusy = true -- When true, the inventory state will be set to busy while refuelling. If needed, set this to false if incountering the following issue: https://github.com/CodineDev/cdn-fuel/issues/6 
 -- Syphoning --
 Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
 Config.SyphonDebug = false -- Used for Debugging the syphon portion!
