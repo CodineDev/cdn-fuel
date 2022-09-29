@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 author 'https://www.github.com/CodineDev' -- Base Refuelling System from PS (https://www.github.com/Project-Sloth), other code by CodineDev (https://www.github.com/CodineDev). 
 description 'cdn-fuel, based upon ps-fuel.'
-version '1.0.3'
+version '1.0.4'
 
 client_scripts {
     '@PolyZone/client.lua',
