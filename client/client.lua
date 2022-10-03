@@ -330,6 +330,9 @@ RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function()
 				header = "Cancel",
 				txt = "I actually don't want fuel anymore.",
 				icon = "fas fa-times-circle",
+				params = {
+          				event = exports['qb-menu']:closeMenu()
+        			}
 			},
 		})
 	else
@@ -577,6 +580,9 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelmenu', function(itemData)
 				header = "Cancel",
 				txt = "I actually don't want to use this anymore.",
 				icon = "fas fa-times-circle",
+				params = {
+          				event = exports['qb-menu']:closeMenu()
+        			}
 			},
 		})
 	else
@@ -608,6 +614,9 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelmenu', function(itemData)
 				header = "Cancel",
 				txt = "I actually don't want to use this anymore.",
 				icon = "fas fa-times-circle",
+				params = {
+          				event = exports['qb-menu']:closeMenu()
+        			}
 			},
 		})
 	end
@@ -658,6 +667,9 @@ RegisterNetEvent('cdn-fuel:client:purchasejerrycan', function()
 			header = "Cancel",
 			txt = "I actually don't want a Jerry Can anymore.",
 			icon = "fas fa-times-circle",
+			params = {
+          			event = exports['qb-menu']:closeMenu()
+        		}
 		},
 	})
 end)
@@ -844,6 +856,9 @@ RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 			header = "Cancel",
 			txt = "I actually don't want to use this anymore. I've turned a new leaf!",
 			icon = "fas fa-times-circle",
+			params = {
+          			event = exports['qb-menu']:closeMenu()
+        		}
 		},
 	})
 end)
