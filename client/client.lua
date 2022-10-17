@@ -181,6 +181,30 @@ CreateThread(function()
 end)
 
 -- Client Events
+RegisterNetEvent('cdn-fuel:client:RefuelMenu', function()
+	if Config.RenewedPhonePayment then
+		if not RefuelPossible then 
+			TriggerEvent('cdn-fuel:client:SendMenuToServer') 
+		else 
+			if Config.RenewedPhonePayment then
+				if not Cancelledrefuel and not RefuelCancelled then
+					if RefuelPossibleAmount then
+						local purchasetype = "bank"
+						local fuelamounttotal = tonumber(RefuelPossibleAmount)
+						TriggerEvent('cdn-fuel:client:RefuelVehicle', purchasetype, fuelamounttotal) 
+					else
+						QBCore.Functions.Notify('You have to fuel more than 0!', 'error', 7500)
+					end
+				end
+			else
+
+			end
+		end
+	else
+		TriggerEvent('cdn-fuel:client:SendMenuToServer')
+	end
+end)
+
 RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 	local ped = PlayerPedId()
 	if holdingnozzle then return end
@@ -508,28 +532,7 @@ CreateThread(function()
 			{
 				type = "client",
 				action = function ()
-					if Config.RenewedPhonePayment then
-						if not RefuelPossible then 
-							TriggerEvent('cdn-fuel:client:SendMenuToServer') 
-						else 
-							if Config.RenewedPhonePayment then
-								if not Cancelledrefuel and not RefuelCancelled then
-									if RefuelPossibleAmount then
-										local purchasetype = "bank"
-										local fuelamounttotal = tonumber(RefuelPossibleAmount)
-										TriggerEvent('cdn-fuel:client:RefuelVehicle', purchasetype, fuelamounttotal) 
-									else
-										QBCore.Functions.Notify('You have to fuel more than 0!', 'error', 7500)
-									end
-								end
-							else
-
-							end
-						end
-					else
-						TriggerEvent('cdn-fuel:client:SendMenuToServer')
-					end
-
+					TriggerEvent("cdn-fuel:client:RefuelMenu")
 				end,
 				icon = "fas fa-gas-pump",
 				label = "Insert Nozzle",

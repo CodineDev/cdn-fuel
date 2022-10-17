@@ -173,14 +173,14 @@ Firstly, this option will have to be added to your *Config.TargetBones* under th
 ```
             {
 				type = "client",
-				event = "cdn-fuel:client:SendMenuToServer",
+				event = "cdn-fuel:client:RefuelMenu",
 				icon = "fas fa-gas-pump",
 				label = "Insert Nozzle",
 				canInteract = function() return Allowrefuel end
             },
 ```
 
-*Here is an example of how to add this option:*
+*Here is an example of how to add this option (ignore the different event names):*
 
 ![Step5part33 QB-Target](https://i.imgur.com/UOgPJRi.png)
 <br> 
