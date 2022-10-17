@@ -16,6 +16,8 @@ local props = {
 }
 local refueling = false
 local PaidForFuel = false
+local rope
+
 -- Debug ---
 if Config.FuelDebug then
 	RegisterCommand('setfuel0', function()
@@ -77,6 +79,16 @@ local function CanAfford(price, purchasetype)
 	else
 		return true
 	end
+end
+
+local function PlayEffect(effect_dict, effect_name)
+	CreateThread(function()
+		local position = GetOffsetFromEntityInWorldCoords(fuelnozzle, 0.0, 0.28, 0.17)
+		UseParticleFxAssetNextCall(effect_dict)
+		local effect = StartParticleFxLoopedAtCoord(effect_name, position.x, position.y, position.z, 0.0, 0.0, GetEntityHeading(fuelnozzle), 1.0, false, false, false, false)
+		Wait(100)
+		StopParticleFxLooped(effect, 0)
+	end)
 end
 
 -- Thread Stuff --
@@ -205,7 +217,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelMenu', function()
 	end
 end)
 
-RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
+RegisterNetEvent('cdn-fuel:client:grabnozzle', function(data)
 	local ped = PlayerPedId()
 	if holdingnozzle then return end
 	LoadAnimDict("anim@am_hold_up@male")
@@ -216,19 +228,43 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 	fuelnozzle = CreateObject(GetHashKey('prop_cs_fuel_nozle'), 1.0, 1.0, 1.0, true, true, false)
 	local lefthand = GetPedBoneIndex(ped, 18905)
 	AttachEntityToEntity(fuelnozzle, ped, lefthand, 0.13, 0.04, 0.01, -42.0, -115.0, -63.42, 0, 1, 0, 1, 0, 1)
-	local grabbednozzlecoords = GetEntityCoords(ped)
+	local grabbednozzlecoords = GetEntityCoords(ped)	
 	holdingnozzle = true
+	if Config.PlayRopeEffect then		
+		local nozzlePos = GetEntityCoords(fuelnozzle)
+		local pump = GetEntityCoords(data.entity)
+		RopeLoadTextures()
+		while not RopeAreTexturesLoaded() do
+			Wait(0)
+		end
+		RopeLoadTextures()
+		rope = AddRope(pump.x, pump.y, pump.z, 0.0, 0.0, 0.0, 3.0, 1, 10.0, 0.0, 1.0, false, false, false, 1.0, true)
+		while not rope do
+			Wait(0)
+		end
+		ActivatePhysics(rope)
+		Wait(50)
+		nozzlePos = GetOffsetFromEntityInWorldCoords(fuelnozzle, 0.0, -0.033, -0.195)	
+		AttachEntitiesToRope(rope, data.entity, fuelnozzle, pump.x, pump.y, pump.z + 1.45, nozzlePos.x, nozzlePos.y, nozzlePos.z, 5.0, false, false, nil, nil)
+	end	
 	Citizen.CreateThread(function()
 		while holdingnozzle do
 			local currentcoords = GetEntityCoords(ped)
 			local dist = #(grabbednozzlecoords - currentcoords)
 			if not TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(true) end end
 			TargetCreated = true
+			if Config.PlayGasEffect then
+				PlayEffect("core", "veh_trailer_petrol_spray")
+			end
 			if dist > 7.5 then
 				if TargetCreated then if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end end
 				TargetCreated = true
 				holdingnozzle = false
 				DeleteObject(fuelnozzle)
+				if Config.PlayRopeEffect then
+					DeleteRope(rope)
+					RopeUnloadTextures()
+				end
 				QBCore.Functions.Notify("The nozzle can't reach this far!", 'error')
 				if Config.FuelNozzleExplosion then
 					AddExplosion(grabbednozzlecoords.x, grabbednozzlecoords.y, grabbednozzlecoords.z, 'EXP_TAG_PROPANE', 1.0, true,false, 5.0)
@@ -253,6 +289,10 @@ RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
 	Wait(250)
 	if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end
 	DeleteObject(fuelnozzle)
+	if Config.PlayRopeEffect then
+		DeleteRope(rope)
+		RopeUnloadTextures()
+	end
 end)
 
 AddEventHandler('onResourceStop', function(resource)

@@ -9,6 +9,8 @@ Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel pric
 Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
+Config.PlayGasEffect = true -- When true, gas particle effects will come out of the nozzle and splash onto the ground.
+Config.PlayRopeEffect = true -- When true, a particle rope will attach between gas pump and nozzle for effect.
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
 Config.FuelTargetExport = false -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 Config.InventoryBusy = true -- When true, the inventory state will be set to busy while refuelling. If needed, set this to false if incountering the following issue: https://github.com/CodineDev/cdn-fuel/issues/6 
@@ -27,6 +29,7 @@ Config.RefuelAnimDict = 'weapon@w_sp_jerrycan' -- Used for Syphoning & Jerry Can
 Config.RefuelAnim = 'fire' -- Used for Syphoning & Jerry Can
 --- Jerry Can ----- 
 Config.UseJerryCan = true -- Enable the Jerry Can functionality. Will only work if properly installed.
+Config.JerryCanItem = "jerrycan"
 Config.JerryCanCap = 50 -- Maximum amount (in L) the jerrycan can fit! (Default: 50L)
 Config.JerryCanPrice = 750 -- + Tax of 15%
 Config.JerryCanGas = 0 -- The amount of Gas that the Jerry Can you purchase comes with. This should not be bigger that your Config.JerryCanCap!

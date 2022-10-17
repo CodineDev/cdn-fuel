@@ -87,8 +87,8 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	local info = {
 		gasamount = Config.JerryCanGas,
 	}
-	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
-		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
+	if Player.Functions.AddItem(Config.JerryCanItem, 1, false, info) then -- Dont remove money if AddItem() not possible!
+		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.JerryCanItem], "add") 
 		Player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Jerry Can.")
 	end
 
@@ -96,7 +96,7 @@ end)
 
 -- Jerry Can --
 if Config.UseJerryCan then
-	QBCore.Functions.CreateUseableItem("jerrycan", function(source, item)
+	QBCore.Functions.CreateUseableItem(Config.JerryCanItem, function(source, item)
 		local src = source
 		TriggerClientEvent('cdn-fuel:jerrycan:refuelmenu', src, item)
 	end)
@@ -115,7 +115,7 @@ RegisterNetEvent('cdn-fuel:info', function(type, amount, srcPlayerData, itemdata
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local srcPlayerData = srcPlayerData
-	if itemdata.info.name == "jerrycan" then 
+	if itemdata.info.name == Config.JerryCanItem then 
 		if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
 	elseif itemdata.info.name == "syphoningkit" then
 		if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
