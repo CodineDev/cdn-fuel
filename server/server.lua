@@ -12,7 +12,7 @@ if Config.RenewedPhonePayment then
 	RegisterNetEvent('cdn-fuel:server:phone:givebackmoney', function(amount)
 		local src = source
 		local player = QBCore.Functions.GetPlayer(src)
-		player.Functions.AddMoney("bank", math.ceil(amount), "Refund, for Unused Fuel @ Gas Station!")
+		player.Functions.AddMoney("bank", math.ceil(amount), Lang:t("success.refund_unused_fuel"))
 	end)
 end
 
@@ -24,14 +24,14 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelamounttotal = (amount / Config.CostMultiplier)
-	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
+	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, Lang:t("error.negative_amount"), 'error') return end
 	if inGasStation == true and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
 			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, fuelamounttotal)
 		else
 			TriggerClientEvent('qb-menu:client:openMenu', src, {
 				{
-					header = "Gas Station",
+					header = Lang:t("menu.gas_station"),
 					isMenuHeader = true,
 					icon = "fas fa-gas-pump",
 				},
@@ -39,12 +39,12 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 					header = "",
 					icon = "fas fa-info-circle",
 					isMenuHeader = true,
-					txt = 'The total cost is going to be: $'..total..' including taxes.' ,
+					txt = Lang:t("txt.total_cost")..total,
 				},
 				{
-					header = "Confirm",
+					header = Lang:t("menu.confirm"),
 					icon = "fas fa-check-circle",
-					txt = 'I would like to purchase the fuel.' ,
+					txt = Lang:t("txt.would_purchase_fuel"),
 					params = {
 						event = "cdn-fuel:client:RefuelVehicle",
 						args = {
@@ -54,8 +54,8 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 					}
 				},
 				{
-					header = "Cancel",
-					txt = "I actually don't want fuel anymore.", 
+					header = Lang:t("menu.cancel"),
+					txt = Lang:t("txt.dont_want_anymore"), 
 					icon = "fas fa-times-circle",
 				},
 			})
@@ -71,7 +71,7 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype)
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelprice = (Config.CostMultiplier * 1)
-	player.Functions.RemoveMoney(purchasetype, total, "Gasoline @ " ..fuelprice.." / L")
+	player.Functions.RemoveMoney(purchasetype, total, Lang:t("txt.gasoline_at")..' '..fuelprice.." /L")
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
@@ -89,7 +89,7 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	}
 	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
-		Player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Jerry Can.")
+		Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("success.purchase_jerry"))
 	end
 
 end)
