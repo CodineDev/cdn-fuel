@@ -1,7 +1,7 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local function GlobalTax(value)
+function GlobalTax(value)
 	local tax = (value / 100 * Config.GlobalTax)
 	return tax
 end
@@ -16,14 +16,14 @@ if Config.RenewedPhonePayment then
 	end)
 end
 
-RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype)
+RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype, FuelPrice)
 	local src = source
 	if not src then return end
 	local player = QBCore.Functions.GetPlayer(src)
 	if not player then return end
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
-	local fuelamounttotal = (amount / Config.CostMultiplier)
+	local fuelamounttotal = (amount / FuelPrice)
 	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
 	if inGasStation == true and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
@@ -63,15 +63,20 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	end
 end)
 
-RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype)
+RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, FuelPrice, electric)
 	local src = source
 	if not src then return end
-	local player = QBCore.Functions.GetPlayer(src)
-	if not player then return end
+	local Player = QBCore.Functions.GetPlayer(src)
+	if not Player then return end
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
-	local fuelprice = (Config.CostMultiplier * 1)
-	player.Functions.RemoveMoney(purchasetype, total, "Gasoline @ " ..fuelprice.." / L")
+	local moneyremovetype = purchasetype
+	if purchasetype == "bank" then
+		moneyremovetype = "bank"
+	elseif purchasetype == "cash" then
+		moneyremovetype = "cash"
+	end
+	Player.Functions.RemoveMoney(moneyremovetype, math.ceil(total), "Gasoline @ " ..FuelPrice.." / L")
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
@@ -137,19 +142,24 @@ RegisterNetEvent('cdn-syphoning:callcops', function(coords)
 end)
 
 --- Updates ---
+local updatePath
+local resourceName
+
+
+local function checkVersion(err, responseText, headers)
+    local curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
+	if responseText == nil then print("^1"..resourceName.." check for updates failed ^7") return end
+    if curVersion ~= nil and responseText ~= nil then
+		if curVersion == responseText then Color = "^2" else Color = "^1" end
+        print("\n^1----------------------------------------------------------------------------------^7")
+        print(resourceName.."'s latest version is: ^2"..responseText.."!\n^7Your current version: "..Color..""..curVersion.."^7!\nIf needed, update from https://github.com"..updatePath.."")
+        print("^1----------------------------------------------------------------------------------^7")
+    end
+end
+
+
 Citizen.CreateThread(function()
 	updatePath = "/CodineDev/cdn-fuel"
 	resourceName = "cdn-fuel ("..GetCurrentResourceName()..")"
 	PerformHttpRequest("https://raw.githubusercontent.com"..updatePath.."/master/version", checkVersion, "GET")
 end)
-
-function checkVersion(err, responseText, headers)
-    curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
-	if responseText == nil then print("^1"..resourceName.." check for updates failed ^7") return end
-    if curVersion ~= nil and responseText ~= nil then
-		if curVersion == responseText then Color = "^2" else Color = "^1" end
-        print("\n^1----------------------------------------------------------------------------------^7")
-        print(resourceName.."'s latest version is: ^2"..responseText.."!\n^7Installed version: "..Color..""..curVersion.."^7!\nIf needed, update from https://github.com"..updatePath.."")
-        print("^1----------------------------------------------------------------------------------^7")
-    end
-end

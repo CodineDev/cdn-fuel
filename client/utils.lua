@@ -24,15 +24,40 @@ function Round(num, numDecimalPlaces)
 	return math.floor(num * mult + 0.5) / mult
 end
 
-function CreateBlip(coords)
+function GetCurrentVehicleType(vehicle)
+	if not vehicle then 
+		vehicle = GetVehiclePedIsIn(PlayerPedId(), true)
+	end
+	if not vehicle then return false end
+	local vehiclename = GetEntityModel(vehicle)
+	for _, currentCar in pairs(Config.ElectricVehicles) do
+		if currentCar == vehiclename or GetHashKey(currentCar) == vehiclename then
+			if Config.FuelDebug then print('Car is climate friendly') end
+		  	return 'electricvehicle'
+		end
+	end
+	if Config.FuelDebug then print("Car is economically unviable.") end
+	return 'gasvehicle'
+end
+
+function CreateBlip(coords, label)
 	local blip = AddBlipForCoord(coords)
-	SetBlipSprite(blip, 361)
+	local vehicle = GetCurrentVehicleType()
+	local electricbolt = Config.ElectricSprite -- Sprite
+	if vehicle == 'electricvehicle' then
+		SetBlipSprite(blip, electricbolt) -- This is where the fuel thing will get changed into the electric bolt instead of the pump.
+		SetBlipColour(blip, 5)
+	else
+		SetBlipColour(blip, 4)
+		SetBlipSprite(blip, 361)
+	end
 	SetBlipScale(blip, 0.6)
-	SetBlipColour(blip, 4)
 	SetBlipDisplay(blip, 4)
-	SetBlipAsShortRange(blip, true)
+	if Config.ShowNearestGasStationOnly then
+		SetBlipAsShortRange(blip, true)
+	end
 	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentString("Gas Station")
+	AddTextComponentString(label)
 	EndTextCommandSetBlipName(blip)
 	return blip
 end
