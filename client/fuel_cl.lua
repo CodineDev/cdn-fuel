@@ -165,14 +165,17 @@ if Config.ShowNearestGasStationOnly then
 		end
 	end)
 else
-	TriggerServerEvent('cdn-fuel:server:updatelocationlabels')
-	Wait(500)
-	local location = 0
-	for _, ourCoords in pairs(Config.GasStations) do
-		location = location + 1
-		local gasStationCoords = vector3(Config.GasStations[location].pedcoords.x, Config.GasStations[location].pedcoords.y, Config.GasStations[location].pedcoords.z)
-		CreateBlip(gasStationCoords, Config.GasStations[location].label)
-	end
+	CreateThread(function()
+		TriggerServerEvent('cdn-fuel:server:updatelocationlabels')
+		Citizen.Wait(500)
+		local location = 0
+		for _, ourCoords in pairs(Config.GasStations) do
+			location = location + 1
+			local gasStationCoords = vector3(Config.GasStations[location].pedcoords.x, Config.GasStations[location].pedcoords.y, Config.GasStations[location].pedcoords.z)
+			CreateBlip(gasStationCoords, Config.GasStations[location].label)
+		end
+	end)
+
 end
 
 CreateThread(function()

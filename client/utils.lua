@@ -53,9 +53,7 @@ function CreateBlip(coords, label)
 	end
 	SetBlipScale(blip, 0.6)
 	SetBlipDisplay(blip, 4)
-	if Config.ShowNearestGasStationOnly then
-		SetBlipAsShortRange(blip, true)
-	end
+	SetBlipAsShortRange(blip, true)
 	BeginTextCommandSetBlipName("STRING")
 	AddTextComponentString(label)
 	EndTextCommandSetBlipName(blip)
