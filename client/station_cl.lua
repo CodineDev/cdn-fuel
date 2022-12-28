@@ -106,7 +106,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if not IsOwned then
             TriggerServerEvent('cdn-fuel:server:buyStation', location, CitizenID)
         elseif IsOwned then 
-            QBCore.Functions.Notify('This location is!', 'error', 7500)
+            QBCore.Functions.Notify('This location is already owned!', 'error', 7500)
         end
     end)
 
