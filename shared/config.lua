@@ -740,6 +740,32 @@ Config.GasStations = { -- Configuration options for various gas station related 
         electricchargercoords = vector4(-341.63, -1459.39, 29.76, 271.73),
         label = "Alta Street Globe Oil",
     },
+--[[     [28] = {                             --Uncensor If You Use Gabz Ottos Autos
+    zones = {
+        vector2(794.27795410156, -802.88677978516),
+        vector2(794.19073486328, -784.70434570313),
+        vector2(834.78155517578, -784.63250732422),
+        vector2(843.86151123047, -801.45819091797),
+        vector2(823.64239501953, -801.69488525391),
+        vector2(811.66571044922, -803.15899658203)
+    },
+    minz = 26.0,
+    maxz = 27.0,
+    pedmodel = "a_m_m_indian_01",
+    cost = 100000,
+    shutoff = false,
+    pedcoords = {
+        x = 819.1,
+        y = -774.63,
+        z = 25.23,
+        h = 83.86,
+    },
+    electriccharger = nil,
+    electricchargercoords = vector4(837.7554, -793.623, 25.23, 105.22),
+    label = "Six Star Globe Oil",
+},
+    -- ]]
+    --
     -- Example of a New Location
     -- [28] = {
     --     zones = {
