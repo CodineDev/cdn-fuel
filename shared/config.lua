@@ -1,7 +1,6 @@
 Config = {}
 Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
-Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
-Config.ShowAllGasStations = false -- When enabled, all gas station blips will be shown on map, instead of just when near them Will only work if show nearest gas stations only is disabled.
+Config.ShowNearestGasStationOnly = true -- When true, only the nearest gas stations will be shown on the map. | When false, all gas stations will be shown on the map.
 Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
 Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5% or 5) 

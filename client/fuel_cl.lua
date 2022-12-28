@@ -116,7 +116,6 @@ function IsInGasStation()
 	return inGasStation
 end
 
-
 -- Thread Stuff --
 
 if Config.LeaveEngineRunning then
@@ -148,6 +147,7 @@ if Config.ShowNearestGasStationOnly then
 			local closest = 1000
 			local closestCoords
 			local closestLocation
+			local label
 			local location = 0
 			for _, ourCoords in pairs(Config.GasStations) do
 				location = location + 1
@@ -157,27 +157,28 @@ if Config.ShowNearestGasStationOnly then
 					closest = dstcheck
 					closestCoords = gasStationCoords
 					closestLocation = location
+					label = Config.GasStations[closestLocation].label
 				end
 			end
 			if DoesBlipExist(currentGasBlip) then
 				RemoveBlip(currentGasBlip)
 			end
-			currentGasBlip = CreateBlip(closestCoords, Config.GasStations[closestLocation].label)
+			currentGasBlip = CreateBlip(closestCoords, label)
 			Wait(10000)
 		end
 	end)
 else
 	CreateThread(function()
 		TriggerServerEvent('cdn-fuel:server:updatelocationlabels')
-		Citizen.Wait(500)
+		Wait(500)
 		local location = 0
 		for _, ourCoords in pairs(Config.GasStations) do
 			location = location + 1
 			local gasStationCoords = vector3(Config.GasStations[location].pedcoords.x, Config.GasStations[location].pedcoords.y, Config.GasStations[location].pedcoords.z)
-			CreateBlip(gasStationCoords, Config.GasStations[location].label)
+			local label = Config.GasStations[location].label
+			CreateBlip(gasStationCoords, label)
 		end
 	end)
-
 end
 
 CreateThread(function()
@@ -1192,4 +1193,3 @@ RegisterNetEvent('cdn-syphoning:client:callcops', function(coords)
 		end
 	end
 end)
-
