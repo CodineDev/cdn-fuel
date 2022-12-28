@@ -117,6 +117,9 @@ if Config.ElectricVehicleCharging then
                         header = "Cancel",
                         txt = "I actually don't want to charge my car anymore.",
                         icon = "fas fa-times-circle",
+                        params = {
+                              event = "qb-menu:closeMenu",
+                          }
                     },
                 })
             else
