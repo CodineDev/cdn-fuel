@@ -10,11 +10,11 @@ Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pum
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
-Config.FuelTargetExport = false -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
+Config.FuelTargetExport = true -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
 -- Syphoning --
-Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
-Config.SyphonDebug = false -- Used for Debugging the syphon portion!
+Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
+Config.SyphonDebug = true -- Used for Debugging the syphon portion!
 Config.SyphonFuelDecor = Config.FuelDecor -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25% 

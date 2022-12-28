@@ -2,7 +2,10 @@ if Config.ElectricVehicleCharging then
     -- Variables   
     local QBCore = exports['qb-core']:GetCoreObject()
     HoldingElectricNozzle = false
-    
+    local RefuelPossible = false
+    local RefuelPossibleAmount = 0 
+    local RefuelCancelled = false
+    local RefuelPurchaseType = 'bank'
     -- Start
     AddEventHandler('onResourceStart', function(resource)
         if resource == GetCurrentResourceName() then
@@ -151,6 +154,7 @@ if Config.ElectricVehicleCharging then
     end)
 
     RegisterNetEvent('cdn-fuel:client:electric:ChargeVehicle', function(data)
+        print("Charging Vehicle")
         if not Config.RenewedPhonePayment then 
             purchasetype = data.purchasetype 
         elseif data.purchasetype == "cash" then 
@@ -204,9 +208,6 @@ if Config.ElectricVehicleCharging then
                             else
                                 TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
                             end
-                            if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
-                                TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", finalrefuelamount, ReserveLevels, CurrentLocation)
-                            end
                             local curfuel = GetFuel(vehicle)
                             local finalfuel = (curfuel + Refuelamount)
                             if finalfuel >= 98 and finalfuel < 100 then
@@ -232,7 +233,7 @@ if Config.ElectricVehicleCharging then
                 }, {}, {}, {},
                     function()
                         refueling = false
-                        if not Config.RenewedPhonePayment then TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice) end
+                        if not Config.RenewedPhonePayment or purchasetype == 'cash' then TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice) end
                         local curfuel = GetFuel(vehicle)
                         local finalfuel = (curfuel + fuelamount)
                         if finalfuel > 99 and finalfuel < 100 then
@@ -240,8 +241,10 @@ if Config.ElectricVehicleCharging then
                         else
                             SetFuel(vehicle, finalfuel)
                         end
-                        if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
-                            TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", fuelamount, ReserveLevels, CurrentLocation)
+                        if Config.RenewedPhonePayment then
+                            RefuelCancelled = true
+                            RefuelPossibleAmount = 0
+                            RefuelPossible = false
                         end
                         StopAnimTask(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 3.0, 3.0, -1, 2, 0, 0, 0, 0)
                         TriggerServerEvent("InteractSound_SV:PlayOnSource", "chargestop", 0.4)
@@ -285,7 +288,51 @@ if Config.ElectricVehicleCharging then
                 Wait(2500)
             end
         end)
+    end)    
+
+    RegisterNetEvent('cdn-fuel:client:electric:RefuelMenu', function()
+        if Config.RenewedPhonePayment then
+            if not RefuelPossible then 
+                TriggerEvent('cdn-fuel:client:electric:SendMenuToServer')
+            else 
+                if Config.RenewedPhonePayment then
+                    if not Cancelledrefuel and not RefuelCancelled then
+                        if RefuelPossibleAmount then
+                            local purchasetype = "bank"
+                            local fuelamounttotal = tonumber(RefuelPossibleAmount)
+                            if Config.FuelDebug then print("Attempting to charge vehicle.") end
+                            TriggerEvent('cdn-fuel:client:electric:ChargeVehicle', purchasetype, fuelamounttotal) 
+                        else
+                            QBCore.Functions.Notify('You have to fuel more than 0!', 'error', 7500)
+                        end
+                    end
+                end
+            end
+        else
+            TriggerEvent("cdn-fuel:client:electric:SendMenuToServer")
+        end
     end)
+
+    if Config.RenewedPhonePayment then
+        RegisterNetEvent('cdn-fuel:client:electric:phone:PayForFuel', function(amount)
+            FuelPrice = Config.ElectricChargingPrice
+            local cost = amount * FuelPrice
+            local tax = GlobalTax(cost)
+            local total = math.ceil(cost + tax)
+            local success = exports['qb-phone']:PhoneNotification("Electric Charger", 'Total Cost: $'..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
+            if success then
+                if QBCore.Functions.GetPlayerData().money['bank'] <= (GlobalTax(amount) + amount) then
+                    QBCore.Functions.Notify("You don't have enough money!", "error")
+                else
+                    TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice, true)
+                    RefuelPossible = true
+                    RefuelPossibleAmount = amount
+                    RefuelPurchaseType = "bank"
+                    RefuelCancelled = false
+                end
+            end
+        end)
+    end
 
     -- Threads 
 

@@ -15,7 +15,7 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 	Wait(50)
 	if inGasStation and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
-			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, fuelamounttotal)
+			TriggerClientEvent("cdn-fuel:client:electric:phone:PayForFuel", src, fuelamounttotal)
 		else
 			TriggerClientEvent('qb-menu:client:openMenu', src, {
 				{

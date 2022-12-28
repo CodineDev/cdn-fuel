@@ -13,6 +13,7 @@ local props = {
 	'prop_vintage_pump',
 	'prop_gas_pump_old2',
 	'prop_gas_pump_old3',
+	'denis3d_prop_gas_pump', -- Gabz Ballas Gas Station Pump.
 }
 local refueling = false
 
@@ -75,6 +76,7 @@ function FetchStationInfo(info)
 end exports(FetchStationInfo, FetchStationInfo)
 
 function FetchCurrentLocation()
+	if Config.FuelDebug then print("Fetching Current Location") end
 	return CurrentLocation
 end
 
@@ -704,9 +706,9 @@ CreateThread(function()
 			{
 				type = "client",
 				action = function()
-					TriggerEvent('cdn-fuel:client:electric:SendMenuToServer')
+					TriggerEvent('cdn-fuel:client:electric:RefuelMenu')
 				end,
-				icon = "fas fa-gas-pump",
+				icon = "fas fa-bolt",
 				label = "Insert Electric Nozzle",
 				canInteract = function()
 					if inGasStation and not refueling and IsHoldingElectricNozzle() then

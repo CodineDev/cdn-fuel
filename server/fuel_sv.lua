@@ -76,7 +76,10 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
-	Player.Functions.RemoveMoney(moneyremovetype, math.ceil(total), "Gasoline @ " ..FuelPrice.." / L")
+	local payString = "Gasoline @ " ..FuelPrice.." / L"
+	if electric then payString = "Gasoline @ " ..FuelPrice.." / L" end
+	Player.Functions.RemoveMoney(moneyremovetype, math.ceil(total), payString)
+
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
