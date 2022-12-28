@@ -57,6 +57,9 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 					header = "Cancel",
 					txt = "I actually don't want fuel anymore.", 
 					icon = "fas fa-times-circle",
+					params = {
+						event = "qb-menu:closeMenu",
+					}
 				},
 			})
 		end

@@ -1,7 +1,6 @@
 Config = {}
 Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
-Config.ShowAllGasStations = false -- When enabled, all gas station blips will be shown on map, instead of just when near them Will only work if show nearest gas stations only is disabled.
 Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
 Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5% or 5) 
@@ -10,11 +9,11 @@ Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pum
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
-Config.FuelTargetExport = true -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
+Config.FuelTargetExport = false -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
 -- Syphoning --
 Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
-Config.SyphonDebug = true -- Used for Debugging the syphon portion!
+Config.SyphonDebug = false -- Used for Debugging the syphon portion!
 Config.SyphonFuelDecor = Config.FuelDecor -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25% 
@@ -740,8 +739,32 @@ Config.GasStations = { -- Configuration options for various gas station related 
         electricchargercoords = vector4(-341.63, -1459.39, 29.76, 271.73),
         label = "Alta Street Globe Oil",
     },
+    -- [28] = { -- Gabz Ottos Autos Location, Line In If Needed.
+    --     zones = {
+    --         vector2(794.27795410156, -802.88677978516),
+    --         vector2(794.19073486328, -784.70434570313),
+    --         vector2(834.78155517578, -784.63250732422),
+    --         vector2(843.86151123047, -801.45819091797),
+    --         vector2(823.64239501953, -801.69488525391),
+    --         vector2(811.66571044922, -803.15899658203)
+    --     },
+    --     minz = 26.0,
+    --     maxz = 27.0,
+    --     pedmodel = "a_m_m_indian_01",
+    --     cost = 100000,
+    --     shutoff = false,
+    --     pedcoords = {
+    --         x = 819.1,
+    --         y = -774.63,
+    --         z = 25.23,
+    --         h = 83.86,
+    --     },
+    --     electriccharger = nil,
+    --     electricchargercoords = vector4(837.7554, -793.623, 25.23, 105.22),
+    --     label = "Ottos Autos Globe Oil",
+    -- },
     -- Example of a New Location
-    -- [28] = {
+    -- [29] = {
     --     zones = {
     --          https://skyrossm.github.io/PolyZoneCreator/ 
     --          Use this for a quick way to add a Gas Station, instead of doing it in game, make sure you included the entire area, including the ped and electric pumps if used.       
