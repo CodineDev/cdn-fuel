@@ -221,7 +221,9 @@ Firstly, this option will have to be added to your *Config.TargetBones* under th
             },
 	    {
 				type = "client",
-				event = "cdn-fuel:client:electric:SendMenuToServer",
+				action = function()
+					TriggerEvent('cdn-fuel:client:electric:RefuelMenu')
+				end,
 				icon = "fas fa-bolt",
 				label = "Insert Electric Nozzle",
 				canInteract = function() return AllowElectricRefuel end
