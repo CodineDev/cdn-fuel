@@ -762,7 +762,7 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     electriccharger = nil,
     electricchargercoords = vector4(837.7554, -793.623, 25.23, 105.22),
-    label = "Six Star Globe Oil",
+    label = "Ottos Autos Globe Oil",
 },
     -- ]]
     --
