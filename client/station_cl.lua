@@ -180,6 +180,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     header = "Cancel",
                     txt = "I actually don't want to buy more reserves!", 
                     icon = "fas fa-times-circle",
+                    params = {
+                      event = "qb-menu:closeMenu",
+                  }
                 },
             })
         else
@@ -321,6 +324,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     header = "Cancel",
                     txt = "I actually don't have anything more to discuss.", 
                     icon = "fas fa-times-circle",
+                    params = {
+                      event = "qb-menu:closeMenu",
+                  }                            
                 },
             })
             TriggerServerEvent("cdn-fuel:stations:server:stationsold", location)
@@ -457,6 +463,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     header = "Cancel",
                     txt = "I actually don't have anything more to discuss!", 
                     icon = "fas fa-times-circle",
+                  params = {
+                      event = "qb-menu:closeMenu",
+                  }
                 },
             })
         end
@@ -653,6 +662,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 header = "Cancel",
                 txt = "I actually don't want to buy this location anymore. That price is bonkers!", 
                 icon = "fas fa-times-circle",
+              params = {
+                     event = "qb-menu:closeMenu",
+                 }
             },
         })
     end)
@@ -749,6 +761,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 header = "Cancel Conversation",
                 txt = "I actually don't want to discuss anything anymore.",
                 icon = "fas fa-times-circle",
+                params = {
+                      event = "qb-menu:closeMenu",
+                  }
             },
         })
     end)
