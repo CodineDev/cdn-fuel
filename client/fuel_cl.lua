@@ -879,51 +879,67 @@
 		local maxvehrefuel = (100 - math.ceil(vehfuel))
 		local itemData = data.itemData
 		local jerrycanfuelamount = itemData.info.gasamount
-		if maxvehrefuel < Config.JerryCanCap then
-			maxvehrefuel = maxvehrefuel
+		local vehicle = QBCore.Functions.GetClosestVehicle()
+		local NotElectric = false
+		if Config.ElectricVehicleCharging then
+			local isElectric = GetCurrentVehicleType(vehicle)
+			if isElectric == 'electricvehicle' then
+				QBCore.Functions.Notify(Lang:t("need_electric_charger"), 'error', 7500) return 
+			end
+			NotElectric = true
 		else
-			maxvehrefuel = Config.JerryCanCap
+			NotElectric = true
 		end
-		if maxvehrefuel >= jerrycanfuelamount then maxvehrefuel = jerrycanfuelamount elseif maxvehrefuel < jerrycanfuelamount then maxvehrefuel = maxvehrefuel end
-		local refuel = exports['qb-input']:ShowInput({
-			header = Lang:t("input_select_refuel_header"),
-			submitText = Lang:t("input_refuel_submit"),
-			inputs = {
-				{
-					type = 'number',
-					isRequired = true,
-					name = 'amount',
-					text = Lang:t("input_max_fuel_footer_1") .. maxvehrefuel .. Lang:t("input_max_fuel_footer_2")
+		Wait(50)
+		if NotElectric then
+			if maxvehrefuel < Config.JerryCanCap then
+				maxvehrefuel = maxvehrefuel
+			else
+				maxvehrefuel = Config.JerryCanCap
+			end
+			if maxvehrefuel >= jerrycanfuelamount then maxvehrefuel = jerrycanfuelamount elseif maxvehrefuel < jerrycanfuelamount then maxvehrefuel = maxvehrefuel end
+			local refuel = exports['qb-input']:ShowInput({
+				header = Lang:t("input_select_refuel_header"),
+				submitText = Lang:t("input_refuel_submit"),
+				inputs = {
+					{
+						type = 'number',
+						isRequired = true,
+						name = 'amount',
+						text = Lang:t("input_max_fuel_footer_1") .. maxvehrefuel .. Lang:t("input_max_fuel_footer_2")
+					}
 				}
-			}
-		})
-		if refuel then
-			if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return end
-			if tonumber(refuel.amount) > jerrycanfuelamount then QBCore.Functions.Notify(Lang:t("jerry_can_not_enough_fuel"), 'error') return end
-			local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
-			if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
-			JerrycanProp = CreateObject(GetHashKey('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
-			local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
-			AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
-			QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
-				disableMovement = true,
-				disableCarMovement = true,
-				disableMouse = false,
-				disableCombat = true,
-			}, { animDict = Config.JerryCanAnimDict, anim = Config.JerryCanAnim, flags = 17, }, {}, {},
-			function() -- Play When Done
-				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-				QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
-				local syphonData = data.itemData
-				local srcPlayerData = QBCore.Functions.GetPlayerData()
-				TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, syphonData)
-				SetFuel(vehicle, (vehfuel + refuel.amount))
-			end, function() -- Play When Cancel
-				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-				QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
-			end)
+			})
+			if refuel then
+				if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return end
+				if tonumber(refuel.amount) > jerrycanfuelamount then QBCore.Functions.Notify(Lang:t("jerry_can_not_enough_fuel"), 'error') return end
+				local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
+				if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
+				JerrycanProp = CreateObject(GetHashKey('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
+				local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
+				AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
+				QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
+					disableMovement = true,
+					disableCarMovement = true,
+					disableMouse = false,
+					disableCombat = true,
+				}, { animDict = Config.JerryCanAnimDict, anim = Config.JerryCanAnim, flags = 17, }, {}, {},
+				function() -- Play When Done
+					DeleteObject(JerrycanProp)
+					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+					QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
+					local syphonData = data.itemData
+					local srcPlayerData = QBCore.Functions.GetPlayerData()
+					TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, syphonData)
+					SetFuel(vehicle, (vehfuel + refuel.amount))
+				end, function() -- Play When Cancel
+					DeleteObject(JerrycanProp)
+					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+					QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+				end)
+			end
+		else
+			QBCore.Functions.Notify(Lang:t("need_electric_charger"), 'error', 7500) return 
 		end
 	end)
 
@@ -1086,118 +1102,134 @@
 		local HasSyphon = QBCore.Functions.HasItem("syphoningkit", 1)
 		if Config.SyphonDebug then print('Item Data Syphon: ' .. json.encode(data.itemData)) end
 		if Config.SyphonDebug then print('Reason: ' .. reason) end
-		if HasSyphon then
-			local currentsyphonamount = data.itemData.info.gasamount
-			local fitamount = (Config.SyphonKitCap - currentsyphonamount)
-			local vehicle = QBCore.Functions.GetClosestVehicle()
-			local vehiclecoords = GetEntityCoords(vehicle)
-			local pedcoords = GetEntityCoords(PlayerPedId())
-			if #(vehiclecoords - pedcoords) > 2.5 then return end -- If car is farther than 2.5 then return end
-			local cargasamount = GetFuel(vehicle)
-			local maxsyphon = math.floor(GetFuel(vehicle))
-			if Config.SyphonKitCap <= 100 then
-				if maxsyphon > Config.SyphonKitCap then
-					maxsyphon = Config.SyphonKitCap
+		local vehicle = QBCore.Functions.GetClosestVehicle()
+		local NotElectric = false
+		if Config.ElectricVehicleCharging then
+			local isElectric = GetCurrentVehicleType(vehicle)
+			if isElectric == 'electricvehicle' then
+				QBCore.Functions.Notify(Lang:t("need_electric_charger"), 'error', 7500) return 
+			end
+			NotElectric = true
+		else
+			NotElectric = true
+		end
+		Wait(50)
+		if NotElectric then
+			if HasSyphon then
+				local currentsyphonamount = data.itemData.info.gasamount
+				local fitamount = (Config.SyphonKitCap - currentsyphonamount)
+				local vehicle = QBCore.Functions.GetClosestVehicle()
+				local vehiclecoords = GetEntityCoords(vehicle)
+				local pedcoords = GetEntityCoords(PlayerPedId())
+				if #(vehiclecoords - pedcoords) > 2.5 then return end -- If car is farther than 2.5 then return end
+				local cargasamount = GetFuel(vehicle)
+				local maxsyphon = math.floor(GetFuel(vehicle))
+				if Config.SyphonKitCap <= 100 then
+					if maxsyphon > Config.SyphonKitCap then
+						maxsyphon = Config.SyphonKitCap
+					end
 				end
-			end
-			if maxsyphon >= fitamount then
-				Stealstring = fitamount
-			else
-				Stealstring = maxsyphon
-			end
-			if reason == "syphon" then
-				local syphon = exports['qb-input']:ShowInput({
-					header = "Select how much gas to steal.",
-					submitText = "Begin Syphoning",
-					inputs = {
-						{
-							type = 'number',
-							isRequired = true,
-							name = 'amount',
-							text = 'You can steal ' .. Stealstring .. 'L from the car.'
+				if maxsyphon >= fitamount then
+					Stealstring = fitamount
+				else
+					Stealstring = maxsyphon
+				end
+				if reason == "syphon" then
+					local syphon = exports['qb-input']:ShowInput({
+						header = "Select how much gas to steal.",
+						submitText = "Begin Syphoning",
+						inputs = {
+							{
+								type = 'number',
+								isRequired = true,
+								name = 'amount',
+								text = 'You can steal ' .. Stealstring .. 'L from the car.'
+							}
 						}
-					}
-				})
-				if syphon then
-					if not syphon.amount then return end
-					if tonumber(syphon.amount) < 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
-					if tonumber(syphon.amount) == 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
-					if tonumber(syphon.amount) > maxsyphon then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
-					if currentsyphonamount + syphon.amount > Config.SyphonKitCap then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
-					if (tonumber(syphon.amount) <= tonumber(cargasamount)) then
-						local removeamount = (tonumber(cargasamount) - tonumber(syphon.amount))
-						local syphonstring
-						if tonumber(syphon.amount) < 10 then syphonstring = string.sub(syphon.amount, 1, 1) else syphonstring = string.sub(syphon.amount, 1, 2) end -- This is to remove the .0 part from them end for the notification.
-						local syphontimer = Config.RefuelTime * syphon.amount
-						if tonumber(syphon.amount) < 10 then syphontimer = Config.RefuelTime * 10 end
-						QBCore.Functions.Progressbar('syphon_gas', Lang:t("prog_syphoning"), syphontimer, false, true,
-						{ -- Name | Label | Time | useWhileDead | canCancel
+					})
+					if syphon then
+						if not syphon.amount then return end
+						if tonumber(syphon.amount) < 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
+						if tonumber(syphon.amount) == 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
+						if tonumber(syphon.amount) > maxsyphon then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
+						if currentsyphonamount + syphon.amount > Config.SyphonKitCap then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
+						if (tonumber(syphon.amount) <= tonumber(cargasamount)) then
+							local removeamount = (tonumber(cargasamount) - tonumber(syphon.amount))
+							local syphonstring
+							if tonumber(syphon.amount) < 10 then syphonstring = string.sub(syphon.amount, 1, 1) else syphonstring = string.sub(syphon.amount, 1, 2) end -- This is to remove the .0 part from them end for the notification.
+							local syphontimer = Config.RefuelTime * syphon.amount
+							if tonumber(syphon.amount) < 10 then syphontimer = Config.RefuelTime * 10 end
+							QBCore.Functions.Progressbar('syphon_gas', Lang:t("prog_syphoning"), syphontimer, false, true,
+							{ -- Name | Label | Time | useWhileDead | canCancel
+								disableMovement = true,
+								disableCarMovement = true,
+								disableMouse = false,
+								disableCombat = true,
+							}, { animDict = Config.StealAnimDict, anim = Config.StealAnim, flags = 1, }, {}, {},
+							function() -- Play When Done
+								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+								PoliceAlert(GetEntityCoords(PlayerPedId()))
+								QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
+								SetFuel(vehicle, removeamount)
+								local syphonData = data.itemData
+								local srcPlayerData = QBCore.Functions.GetPlayerData()
+								TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphon.amount), srcPlayerData, syphonData)
+							end, function() -- Play When Cancel
+								PoliceAlert(GetEntityCoords(PlayerPedId()))
+								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+								QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+							end)
+						end
+					end
+				elseif reason == "refuel" then
+					if 100 - math.ceil(cargasamount) < Config.SyphonKitCap then
+						Maxrefuel = 100 - math.ceil(cargasamount)
+						if Maxrefuel > currentsyphonamount then Maxrefuel = currentsyphonamount end
+					else
+						Maxrefuel = currentsyphonamount
+					end
+					local refuel = exports['qb-input']:ShowInput({
+						header = Lang:t("input_select_refuel_header"),
+						submitText = Lang:t("input_refuel_submit"),
+						inputs = {
+							{
+								type = 'number',
+								isRequired = true,
+								name = 'amount',
+								text = Lang:t("input_max_fuel_footer_1") .. Maxrefuel .. Lang:t("input_max_fuel_footer_2")
+							}
+						}
+					})
+					if refuel then
+						if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) > 100 then QBCore.Functions.Notify("You can't refuel more than 100L!", 'error') return end
+						if tonumber(refuel.amount) > tonumber(currentsyphonamount) then QBCore.Functions.Notify(Lang:t("syphon_not_enough_gas"), 'error') return end
+						if tonumber(refuel.amount) + tonumber(cargasamount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
+						local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
+						if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
+						QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
 							disableMovement = true,
 							disableCarMovement = true,
 							disableMouse = false,
 							disableCombat = true,
-						}, { animDict = Config.StealAnimDict, anim = Config.StealAnim, flags = 1, }, {}, {},
+						}, { animDict = Config.JerryCanAnimDict, anim = Config.JerryCanAnim, flags = 17, }, {}, {},
 						function() -- Play When Done
-							StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
-							PoliceAlert(GetEntityCoords(PlayerPedId()))
-							QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
-							SetFuel(vehicle, removeamount)
+							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+							QBCore.Functions.Notify(Lang:t("syphon_success_vehicle"), 'success')
+							SetFuel(vehicle, cargasamount + tonumber(refuel.amount))
 							local syphonData = data.itemData
 							local srcPlayerData = QBCore.Functions.GetPlayerData()
-							TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphon.amount), srcPlayerData, syphonData)
+							TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, syphonData)
 						end, function() -- Play When Cancel
-							PoliceAlert(GetEntityCoords(PlayerPedId()))
-							StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 							QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 						end)
 					end
 				end
-			elseif reason == "refuel" then
-				if 100 - math.ceil(cargasamount) < Config.SyphonKitCap then
-					Maxrefuel = 100 - math.ceil(cargasamount)
-					if Maxrefuel > currentsyphonamount then Maxrefuel = currentsyphonamount end
-				else
-					Maxrefuel = currentsyphonamount
-				end
-				local refuel = exports['qb-input']:ShowInput({
-					header = Lang:t("input_select_refuel_header"),
-					submitText = Lang:t("input_refuel_submit"),
-					inputs = {
-						{
-							type = 'number',
-							isRequired = true,
-							name = 'amount',
-							text = Lang:t("input_max_fuel_footer_1") .. Maxrefuel .. Lang:t("input_max_fuel_footer_2")
-						}
-					}
-				})
-				if refuel then
-					if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) > 100 then QBCore.Functions.Notify("You can't refuel more than 100L!", 'error') return end
-					if tonumber(refuel.amount) > tonumber(currentsyphonamount) then QBCore.Functions.Notify(Lang:t("syphon_not_enough_gas"), 'error') return end
-					if tonumber(refuel.amount) + tonumber(cargasamount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
-					local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
-					if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
-					QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
-						disableMovement = true,
-						disableCarMovement = true,
-						disableMouse = false,
-						disableCombat = true,
-					}, { animDict = Config.JerryCanAnimDict, anim = Config.JerryCanAnim, flags = 17, }, {}, {},
-					function() -- Play When Done
-						StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-						QBCore.Functions.Notify(Lang:t("syphon_success_vehicle"), 'success')
-						SetFuel(vehicle, cargasamount + tonumber(refuel.amount))
-						local syphonData = data.itemData
-						local srcPlayerData = QBCore.Functions.GetPlayerData()
-						TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, syphonData)
-					end, function() -- Play When Cancel
-						StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-						QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
-					end)
-				end
+			else
+				QBCore.Functions.Notify(Lang:t("syphon_no_syphon_kit"), 'error', 7500)
 			end
 		else
-			QBCore.Functions.Notify(Lang:t("syphon_no_syphon_kit"), 'error', 7500)
+			QBCore.Functions.Notify(Lang:t("need_electric_charger"), 'error', 7500) return 
 		end
 	end)
 
