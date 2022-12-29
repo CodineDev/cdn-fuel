@@ -24,7 +24,7 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelamounttotal = (amount / FuelPrice)
-	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't refuel a negative amount!", 'error') return end
+	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, Lang:t("more_than_zero"), 'error') return end
 	if inGasStation == true and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
 			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, fuelamounttotal)

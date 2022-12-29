@@ -11,7 +11,7 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 	local tax = GlobalTax(amount)
 	local total = math.ceil(amount + tax)
 	local fuelamounttotal = (amount / FuelPrice)
-	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, "You can't charge a negative amount!", 'error') return end
+	if amount < 1 then TriggerClientEvent('QBCore:Notify', src, Lang:t("electric_more_than_zero"), 'error') return end
 	Wait(50)
 	if inGasStation and not hasWeapon then
 		if Config.RenewedPhonePayment and purchasetype == "bank" then

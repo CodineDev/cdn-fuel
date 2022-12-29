@@ -21,6 +21,8 @@ server_scripts {
 
 shared_scripts {
 	'shared/config.lua',
+	'@qb-core/shared/locale.lua',
+	'locales/en.lua',
 }
 
 exports { -- Call with exports['cdn-fuel']:GetFuel or exports['cdn-fuel']:SetFuel
