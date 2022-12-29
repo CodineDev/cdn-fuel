@@ -96,8 +96,8 @@ if Config.ElectricVehicleCharging then
                         icon = "fas fa-bolt",
                     },
                     {
-                        header = "Cash",
-                        txt = "Pay with cash. <br> (You have: $" .. playercashamount .. ")",
+                        header = Lang:t("menu_header_cash"),
+                        txt = Lang:t("menu_pay_with_cash") .. playercashamount,
                         icon = "fas fa-usd",
                         params = {
                             event = "cdn-fuel:client:electric:FinalMenu",
@@ -105,8 +105,8 @@ if Config.ElectricVehicleCharging then
                         }
                     },
                     {
-                        header = "Bank",
-                        txt = "Pay with card.",
+                        header = Lang:t("menu_header_bank"),
+                        txt = Lang:t("menu_pay_with_bank"),
                         icon = "fas fa-credit-card",
                         params = {
                             event = "cdn-fuel:client:electric:FinalMenu",
@@ -114,8 +114,8 @@ if Config.ElectricVehicleCharging then
                         }
                     },
                     {
-                        header = "Cancel",
-                        txt = "I actually don't want to charge my car anymore.",
+                        header = Lang:t("menu_header_close"),
+                        txt = Lang:t("menu_electric_cancel"),
                         icon = "fas fa-times-circle",
                         params = {
                             event = "qb-menu:closeMenu",
@@ -322,7 +322,7 @@ if Config.ElectricVehicleCharging then
             local cost = amount * FuelPrice
             local tax = GlobalTax(cost)
             local total = math.ceil(cost + tax)
-            local success = exports['qb-phone']:PhoneNotification("Electric Charger", 'Total Cost: $'..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
+            local success = exports['qb-phone']:PhoneNotification(Lang:t("electric_phone_header"), Lang:t("electric_phone_notification")..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
             if success then
                 if QBCore.Functions.GetPlayerData().money['bank'] <= (GlobalTax(amount) + amount) then
                     QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), "error")
@@ -374,7 +374,7 @@ if Config.ElectricVehicleCharging then
                 type = "client",
                 event = "cdn-fuel:client:grabelectricnozzle",
                 icon = "fas fa-bolt",
-                label = "Grab Electric Nozzle",
+                label = Lang:t("grab_electric_nozzle"),
                 canInteract = function()
                     if not IsHoldingElectricNozzle() and not IsPedInAnyVehicle(PlayerPedId()) then
                         return true
@@ -386,7 +386,7 @@ if Config.ElectricVehicleCharging then
                 type = "client",
                 event = "cdn-fuel:client:returnnozzle",
                 icon = "fas fa-hand",
-                label = "Return Nozzle",
+                label = Lang:t("return_nozzle"),
                 canInteract = function()
                     if IsHoldingElectricNozzle() and not refueling then
                         return true

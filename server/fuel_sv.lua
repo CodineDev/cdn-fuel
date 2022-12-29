@@ -12,7 +12,7 @@ if Config.RenewedPhonePayment then
 	RegisterNetEvent('cdn-fuel:server:phone:givebackmoney', function(amount)
 		local src = source
 		local player = QBCore.Functions.GetPlayer(src)
-		player.Functions.AddMoney("bank", math.ceil(amount), "Refund, for Unused Fuel @ Gas Station!")
+		player.Functions.AddMoney("bank", math.ceil(amount), Lang:t("phone_refund_payment_label"))
 	end)
 end
 
@@ -31,7 +31,7 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 		else
 			TriggerClientEvent('qb-menu:client:openMenu', src, {
 				{
-					header = "Gas Station",
+					header = Lang:t("menu_refuel_header"),
 					isMenuHeader = true,
 					icon = "fas fa-gas-pump",
 				},
@@ -39,12 +39,12 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 					header = "",
 					icon = "fas fa-info-circle",
 					isMenuHeader = true,
-					txt = 'The total cost is going to be: $'..total..' including taxes.' ,
+					txt = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2") ,
 				},
 				{
-					header = "Confirm",
+					header = Lang:t("menu_purchase_station_confirm_header"),
 					icon = "fas fa-check-circle",
-					txt = 'I would like to purchase the fuel.' ,
+					txt = Lang:t("menu_refuel_accept"),
 					params = {
 						event = "cdn-fuel:client:RefuelVehicle",
 						args = {
@@ -54,8 +54,8 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 					}
 				},
 				{
-					header = "Cancel",
-					txt = "I actually don't want fuel anymore.", 
+					header = Lang:t("menu_header_close"),
+					txt = Lang:t("menu_refuel_cancel"), 
 					icon = "fas fa-times-circle",
 					params = {
 						event = "qb-menu:closeMenu",
@@ -79,8 +79,8 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
-	local payString = "Gasoline @ " ..FuelPrice.." / L"
-	if electric then payString = "Gasoline @ " ..FuelPrice.." / L" end
+	local payString = Lang:t("menu_pay_label_1") ..FuelPrice..Lang:t("menu_pay_label_2")
+	if electric then payString = Lang:t("menu_electric_payment_label_1") ..FuelPrice..Lang:t("menu_electric_payment_label_2") end
 	Player.Functions.RemoveMoney(moneyremovetype, math.ceil(total), payString)
 
 end)
@@ -100,7 +100,7 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	}
 	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
-		Player.Functions.RemoveMoney(moneyremovetype, total, "Purchased Jerry Can.")
+		Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("jerry_can_payment_label"))
 	end
 
 end)

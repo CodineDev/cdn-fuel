@@ -61,7 +61,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 options = {
                     {
                         type = "client",
-                        label = "Discuss Gas Station",
+                        label = Lang:t("station_talk_to_ped"),
                         icon = "fas fa-building",
                         action = function()
                             TriggerEvent('cdn-fuel:stations:openmenu', CurrentLocation)
@@ -106,11 +106,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if not IsOwned then
             TriggerServerEvent('cdn-fuel:server:buyStation', location, CitizenID)
         elseif IsOwned then 
-<<<<<<< Updated upstream
-            QBCore.Functions.Notify('This location is already owned!', 'error', 7500)
-=======
             QBCore.Functions.Notify(Lang:t("station_already_owned"), 'error', 7500)
->>>>>>> Stashed changes
         end
     end)
 
@@ -163,13 +159,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             if Config.FuelDebug then print("Price: "..price.."<br> Amount: "..amount.." <br> Location: "..location) end
             exports['qb-menu']:openMenu({
                 {
-                    header = "Buy Reserves for "..Config.GasStations[location].label,
+                    header = Lang:t("menu_station_reserves_header")..Config.GasStations[location].label,
                     isMenuHeader = true,
                     icon = "fas fa-gas-pump",
                 },
                 {
-                    header = "Buy reserves for: $"..price,
-                    txt = "Yes I want to buy fuel reserves for $"..price.."!", 
+                    header = Lang:t("menu_station_reserves_purchase_header")..price,
+                    txt = Lang:t("menu_station_reserves_purchase_footer")..price.."!", 
                     icon = "fas fa-usd",
                     params = {
                         event = "cdn-fuel:stations:client:buyreserves",
@@ -181,8 +177,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     },
                 },
                 {
-                    header = "Cancel",
-                    txt = "I actually don't want to buy more reserves!", 
+                    header = Lang:t("menu_header_close"),
+                    txt = Lang:t("menu_station_reserves_cancel_footer"), 
                     icon = "fas fa-times-circle",
                     params = {
                         event = "qb-menu:closeMenu",
@@ -213,15 +209,14 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             local bankmoney = QBCore.Functions.GetPlayerData().money['bank']
             if Config.FuelDebug then print("Showing Input for Reserves!") end
             local reserves = exports['qb-input']:ShowInput({
-                header = "Purchase Reserves<br>Current Price: $" ..
-                Config.FuelReservesPrice .. " / Liter <br> Current Reserves: " .. Currentreserveamount .. " Liters <br> Full Reserve Cost: $" ..
+                header = Lang:t("input_purchase_reserves_header_1") .. Lang:t("input_purchase_reserves_header_2") .. Currentreserveamount .. Lang:t("input_purchase_reserves_header_3") ..
                 GlobalTax((Config.MaxFuelReserves - Currentreserveamount) * Config.FuelReservesPrice) + ((Config.MaxFuelReserves - Currentreserveamount) * Config.FuelReservesPrice) .. "",
-                submitText = "Buy Reserves",
+                submitText = Lang:t("input_purchase_reserves_submit_text"),
                 inputs = { {
                     type = 'number',
                     isRequired = true,
                     name = 'amount',
-                    text = 'Purchase Fuel Reserves.'
+                    text = Lang:t("input_purchase_reserves_text")
                 }}
             })
             if reserves then
@@ -265,13 +260,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for Fuel Price Change!") end
             local fuelprice = exports['qb-input']:ShowInput({
-                header = "Alter Fuel Price <br>Current Price: $"..StationFuelPrice.." / Liter",
-                submitText = "Change Fuel Price",
+                header = Lang:t("input_alter_fuel_price_header_1")..StationFuelPrice..Lang:t("input_alter_fuel_price_header_2"),
+                submitText = Lang:t("input_alter_fuel_price_submit_text"),
                 inputs = { {
                     type = 'number',
                     isRequired = true,
                     name = 'price',
-                    text = 'Change Price'
+                    text = Lang:t("input_alter_fuel_price_submit_text")
                 }}
             })
             if fuelprice then
@@ -308,13 +303,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             local SalePrice = math.percent(Config.GasStationSellPercentage, GasStationCost)
             exports['qb-menu']:openMenu({
                 {
-                    header = "Sell "..Config.GasStations[location].label,
+                    header = Lang:t("menu_sell_station_header")..Config.GasStations[location].label,
                     isMenuHeader = true,
                     icon = "fas fa-gas-pump",
                 },
                 {
-                    header = "Sell Gas Station",
-                    txt = "Yes, I want to sell this location for $"..SalePrice.."?", 
+                    header = Lang:t("menu_sell_station_header_accept"),
+                    txt = Lang:t("menu_sell_station_footer_accept")..SalePrice..".", 
                     icon = "fas fa-usd",
                     params = {
                         event = "cdn-fuel:stations:client:sellstation",
@@ -325,8 +320,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     },
                 },
                 {
-                    header = "Cancel",
-                    txt = "I actually don't have anything more to discuss.", 
+                    header = Lang:t("menu_header_close"),
+                    txt = Lang:t("menu_sell_station_footer_close"), 
                     icon = "fas fa-times-circle",
                     params = {
                         event = "qb-menu:closeMenu",
@@ -354,13 +349,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for name Change!") end
             local NewName = exports['qb-input']:ShowInput({
-                header = "Change "..Config.GasStations[CurrentLocation].label.."'s Name.",
-                submitText = "Submit Name Change",
+                header = Lang:t("input_change_name_header_1")..Config.GasStations[CurrentLocation].label..Lang:t("input_change_name_header_2"),
+                submitText = Lang:t("input_change_name_submit_text"),
                 inputs = { {
                     type = 'text',
                     isRequired = true,
                     name = 'newname',
-                    text = 'New Name..'
+                    text = Lang:t("input_change_name_text")
                 }}
             })
             if NewName then
@@ -401,20 +396,20 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             local GasStationCost = (Config.GasStations[location].cost + GlobalTax(Config.GasStations[location].cost))
             exports['qb-menu']:openMenu({
                 {
-                    header = "Management of "..Config.GasStations[location].label,
+                    header = Lang:t("menu_manage_header")..Config.GasStations[location].label,
                     isMenuHeader = true,
                     icon = "fas fa-gas-pump",
                 },
                 {
-                    header = "Fuel Reserves <br> ",
+                    header = Lang:t("menu_manage_reserves_header"),
                     icon = "fas fa-info-circle",
                     isMenuHeader = true,
-                    txt = ""..ReserveLevels.." Liters out of "..Config.MaxFuelReserves.." Liters <br> You can purchase more reserves below!",
+                    txt = ReserveLevels..Lang:t("menu_manage_reserves_footer_1")..Config.MaxFuelReserves..Lang:t("menu_manage_reserves_footer_2"),
                 },
                 {
-                    header = "Purchase More Fuel for Reserves",
+                    header = Lang:t("menu_manage_purchase_reserves_header"),
                     icon = "fas fa-usd",
-                    txt = 'I want to purchase more fuel reserves for $'..Config.FuelReservesPrice..' / L!' ,
+                    txt = Lang:t("menu_manage_purchase_reserves_footer")..Config.FuelReservesPrice..Lang:t("menu_manage_purchase_reserves_footer_2") ,
                     params = {
                         event = "cdn-fuel:stations:client:purchasereserves",
                         args = {
@@ -424,9 +419,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     disabled = ReservesNotBuyable,
                 },
                 {
-                    header = "Alter Fuel Price",
+                    header = Lang:t("menu_alter_fuel_price_header"),
                     icon = "fas fa-usd",
-                    txt = "I want to change the price of fuel at my Gas Station! <br> Currently, it is $"..StationFuelPrice.." / Liter" ,
+                    txt = "I want to change the price of fuel at my Gas Station! <br> Currently, it is $"..StationFuelPrice..Lang:t("input_alter_fuel_price_header_2") ,
                     params = {
                         event = "cdn-fuel:stations:client:changefuelprice",
                         args = {
@@ -436,25 +431,25 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     disabled = CanNotChangeFuelPrice,
                 },
                 {
-                    header = "Manage Company Funds",
+                    header = Lang:t("menu_manage_company_funds_header"),
                     icon = "fas fa-usd",
-                    txt = "I want to manage this locations funds." ,
+                    txt = Lang:t("menu_manage_company_funds_footer"),
                     params = {
                         event = "cdn-fuel:stations:client:managefunds",
                     },
                 },
                 {
-                    header = "Change Location Name",
+                    header = Lang:t("menu_manage_change_name_header"),
                     icon = "fas fa-pen",
-                    txt = "I want to change the location name." ,
+                    txt = Lang:t("menu_manage_change_name_footer"),
                     disabled = not Config.GasStationNameChanges,
                     params = {
                         event = "cdn-fuel:stations:client:changestationname",
                     },
                 },
                 {
-                    header = "Sell Gas Station",
-                    txt = "Sell your gas station for $"..math.percent(Config.GasStationSellPercentage, GasStationCost), 
+                    header = Lang:t("menu_sell_station_header_accept"),
+                    txt = Lang:t("menu_manage_sell_station_footer")..math.percent(Config.GasStationSellPercentage, GasStationCost), 
                     icon = "fas fa-usd",
                     params = {
                         event = "cdn-fuel:stations:client:sellstation:menu",
@@ -464,8 +459,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     },
                 },
                 {
-                    header = "Cancel",
-                    txt = "I actually don't have anything more to discuss!", 
+                    header = Lang:t("menu_header_close"),
+                    txt = Lang:t("menu_manage_close"), 
                     icon = "fas fa-times-circle",
                     params = {
                         event = "qb-menu:closeMenu",
@@ -493,14 +488,14 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if CanOpen then
             exports['qb-menu']:openMenu({
                 {
-                    header = "Funds Management of "..Config.GasStations[CurrentLocation].label,
+                    header = Lang:t("menu_manage_company_funds_header_2")..Config.GasStations[CurrentLocation].label,
                     isMenuHeader = true,
                     icon = "fas fa-gas-pump",
                 },
                 {
-                    header = "Withdraw Funds",
+                    header = Lang:t("menu_manage_company_funds_withdraw_header"),
                     icon = "fas fa-arrow-left",
-                    txt = "Withdraw funds from the Station's account.",
+                    txt = Lang:t("menu_manage_company_funds_withdraw_footer"),
                     params = {
                         event = "cdn-fuel:stations:client:WithdrawFunds",
                         args = {
@@ -509,9 +504,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     },
                 },
                 {
-                    header = "Deposit Funds",
+                    header = Lang:t("menu_manage_company_funds_deposit_header"),
                     icon = "fas fa-arrow-right",
-                    txt = "Deposit funds to the Station's account.",
+                    txt = Lang:t("menu_manage_company_funds_deposit_footer"),
                     params = {
                         event = "cdn-fuel:stations:client:DepositFunds",
                         args = {
@@ -520,8 +515,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                     },
                 },
                 {
-                    header = "Return",
-                    txt = "I want to discuss something else!", 
+                    header = Lang:t("menu_manage_company_funds_return_header"),
+                    txt = Lang:t("menu_manage_company_funds_return_footer"), 
                     icon = "fas fa-circle-left",
                     params = {
                         event = "cdn-fuel:stations:client:managemenu",
@@ -555,13 +550,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             UpdateStationInfo("balance")
             Wait(50)
             local Withdraw = exports['qb-input']:ShowInput({
-                header = "Withdraw Funds<br>Current Balance: $" ..StationBalance,
-                submitText = "Withdraw",
+                header = Lang:t("input_withdraw_funds_header") ..StationBalance,
+                submitText = Lang:t("input_withdraw_submit_text"),
                 inputs = { {
                     type = 'number',
                     isRequired = true,
                     name = 'amount',
-                    text = 'Withdraw Funds.'
+                    text = Lang:t("input_withdraw_text")
                 }}
             })
             if Withdraw then
@@ -603,13 +598,13 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             UpdateStationInfo("balance")
             Wait(50)
             local Deposit = exports['qb-input']:ShowInput({
-                header = "Deposit Funds<br>Current Balance: $" ..StationBalance,
-                submitText = "Deposit",
+                header = Lang:t("input_deposit_funds_header") ..StationBalance,
+                submitText = Lang:t("input_deposit_submit_text"),
                 inputs = { {
                     type = 'number',
                     isRequired = true,
                     name = 'amount',
-                    text = 'Deposit Funds.'
+                    text = Lang:t("input_deposit_text")
                 }}
             })
             if Deposit then
@@ -649,12 +644,12 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 header = "",
                 icon = "fas fa-info-circle",
                 isMenuHeader = true,
-                txt = 'The total cost is going to be: $'..costofstation..' including taxes.' ,
+                txt = Lang:t("menu_purchase_station_header_1")..costofstation..Lang:t("menu_purchase_station_header_2"),
             },
             {
-                header = "Confirm",
+                header = Lang:t("menu_purchase_station_confirm_header"),
                 icon = "fas fa-check-circle",
-                txt = 'I want to purchase this location for $'..costofstation..'!' ,
+                txt = Lang:t("menu_purchase_station_confirm_footer")..costofstation..'!' ,
                 params = {
                     event = "cdn-fuel:stations:client:purchaselocation",
                     args = {
@@ -663,8 +658,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 }
             },
             {
-                header = "Cancel",
-                txt = "I actually don't want to buy this location anymore. That price is bonkers!", 
+                header = Lang:t("menu_header_close"),
+                txt = Lang:t("menu_purchase_station_cancel_footer"), 
                 icon = "fas fa-times-circle",
                 params = {
                     event = "qb-menu:closeMenu",
@@ -725,8 +720,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 icon = "fas fa-gas-pump", 
             },
             {
-                header = "Manage This Location",
-                txt = "If you are the owner, you can manage this location.",
+                header = Lang:t("menu_ped_manage_location_header"),
+                txt = Lang:t("menu_ped_manage_location_footer"),
                 icon = "fas fa-usd",
                 params = {
                     event = "cdn-fuel:stations:client:managemenu",
@@ -735,8 +730,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 disabled = DisableOwnerMenu,
             },
             {
-                header = "Purchase This Location",
-                txt = "If no one owns this location, you can purchase it.",
+                header = Lang:t("menu_ped_purchase_location_header"),
+                txt = Lang:t("menu_ped_purchase_location_footer"),
                 icon = "fas fa-usd",
                 params = {
                     event = "cdn-fuel:stations:client:purchasemenu",
@@ -745,8 +740,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 disabled = DisablePurchase,
             },
             {
-                header = "Toggle Emergency Shutoff",
-                txt = "Shut off the fuel in case of an emergency. <br> The pumps are currently "..PumpState,
+                header = Lang:t("menu_ped_emergency_shutoff_header"),
+                txt = Lang:t("menu_ped_emergency_shutoff_footer")..PumpState,
                 icon = "fas fa-gas-pump",
                 params = {
                     event = "cdn-fuel:stations:client:Shutoff",
@@ -755,8 +750,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 disabled = ShutOffDisabled,
             },
             {
-                header = "Cancel Conversation",
-                txt = "I actually don't want to discuss anything anymore.",
+                header = Lang:t("menu_ped_close_header"),
+                txt = Lang:t("menu_ped_close_footer"),
                 icon = "fas fa-times-circle",
                 params = {
                     event = "qb-menu:closeMenu",

@@ -19,7 +19,7 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 		else
 			TriggerClientEvent('qb-menu:client:openMenu', src, {
 				{
-					header = "Gas Station",
+					header = Lang:t("menu_electric_header"),
 					isMenuHeader = true,
 					icon = "fas fa-bolt",
 				},
@@ -27,12 +27,12 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 					header = "",
 					icon = "fas fa-info-circle",
 					isMenuHeader = true,
-					txt = 'The total cost is going to be: $'..total..' including taxes.' ,
+					txt = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2") ,
 				},
 				{
-					header = "Confirm",
+					header = Lang:t("menu_purchase_station_confirm_header"),
 					icon = "fas fa-check-circle",
-					txt = 'I would like to pay for electricity.' ,
+					txt = Lang:t("menu_electric_accept"),
 					params = {
 						event = "cdn-fuel:client:electric:ChargeVehicle",
 						args = {
@@ -42,8 +42,8 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 					}
 				},
 				{
-					header = "Cancel",
-					txt = "I actually don't want fuel anymore.", 
+					header = Lang:t("menu_header_close"),
+					txt = Lang:t("menu_electric_cancel"), 
 					icon = "fas fa-times-circle",
 					params = {
 						event = "qb-menu:closeMenu",
