@@ -1,6 +1,12 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- Functions
+local function GlobalTax(value)
+	local tax = (value / 100 * Config.GlobalTax)
+	return tax
+end
+
 -- Events
 RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype, FuelPrice)
 	local src = source
