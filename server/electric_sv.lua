@@ -1,6 +1,5 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
--- Functions
 
 -- Events
 RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype, FuelPrice)

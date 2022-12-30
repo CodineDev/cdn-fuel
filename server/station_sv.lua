@@ -4,7 +4,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     local QBCore = exports['qb-core']:GetCoreObject()
     
     -- Functions
-    function GlobalTax(value)
+    local function GlobalTax(value)
         local tax = (value / 100 * Config.GlobalTax)
         return tax
     end
@@ -40,7 +40,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             end
         end
     end
-
+    
     -- Events
     RegisterNetEvent('cdn-fuel:server:updatelocationlabels', function()
         local src = source
@@ -173,7 +173,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         else
             if Config.FuelDebug then print("No Result Fetched!!") end
         end
-
         if Config.FuelDebug then print("Attempting Sale Server Side for location: #"..location.." for Price: $"..price) end
         if ReserveBuyPossible and Player.Functions.RemoveMoney("bank", price, "Purchased"..amount.."L of Reserves for: "..Config.GasStations[location].label.." @ $"..Config.FuelReservesPrice.." / L!") then
             MySQL.Async.execute('UPDATE fuel_stations SET fuel = ? WHERE `location` = ?', {NewAmount, location})
@@ -182,7 +181,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             TriggerClientEvent('QBCore:Notify', src, Lang:t("not_enough_money"), 'error')
         end
     end)
-
 
     RegisterNetEvent('cdn-fuel:station:server:updatelocationname', function(newName, location)
         local src = source
@@ -273,7 +271,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
 	end)
 
     -- Startup Process
-
     local function Startup()
         if Config.FuelDebug then print("Startup process...") end
         local location = 0

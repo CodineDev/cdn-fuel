@@ -1,13 +1,13 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 
-function GlobalTax(value)
+-- Functions
+local function GlobalTax(value)
 	local tax = (value / 100 * Config.GlobalTax)
 	return tax
 end
 
---- Events ---
-
+--- Events
 if Config.RenewedPhonePayment then
 	RegisterNetEvent('cdn-fuel:server:phone:givebackmoney', function(amount)
 		local src = source
@@ -95,17 +95,14 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
-	local info = {
-		gasamount = Config.JerryCanGas,
-	}
+	local info = {gasamount = Config.JerryCanGas,}
 	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
 		Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("jerry_can_payment_label"))
 	end
-
 end)
 
--- Jerry Can --
+--- Jerry Can
 if Config.UseJerryCan then
 	QBCore.Functions.CreateUseableItem("jerrycan", function(source, item)
 		local src = source
@@ -113,8 +110,7 @@ if Config.UseJerryCan then
 	end)
 end
 
-
---- Syphoning ---
+--- Syphoning
 if Config.UseSyphoning then
 	QBCore.Functions.CreateUseableItem("syphoningkit", function(source, item)
 		local src = source
@@ -147,10 +143,9 @@ RegisterNetEvent('cdn-syphoning:callcops', function(coords)
     TriggerClientEvent('cdn-syphoning:client:callcops', -1, coords)
 end)
 
---- Updates ---
+--- Update Alerts
 local updatePath
 local resourceName
-
 
 local function checkVersion(err, responseText, headers)
     local curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
@@ -162,7 +157,6 @@ local function checkVersion(err, responseText, headers)
         print("^1----------------------------------------------------------------------------------^7")
     end
 end
-
 
 Citizen.CreateThread(function()
 	updatePath = "/CodineDev/cdn-fuel"
