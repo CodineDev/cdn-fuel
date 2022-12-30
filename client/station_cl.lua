@@ -1,5 +1,4 @@
 if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stations are a Config Option, instead of forced. Set this option in shared/config.lua!
-    
     -- Variables
     local QBCore = exports['qb-core']:GetCoreObject()
     local PedsSpawned = false
@@ -764,5 +763,4 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     CreateThread(function() -- Spawn the Peds for Gas Stations when the resource starts.
         SpawnGasStationPeds()
     end)
-
 end -- For Config.PlayerOwnedGasStationsEnabled check, don't remove!
