@@ -233,31 +233,29 @@ if Config.ElectricVehicleCharging then
                     disableCarMovement = true,
                     disableMouse = false,
                     disableCombat = true,
-                }, {}, {}, {},
-                    function()
-                        refueling = false
-                        if not Config.RenewedPhonePayment or purchasetype == 'cash' then TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice) end
-                        local curfuel = GetFuel(vehicle)
-                        local finalfuel = (curfuel + fuelamount)
-                        if finalfuel > 99 and finalfuel < 100 then
-                            SetFuel(vehicle, 100)
-                        else
-                            SetFuel(vehicle, finalfuel)
-                        end
-                        if Config.RenewedPhonePayment then
-                            RefuelCancelled = true
-                            RefuelPossibleAmount = 0
-                            RefuelPossible = false
-                        end
-                        StopAnimTask(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 3.0, 3.0, -1, 2, 0, 0, 0, 0)
-                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "chargestop", 0.4)
-                    end,
-                    function()
-                        refueling = false
-                        Cancelledrefuel = true
-                        StopAnimTask(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 3.0, 3.0, -1, 2, 0, 0, 0, 0)
-                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "chargestop", 0.4)
-                    end)
+                }, {}, {}, {}, function()
+                    refueling = false
+                    if not Config.RenewedPhonePayment or purchasetype == 'cash' then TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice) end
+                    local curfuel = GetFuel(vehicle)
+                    local finalfuel = (curfuel + fuelamount)
+                    if finalfuel > 99 and finalfuel < 100 then
+                        SetFuel(vehicle, 100)
+                    else
+                        SetFuel(vehicle, finalfuel)
+                    end
+                    if Config.RenewedPhonePayment then
+                        RefuelCancelled = true
+                        RefuelPossibleAmount = 0
+                        RefuelPossible = false
+                    end
+                    StopAnimTask(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 3.0, 3.0, -1, 2, 0, 0, 0, 0)
+                    TriggerServerEvent("InteractSound_SV:PlayOnSource", "chargestop", 0.4)
+                end, function()
+                    refueling = false
+                    Cancelledrefuel = true
+                    StopAnimTask(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 3.0, 3.0, -1, 2, 0, 0, 0, 0)
+                    TriggerServerEvent("InteractSound_SV:PlayOnSource", "chargestop", 0.4)
+                end, "fas fa-charging-station")
             end
         else return end
     end)
@@ -396,5 +394,4 @@ if Config.ElectricVehicleCharging then
         },
         distance = 2.0
     })
-
 end
