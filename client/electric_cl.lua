@@ -320,7 +320,15 @@ if Config.ElectricVehicleCharging then
             local cost = amount * FuelPrice
             local tax = GlobalTax(cost)
             local total = math.ceil(cost + tax)
-            local success = exports['qb-phone']:PhoneNotification(Lang:t("electric_phone_header"), Lang:t("electric_phone_notification")..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
+            local success = exports['qb-phone']:PhoneNotification(
+                Lang:t("electric_phone_header"),
+                Lang:t("electric_phone_notification")..total,
+                'fas fa-bolt',
+                '#9f0e63',
+                "NONE",
+                'fas fa-check-circle',
+                'fas fa-times-circle'
+            )
             if success then
                 if QBCore.Functions.GetPlayerData().money['bank'] <= (GlobalTax(amount) + amount) then
                     QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), "error")
