@@ -493,13 +493,13 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [17] = {
         zones = {
-            vector2(1774.24, 3308.71),
-            vector2(1752.65, 3345.83),
-            vector2(1784.47, 3357.95),
-            vector2(1808.71, 3321.21)
+            vector2(1768.56, 3328.41),
+            vector2(1780.68, 3335.98),
+            vector2(1789.02, 3319.32),
+            vector2(1776.52, 3314.39)
         },
-        minz = 39.0,
-        maxz = 44.6,
+        minz = 40.0,
+        maxz = 42.6,
         pedmodel = "a_m_m_indian_01",
         cost = 100000,
         shutoff = false,

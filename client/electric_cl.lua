@@ -63,15 +63,15 @@ if Config.ElectricVehicleCharging then
         })	
         if Electricity then
             if not Electricity.amount then print("Electricity.amount is invalid!") return end
-            if not HoldingElectricNozzle then QBCore.Functions.Notify(Lang:t("electric_no_nozzle"), 'error', 7500) return end
+            if not HoldingElectricNozzle then QBCore.Functions.Notify(Lang:t("electric.electric_no_nozzle"), 'error', 7500) return end
             if (Electricity.amount + finalfuel) >= 100 then
-                QBCore.Functions.Notify(Lang:t("tank_already_full"), "error")
+                QBCore.Functions.Notify(Lang:t("fuel.tank_already_full"), "error")
             else
                 if GlobalTax(Electricity.amount * FuelPrice) + (Electricity.amount * FuelPrice) <= money then
                     local totalcost = (Electricity.amount * FuelPrice)
                     TriggerServerEvent('cdn-fuel:server:electric:OpenMenu', totalcost, IsInGasStation(), false, purchasetype, FuelPrice)
                 else
-                    QBCore.Functions.Notify(Lang:t("not_enough_money"), 'error', 7500)
+                    QBCore.Functions.Notify(Lang:t("fuel.not_enough_money"), 'error', 7500)
                 end
             end
         end
@@ -87,7 +87,7 @@ if Config.ElectricVehicleCharging then
         if not AwaitingElectricCheck and FoundElectricVehicle then
             local CurFuel = GetVehicleFuelLevel(vehicle)
             local playercashamount = QBCore.Functions.GetPlayerData().money['cash']
-            if not IsHoldingElectricNozzle() then QBCore.Functions.Notify(Lang:t("electric_no_nozzle"), 'error', 7500)  return end
+            if not IsHoldingElectricNozzle() then QBCore.Functions.Notify(Lang:t("electric.electric_no_nozzle"), 'error', 7500)  return end
             if CurFuel < 95 then
                 exports['qb-menu']:openMenu({
                     {
@@ -96,8 +96,8 @@ if Config.ElectricVehicleCharging then
                         icon = "fas fa-bolt",
                     },
                     {
-                        header = Lang:t("menu_header_cash"),
-                        txt = Lang:t("menu_pay_with_cash") .. playercashamount,
+                        header = Lang:t("menu.menu_header_cash"),
+                        txt = Lang:t("menu.menu_pay_with_cash") .. playercashamount,
                         icon = "fas fa-usd",
                         params = {
                             event = "cdn-fuel:client:electric:FinalMenu",
@@ -105,8 +105,8 @@ if Config.ElectricVehicleCharging then
                         }
                     },
                     {
-                        header = Lang:t("menu_header_bank"),
-                        txt = Lang:t("menu_pay_with_bank"),
+                        header = Lang:t("menu.menu_header_bank"),
+                        txt = Lang:t("menu.menu_pay_with_bank"),
                         icon = "fas fa-credit-card",
                         params = {
                             event = "cdn-fuel:client:electric:FinalMenu",
@@ -114,8 +114,8 @@ if Config.ElectricVehicleCharging then
                         }
                     },
                     {
-                        header = Lang:t("menu_header_close"),
-                        txt = Lang:t("menu_electric_cancel"),
+                        header = Lang:t("menu.menu_header_close"),
+                        txt = Lang:t("menu.menu_electric_cancel"),
                         icon = "fas fa-times-circle",
                         params = {
                             event = "qb-menu:closeMenu",
@@ -123,7 +123,7 @@ if Config.ElectricVehicleCharging then
                     },
                 })
             else
-                QBCore.Functions.Notify(Lang:t("tank_already_full"), 'error')
+                QBCore.Functions.Notify(Lang:t("fuel.tank_already_full"), 'error')
             end
         else
             if Config.FuelDebug then print("Checking") end
@@ -151,7 +151,7 @@ if Config.ElectricVehicleCharging then
                     end
                 end
             else
-                QBCore.Functions.Notify(Lang:t("electric_vehicle_not_electric"), 'error', 7500)
+                QBCore.Functions.Notify(Lang:t("electric.electric_vehicle_not_electric"), 'error', 7500)
             end
         end
     end)
@@ -228,7 +228,7 @@ if Config.ElectricVehicleCharging then
                     end
                 end)
                 TriggerServerEvent("InteractSound_SV:PlayOnSource", "charging", 0.3)
-                QBCore.Functions.Progressbar("charge-car", Lang:t("prog_electric_charging"), time, false, true, {
+                QBCore.Functions.Progressbar("charge-car", Lang:t("prog.prog_electric_charging"), time, false, true, {
                     disableMovement = true,
                     disableCarMovement = true,
                     disableMouse = false,
@@ -284,7 +284,7 @@ if Config.ElectricVehicleCharging then
                     TargetCreated = true
                     HoldingElectricNozzle = false
                     DeleteObject(ElectricNozzle)
-                    QBCore.Functions.Notify(Lang:t("nozzle_cannot_reach"), 'error')
+                    QBCore.Functions.Notify(Lang:t("fuel.nozzle_cannot_reach"), 'error')
                 end
                 Wait(2500)
             end
@@ -304,7 +304,7 @@ if Config.ElectricVehicleCharging then
                             if Config.FuelDebug then print("Attempting to charge vehicle.") end
                             TriggerEvent('cdn-fuel:client:electric:ChargeVehicle', purchasetype, fuelamounttotal) 
                         else
-                            QBCore.Functions.Notify(Lang:t("electric_more_than_zero"), 'error', 7500)
+                            QBCore.Functions.Notify(Lang:t("electric.electric_more_than_zero"), 'error', 7500)
                         end
                     end
                 end
@@ -320,10 +320,10 @@ if Config.ElectricVehicleCharging then
             local cost = amount * FuelPrice
             local tax = GlobalTax(cost)
             local total = math.ceil(cost + tax)
-            local success = exports['qb-phone']:PhoneNotification(Lang:t("electric_phone_header"), Lang:t("electric_phone_notification")..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
+            local success = exports['qb-phone']:PhoneNotification(Lang:t("phone.electric_phone_header"), Lang:t("phone.phone_notification")..total, 'fas fa-bolt', '#9f0e63', "NONE", 'fas fa-check-circle', 'fas fa-times-circle')
             if success then
                 if QBCore.Functions.GetPlayerData().money['bank'] <= (GlobalTax(amount) + amount) then
-                    QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), "error")
+                    QBCore.Functions.Notify(Lang:t("fuel.not_enough_money_in_bank"), "error")
                 else
                     TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice, true)
                     RefuelPossible = true
@@ -372,7 +372,7 @@ if Config.ElectricVehicleCharging then
                 type = "client",
                 event = "cdn-fuel:client:grabelectricnozzle",
                 icon = "fas fa-bolt",
-                label = Lang:t("grab_electric_nozzle"),
+                label = Lang:t("target.grab_electric_nozzle"),
                 canInteract = function()
                     if not IsHoldingElectricNozzle() and not IsPedInAnyVehicle(PlayerPedId()) then
                         return true
@@ -384,7 +384,7 @@ if Config.ElectricVehicleCharging then
                 type = "client",
                 event = "cdn-fuel:client:returnnozzle",
                 icon = "fas fa-hand",
-                label = Lang:t("return_nozzle"),
+                label = Lang:t("target.return_nozzle"),
                 canInteract = function()
                     if IsHoldingElectricNozzle() and not refueling then
                         return true

@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
-author 'https://www.github.com/CodineDev' -- Base Refueling System from PS (https://www.github.com/Project-Sloth), other code by CodineDev (https://www.github.com/CodineDev). 
+author 'https://www.github.com/CodineDev' -- Base Refueling System from PS (https://www.github.com/Project-Sloth), other code by CodineDev (https://www.github.com/CodineDev).
 description 'cdn-fuel'
 version '2.0.0'
 
@@ -23,6 +23,7 @@ shared_scripts {
 	'shared/config.lua',
 	'@qb-core/shared/locale.lua',
 	'locales/en.lua',
+    'locales/*.lua'
 }
 
 exports { -- Call with exports['cdn-fuel']:GetFuel or exports['cdn-fuel']:SetFuel
@@ -34,7 +35,7 @@ lua54 'yes'
 
 dependencies { -- Make sure these are started before cdn-fuel in your server.cfg!
 	'qb-target',
-	'PolyZone', 
+	'PolyZone',
 	'qb-input',
 	'qb-menu',
 	'interact-sound',
