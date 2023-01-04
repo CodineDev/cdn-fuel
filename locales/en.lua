@@ -23,6 +23,7 @@ local Translations = {
 
     -- Phone --
     electric_phone_header = "Electric Charger",
+    electric_phone_notification = "Electricity Total Cost: $",
     fuel_phone_header = "Gas Station",
     phone_notification = "Total Cost: $",
     phone_refund_payment_label = "Refund @ Gas Station!",
