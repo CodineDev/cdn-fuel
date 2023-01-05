@@ -10,7 +10,7 @@ local Translations = {
     not_enough_money_in_cash = "Vous n'avez pas assez d'argent dans votre poche!",
     more_than_zero = "Il faut faire plus de 0L de carburant !",
     emergency_shutoff_active = "Les pompes sont actuellement arrêtées via le système d'arrêt d'urgence.",
-    nozzle_cannot_reach = "La buse ne peut pas aller aussi loin!",
+    nozzle_cannot_reach = "Le pistolet ne peut pas aller aussi loin!",
     station_no_fuel = "Cette station est en panne de carburant!",
     station_not_enough_fuel = "La station n'a pas autant de carburant!",
     tank_cannot_fit = "Votre réservoir ne peut pas s'adapter à cela!",
@@ -175,7 +175,7 @@ local Translations = {
     input_refuel_jerrycan_submit = "Faire le plein de jerrycan",
     input_max_fuel_footer_1 = "Jusqu'à ",
     input_max_fuel_footer_2 = "L d'essence.",
-    input_insert_nozzle = "Insérer la buse", -- Used for Target as well!
+    input_insert_nozzle = "Insérer le pistolet", -- Used for Target as well!
 
     input_purchase_reserves_header_1 = "Acheter des réserves Prix actuel: $",
     input_purchase_reserves_header_2 = Config.FuelReservesPrice .. " / Réserves actuelles en litre: ",
@@ -202,10 +202,10 @@ local Translations = {
     input_deposit_text = "Fonds de dépôt",
 
     -- Target
-    grab_electric_nozzle = "Prenez la buse électrique",
-    insert_electric_nozzle = "Insérer la buse électrique",
-    grab_nozzle = "Prendre la buse",
-    return_nozzle = "Remettre la buse",
+    grab_electric_nozzle = "Prenez la prise électrique",
+    insert_electric_nozzle = "Insérer la prise électrique",
+    grab_nozzle = "Prendre le pistolet",
+    return_nozzle = "Remettre le pistolet",
     buy_jerrycan = "Acheter un jerrican",
     station_talk_to_ped = "Discuter de la station-service",
 
