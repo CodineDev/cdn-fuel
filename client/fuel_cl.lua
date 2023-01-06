@@ -840,7 +840,7 @@ RegisterNetEvent('cdn-fuel:client:jerrycanfinalmenu', function(purchasetype)
 		TriggerServerEvent('cdn-fuel:server:purchase:jerrycan', purchasetype)
 	else
 		if purchasetype == 'bank' then QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), 'error') end
-		if purchasetype == "cash" then QBCore.Functions.Notify(Lang:t("not_enough_money_in_pocket"), 'error') end
+		if purchasetype == "cash" then QBCore.Functions.Notify(Lang:t("not_enough_money_in_cash"), 'error') end
 	end
 end)
 
