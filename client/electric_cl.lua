@@ -157,7 +157,7 @@ if Config.ElectricVehicleCharging then
     end)
 
     RegisterNetEvent('cdn-fuel:client:electric:ChargeVehicle', function(data)
-        print("Charging Vehicle")
+       if Config.FuelDebug then print("Charging Vehicle") end
         if not Config.RenewedPhonePayment then 
             purchasetype = data.purchasetype 
         elseif data.purchasetype == "cash" then 
@@ -337,18 +337,27 @@ if Config.ElectricVehicleCharging then
 
     -- Threads 
 
-    CreateThread(function()
-        for i = 1, #Config.GasStations do
-            if Config.GasStations[i].electricchargercoords ~= nil then
-                if Config.FuelDebug then print(i) end
-                local heading = Config.GasStations[i].electricchargercoords[4] - 180
-                Config.GasStations[i].electriccharger = CreateObject('electric_charger', Config.GasStations[i].electricchargercoords.x, Config.GasStations[i].electricchargercoords.y, Config.GasStations[i].electricchargercoords.z, false, true, true)
-                if Config.FuelDebug then print("Created Electric Charger @ Location #"..i) end
-                SetEntityHeading(Config.GasStations[i].electriccharger, heading)
-                FreezeEntityPosition(Config.GasStations[i].electriccharger, 1)
-            end	
-        end
-    end)
+    if Config.ElectricChargerModel then
+        CreateThread(function()
+            for i = 1, #Config.GasStations do
+                if Config.GasStations[i].electricchargercoords ~= nil then
+                    if Config.FuelDebug then print(i) end
+                    local heading = Config.GasStations[i].electricchargercoords[4] - 180
+                    RequestModel('electric_charger')
+                    while not HasModelLoaded('electric_charger') do
+                        Wait(50)
+                        if Config.FuelDebug then
+                            print("Loading Electric Charger Model.")
+                        end
+                    end
+                    Config.GasStations[i].electriccharger = CreateObject('electric_charger', Config.GasStations[i].electricchargercoords.x, Config.GasStations[i].electricchargercoords.y, Config.GasStations[i].electricchargercoords.z, false, true, true)
+                    if Config.FuelDebug then print("Created Electric Charger @ Location #"..i) end
+                    SetEntityHeading(Config.GasStations[i].electriccharger, heading)
+                    FreezeEntityPosition(Config.GasStations[i].electriccharger, 1)
+                end	
+            end
+        end)
+    end
 
     -- Resource Stop
 
