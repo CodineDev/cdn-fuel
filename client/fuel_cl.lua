@@ -362,8 +362,20 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 end)
 
 RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
-	if IsHoldingElectricNozzle() then 
-		SetElectricNozzle("putback") 
+	if Config.ElectricVehicleCharging then
+		if IsHoldingElectricNozzle() then 
+			SetElectricNozzle("putback") 
+		else
+			holdingnozzle = false
+			TargetCreated = false
+			LoadAnimDict("pickup_object")
+			TaskPlayAnim(ped, "pickup_object", "putdown_low", 2.0, 8.0, -1, 17, 0, 0, 0, 0)
+			TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
+			StopAnimTask(ped, 'pickup_object', 'putdown_low', 1.0)
+			Wait(250)
+			if Config.FuelTargetExport then exports['qb-target']:AllowRefuel(false) end
+			DeleteObject(fuelnozzle)
+		end
 	else
 		holdingnozzle = false
 		TargetCreated = false
@@ -743,8 +755,14 @@ CreateThread(function()
 				icon = "fas fa-bolt",
 				label = Lang:t("insert_electric_nozzle"),
 				canInteract = function()
-					if inGasStation and not refueling and IsHoldingElectricNozzle() then
-						return true
+					if Config.ElectricVehicleCharging == true then
+						if inGasStation and not refueling and IsHoldingElectricNozzle() then
+							return true
+						else
+							return false
+						end
+					else
+						return false
 					end
 				end
 			},
