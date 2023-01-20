@@ -101,7 +101,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 IsOwned = false
             end
         end, CurrentLocation)
-        Wait(100)
+        Wait(Config.WaitTime)
         if not IsOwned then
             TriggerServerEvent('cdn-fuel:server:buyStation', location, CitizenID)
         elseif IsOwned then 
@@ -125,7 +125,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanSell = false
             end
         end, location)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanSell then
             if Config.FuelDebug then print("Attempting to sell for: $"..SalePrice) end
             TriggerServerEvent('cdn-fuel:stations:server:sellstation', location)
@@ -153,7 +153,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             if Config.FuelDebug then print("Price: "..price.."<br> Amount: "..amount.." <br> Location: "..location) end
             exports['qb-menu']:openMenu({
@@ -203,7 +203,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             local bankmoney = QBCore.Functions.GetPlayerData().money['bank']
             if Config.FuelDebug then print("Showing Input for Reserves!") end
@@ -255,7 +255,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for Fuel Price Change!") end
             local fuelprice = exports['qb-input']:ShowInput({
@@ -296,7 +296,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             local GasStationCost = Config.GasStations[location].cost + GlobalTax(Config.GasStations[location].cost)
             local SalePrice = math.percent(Config.GasStationSellPercentage, GasStationCost)
@@ -344,7 +344,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for name Change!") end
             local NewName = exports['qb-input']:ShowInput({
@@ -390,7 +390,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         UpdateStationInfo("all")
         if Config.PlayerControlledFuelPrices then CanNotChangeFuelPrice = false else CanNotChangeFuelPrice = true end
         Wait(5)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             local GasStationCost = (Config.GasStations[location].cost + GlobalTax(Config.GasStations[location].cost))
             exports['qb-menu']:openMenu({
@@ -483,7 +483,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         end, CurrentLocation)
         UpdateStationInfo("all")
         Wait(5)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             exports['qb-menu']:openMenu({
                 {
@@ -543,7 +543,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for Withdraw!") end
             UpdateStationInfo("balance")
@@ -590,7 +590,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(100)
+        Wait(Config.WaitTime)
         if CanOpen then
             local bankmoney = QBCore.Functions.GetPlayerData().money['bank']
             if Config.FuelDebug then print("Showing Input for Deposit!") end
@@ -711,7 +711,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             ShutOffDisabled = true
         end
 
-        Wait(100)
+        Wait(Config.WaitTime)
         exports['qb-menu']:openMenu({
             {
                 header = Config.GasStations[CurrentLocation].label,
