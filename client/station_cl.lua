@@ -92,6 +92,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         local CitizenID = QBCore.Functions.GetPlayerData().citizenid
         CanOpen = false
         Wait(5)
+        local IsOwned = 'loading'
+
         QBCore.Functions.TriggerCallback('cdn-fuel:server:locationpurchased', function(result)
             if result then
                 if Config.FuelDebug then print("The Location: "..CurrentLocation.." is owned!") end
@@ -101,7 +103,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 IsOwned = false
             end
         end, CurrentLocation)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while IsOwned == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+        
         if not IsOwned then
             TriggerServerEvent('cdn-fuel:server:buyStation', location, CitizenID)
         elseif IsOwned then 
@@ -115,6 +120,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         local CitizenID = QBCore.Functions.GetPlayerData().citizenid
         CanSell = false
         Wait(5)
+        local CanSell = 'loading'
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             if result then
                 if Config.FuelDebug then print("The Location: "..location.." is owned by ID: "..CitizenID) end
@@ -125,7 +131,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanSell = false
             end
         end, location)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanSell == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanSell then
             if Config.FuelDebug then print("Attempting to sell for: $"..SalePrice) end
             TriggerServerEvent('cdn-fuel:stations:server:sellstation', location)
@@ -139,8 +148,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         local location = location
         local price = price
         local amount = amount
-        CanOpen = false
+        CanOpen = 'loading'
         Wait(5)
+
         if Config.FuelDebug then print("checking ownership of "..location) end
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
@@ -153,7 +163,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             if Config.FuelDebug then print("Price: "..price.."<br> Amount: "..amount.." <br> Location: "..location) end
             exports['qb-menu']:openMenu({
@@ -190,7 +203,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     end)
 
     RegisterNetEvent('cdn-fuel:stations:client:purchasereserves', function(data)
-        CanOpen = false
+        CanOpen = 'loading'
         local location = data.location
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
@@ -203,7 +216,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             local bankmoney = QBCore.Functions.GetPlayerData().money['bank']
             if Config.FuelDebug then print("Showing Input for Reserves!") end
@@ -242,7 +258,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     end)
 
     RegisterNetEvent('cdn-fuel:stations:client:changefuelprice', function(data) 
-        CanOpen = false
+        CanOpen = 'loading'
         local location = data.location
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
@@ -255,7 +271,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, location)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for Fuel Price Change!") end
             local fuelprice = exports['qb-input']:ShowInput({
@@ -286,6 +305,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     RegisterNetEvent('cdn-fuel:stations:client:sellstation:menu', function(data) -- Menu, seen after selecting the Sell this Location option.
         local location = data.location
         local CitizenID = QBCore.Functions.GetPlayerData().citizenid
+
+        CanOpen = 'loading'
+
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             if result then
                 if Config.FuelDebug then print("The Location: "..CurrentLocation.." is owned by ID: "..CitizenID) end
@@ -296,7 +318,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             local GasStationCost = Config.GasStations[location].cost + GlobalTax(Config.GasStations[location].cost)
             local SalePrice = math.percent(Config.GasStationSellPercentage, GasStationCost)
@@ -332,7 +357,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     end)
 
     RegisterNetEvent('cdn-fuel:stations:client:changestationname', function() -- Menu for changing the label of the owned station.
-        CanOpen = false
+        CanOpen = 'loading'
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
             if result then
@@ -344,7 +369,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for name Change!") end
             local NewName = exports['qb-input']:ShowInput({
@@ -376,6 +404,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
 
     RegisterNetEvent('cdn-fuel:stations:client:managemenu', function(location) -- Menu, seen after selecting the Manage this Location Option.
         location = CurrentLocation
+        CanOpen = 'loading'
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
             if result then
@@ -390,7 +419,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         UpdateStationInfo("all")
         if Config.PlayerControlledFuelPrices then CanNotChangeFuelPrice = false else CanNotChangeFuelPrice = true end
         Wait(5)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             local GasStationCost = (Config.GasStations[location].cost + GlobalTax(Config.GasStations[location].cost))
             exports['qb-menu']:openMenu({
@@ -470,6 +502,8 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     end)
 
     RegisterNetEvent('cdn-fuel:stations:client:managefunds', function(location) -- Menu, seen after selecting the Manage this Location Option.
+        CanOpen = 'loading'
+
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
             if result then
@@ -483,7 +517,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         end, CurrentLocation)
         UpdateStationInfo("all")
         Wait(5)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             exports['qb-menu']:openMenu({
                 {
@@ -530,7 +567,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
 
     RegisterNetEvent('cdn-fuel:stations:client:WithdrawFunds', function(data)
         if Config.FuelDebug then print("Triggered Event for: Withdraw!") end
-        CanOpen = false
+        CanOpen = 'loading'
         local location = CurrentLocation
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
@@ -543,7 +580,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             if Config.FuelDebug then print("Showing Input for Withdraw!") end
             UpdateStationInfo("balance")
@@ -577,7 +617,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
 
     RegisterNetEvent('cdn-fuel:stations:client:DepositFunds', function(data)
         if Config.FuelDebug then print("Triggered Event for: Deposit!") end
-        CanOpen = false
+        CanOpen = 'loading'
         local location = CurrentLocation
         QBCore.Functions.TriggerCallback('cdn-fuel:server:isowner', function(result)
             local CitizenID = QBCore.Functions.GetPlayerData().citizenid
@@ -590,7 +630,10 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                 CanOpen = false
             end
         end, CurrentLocation)
-        Wait(Config.WaitTime)
+
+        local timeout = Config.LoadingTimeout
+        while CanOpen == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         if CanOpen then
             local bankmoney = QBCore.Functions.GetPlayerData().money['bank']
             if Config.FuelDebug then print("Showing Input for Deposit!") end
@@ -668,9 +711,9 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     end)
 
     RegisterNetEvent('cdn-fuel:stations:openmenu', function() -- Menu #1, the first menu you see.
-        DisablePurchase = true
-        DisableOwnerMenu = true
-        ShutOffDisabled = false
+        DisablePurchase = 'loading'
+        DisableOwnerMenu = 'loading'
+        ShutOffDisabled = 'loading'
 
         QBCore.Functions.TriggerCallback('cdn-fuel:server:locationpurchased', function(result)
             if result then
@@ -711,7 +754,15 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             ShutOffDisabled = true
         end
 
-        Wait(Config.WaitTime)
+        local timeout = Config.LoadingTimeout
+        while DisablePurchase == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
+        timeout = Config.LoadingTimeout
+        while DisableOwnerMenu == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
+        timeout = Config.LoadingTimeout
+        while ShutOffDisabled == 'loading' and timeout > 0 do timeout = timeout - 1 Wait(1) end
+
         exports['qb-menu']:openMenu({
             {
                 header = Config.GasStations[CurrentLocation].label,
