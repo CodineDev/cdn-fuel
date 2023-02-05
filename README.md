@@ -217,7 +217,8 @@ Firstly, this option will have to be added to your *Config.TargetBones* under th
 				event = "cdn-fuel:client:SendMenuToServer",
 				icon = "fas fa-gas-pump",
 				label = "Insert Nozzle",
-				canInteract = function() return Allowrefuel end
+				canInteract = function() return Allowrefuel end,
+				distance = 1.0
             },
 	    {
 				type = "client",
@@ -226,7 +227,8 @@ Firstly, this option will have to be added to your *Config.TargetBones* under th
 				end,
 				icon = "fas fa-bolt",
 				label = "Insert Electric Nozzle",
-				canInteract = function() return AllowElectricRefuel end
+				canInteract = function() return AllowElectricRefuel end,
+				distance = 1.0
             },
 ```
 
