@@ -1,5 +1,5 @@
 -- Variables
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore = exports[Config.Core]:GetCoreObject()
 
 -- Functions
 local function GlobalTax(value)
@@ -29,39 +29,44 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 		if Config.RenewedPhonePayment and purchasetype == "bank" then
 			TriggerClientEvent("cdn-fuel:client:phone:PayForFuel", src, fuelamounttotal)
 		else
-			TriggerClientEvent('qb-menu:client:openMenu', src, {
-				{
-					header = Lang:t("menu_refuel_header"),
-					isMenuHeader = true,
-					icon = "fas fa-gas-pump",
-				},
-				{
-					header = "",
-					icon = "fas fa-info-circle",
-					isMenuHeader = true,
-					txt = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2") ,
-				},
-				{
-					header = Lang:t("menu_purchase_station_confirm_header"),
-					icon = "fas fa-check-circle",
-					txt = Lang:t("menu_refuel_accept"),
-					params = {
-						event = "cdn-fuel:client:RefuelVehicle",
-						args = {
-							fuelamounttotal = fuelamounttotal, 
-							purchasetype = purchasetype,
+			if Config.Ox.Menu then
+				if Config.FuelDebug then print("going to open the context menu (OX)") end
+				TriggerClientEvent('cdn-fuel:client:OpenContextMenu', src, total, fuelamounttotal, purchasetype)
+			else
+				TriggerClientEvent('qb-menu:client:openMenu', src, {
+					{
+						header = Lang:t("menu_refuel_header"),
+						isMenuHeader = true,
+						icon = "fas fa-gas-pump",
+					},
+					{
+						header = "",
+						icon = "fas fa-info-circle",
+						isMenuHeader = true,
+						txt = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2") ,
+					},
+					{
+						header = Lang:t("menu_purchase_station_confirm_header"),
+						icon = "fas fa-check-circle",
+						txt = Lang:t("menu_refuel_accept"),
+						params = {
+							event = "cdn-fuel:client:RefuelVehicle",
+							args = {
+								fuelamounttotal = fuelamounttotal,
+								purchasetype = purchasetype,
+							}
 						}
-					}
-				},
-				{
-					header = Lang:t("menu_header_close"),
-					txt = Lang:t("menu_refuel_cancel"), 
-					icon = "fas fa-times-circle",
-					params = {
-						event = "qb-menu:closeMenu",
-					}
-				},
-			})
+					},
+					{
+						header = Lang:t("menu_header_close"),
+						txt = Lang:t("menu_refuel_cancel"),
+						icon = "fas fa-times-circle",
+						params = {
+							event = "qb-menu:closeMenu",
+						}
+					},
+				})
+			end
 		end
 	end
 end)
@@ -71,9 +76,11 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	if not src then return end
 	local Player = QBCore.Functions.GetPlayer(src)
 	if not Player then return end
-	local tax = GlobalTax(amount)
-	local total = math.ceil(amount + tax)
+	local total = math.ceil(amount)
 	local moneyremovetype = purchasetype
+
+	if Config.FuelDebug then print("Player is attempting to purchase fuel with the money type: " ..moneyremovetype) end
+
 	if purchasetype == "bank" then
 		moneyremovetype = "bank"
 	elseif purchasetype == "cash" then
@@ -82,7 +89,6 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	local payString = Lang:t("menu_pay_label_1") ..FuelPrice..Lang:t("menu_pay_label_2")
 	if electric then payString = Lang:t("menu_electric_payment_label_1") ..FuelPrice..Lang:t("menu_electric_payment_label_2") end
 	Player.Functions.RemoveMoney(moneyremovetype, math.ceil(total), payString)
-
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
@@ -95,10 +101,19 @@ RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
-	local info = {gasamount = Config.JerryCanGas,}
-	if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
-		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add") 
-		Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("jerry_can_payment_label"))
+	if Config.Ox.Inventory then
+		local info = {cdn_fuel = tostring(Config.JerryCanGas)}
+		exports.ox_inventory:AddItem(src, 'jerrycan', 1, info)
+		local hasItem = exports.ox_inventory:GetItem(src, 'jerrycan', info, 1)
+		if hasItem then
+			Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("jerry_can_payment_label"))
+		end
+	else
+		local info = {gasamount = Config.JerryCanGas}
+		if Player.Functions.AddItem("jerrycan", 1, false, info) then -- Dont remove money if AddItem() not possible!
+			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['jerrycan'], "add")
+			Player.Functions.RemoveMoney(moneyremovetype, total, Lang:t("jerry_can_payment_label"))
+		end
 	end
 end)
 
@@ -114,6 +129,12 @@ end
 if Config.UseSyphoning then
 	QBCore.Functions.CreateUseableItem("syphoningkit", function(source, item)
 		local src = source
+		if Config.Ox.Inventory then
+			if item.metadata.cdn_fuel == nil then
+				item.metadata.cdn_fuel = '0'
+				exports.ox_inventory:SetMetadata(src, item.slot, item.metadata)
+			end
+		end
 		TriggerClientEvent('cdn-syphoning:syphon:menu', src, item)
 	end)
 end
@@ -122,21 +143,46 @@ RegisterNetEvent('cdn-fuel:info', function(type, amount, srcPlayerData, itemdata
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local srcPlayerData = srcPlayerData
-	if itemdata.info.name == "jerrycan" then 
-		if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
-	elseif itemdata.info.name == "syphoningkit" then
-		if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+	if Config.Ox.Inventory then
+		if itemdata == "jerrycan" then
+			if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+		elseif itemdata == "syphoningkit" then
+			if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+		end
+		local jerry_can = exports.ox_inventory:Search(source, 1, itemdata)
+		for k, v in pairs(jerry_can) do
+			jerry_can = v
+			break
+		end
+		local fuel_amount = tonumber(jerry_can.metadata.cdn_fuel)
+		if type == "add" then
+			fuel_amount = fuel_amount + amount
+			jerry_can.metadata.cdn_fuel = tostring(fuel_amount)
+			exports.ox_inventory:SetMetadata(src, jerry_can.slot, jerry_can.metadata)
+		elseif type == "remove" then
+			fuel_amount = fuel_amount - amount
+			jerry_can.metadata.cdn_fuel = tostring(fuel_amount)
+			exports.ox_inventory:SetMetadata(src, jerry_can.slot, jerry_can.metadata)
+		else
+			if Config.SyphonDebug then print("error, type is invalid!") end
+		end
+	else
+		if itemdata.info.name == "jerrycan" then
+			if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+		elseif itemdata.info.name == "syphoningkit" then
+			if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
+		end
+
+		if type == "add" then
+			srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount + amount
+			Player.Functions.SetInventory(srcPlayerData.items)
+		elseif type == "remove" then
+			srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount - amount
+			Player.Functions.SetInventory(srcPlayerData.items)
+		else
+			if Config.SyphonDebug then print("error, type is invalid!") end
+		end
 	end
-    
-    if type == "add" then
-        srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount + amount
-        Player.Functions.SetInventory(srcPlayerData.items)
-    elseif type == "remove" then
-        srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount - amount
-        Player.Functions.SetInventory(srcPlayerData.items)
-    else
-        if Config.SyphonDebug then print("error, type is invalid!") end
-    end
 end)
 
 RegisterNetEvent('cdn-syphoning:callcops', function(coords)
@@ -158,7 +204,7 @@ local function checkVersion(err, responseText, headers)
     end
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
 	updatePath = "/CodineDev/cdn-fuel"
 	resourceName = "cdn-fuel ("..GetCurrentResourceName()..")"
 	PerformHttpRequest("https://raw.githubusercontent.com"..updatePath.."/master/version", checkVersion, "GET")

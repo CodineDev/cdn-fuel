@@ -10,11 +10,19 @@ local Translations = {
     nozzle_cannot_reach = "The nozzle can't reach this far!",
     station_no_fuel = "This station is out of fuel!",
     station_not_enough_fuel = "The station does not have this much fuel!",
+    show_input_key_special = "Press [G] when near the vehicle to fuel it up!",
     tank_cannot_fit = "Your tank cannot fit this!",
     tank_already_full = "Your vehicle is already full!",
     need_electric_charger = "I need to go to an electric charger!",
     cannot_refuel_inside = "You cannot refuel from inside of the vehicle!",
+    
+    -- 2.1.0
+    no_nozzle = "You do not have the nozzle!",
     vehicle_is_damaged = "Vehicle is too damaged to refuel!",
+    vehicle_too_far = "You are too far to fuel this vehicle!",
+    inside_vehicle = "You cannot refuel from inside the vehicle!",
+    you_are_discount_eligible = "If you go on duty, you could recieve a discount of "..Config.EmergencyServicesDiscount['discount'].."%!",
+    no_fuel = "No fuel..",
 
     -- Electric
     electric_more_than_zero = "You have to charge more than 0KW!",
@@ -70,7 +78,7 @@ local Translations = {
     menu_header_cash = "Cash",
     menu_header_bank = "Bank",
     menu_header_close = "Cancel",
-    menu_pay_with_cash = "Pay with cash. <br> You have: $", 
+    menu_pay_with_cash = "Pay with cash.  \nYou have: $",
     menu_pay_with_bank = "Pay with bank.", 
     menu_refuel_header = "Gas Station",
     menu_refuel_accept = "I would like to purchase the fuel.",
@@ -97,7 +105,7 @@ local Translations = {
     menu_ped_purchase_location_footer = "If no one owns this location, you can purchase it.",
 
     menu_ped_emergency_shutoff_header = "Toggle Emergency Shutoff",
-    menu_ped_emergency_shutoff_footer = "Shut off the fuel in case of an emergency. <br> The pumps are currently ",
+    menu_ped_emergency_shutoff_footer = "Shut off the fuel in case of an emergency.   \n The pumps are currently ",
     
     menu_ped_close_header = "Cancel Conversation",
     menu_ped_close_footer = "I actually don't want to discuss anything anymore.",
@@ -119,16 +127,16 @@ local Translations = {
     menu_sell_station_footer_close = "I actually don't have anything more to discuss.",
 
     menu_manage_header = "Management of ",
-    menu_manage_reserves_header = "Fuel Reserves <br> ",
+    menu_manage_reserves_header = "Fuel Reserves  \n",
     menu_manage_reserves_footer_1 =  " Liters out of ",
-    menu_manage_reserves_footer_2 =  " Liters <br> You can purchase more reserves below!",
+    menu_manage_reserves_footer_2 =  " Liters  \nYou can purchase more reserves below!",
     
     menu_manage_purchase_reserves_header = "Purchase More Fuel for Reserves",
     menu_manage_purchase_reserves_footer = "I want to purchase more fuel reserves for $",
     menu_manage_purchase_reserves_footer_2 = " / L!",
 
     menu_alter_fuel_price_header = "Alter Fuel Price",
-    menu_alter_fuel_price_footer_1 = "I want to change the price of fuel at my Gas Station! <br> Currently, it is $",
+    menu_alter_fuel_price_footer_1 = "I want to change the price of fuel at my Gas Station!  \nCurrently, it is $",
     
     menu_manage_company_funds_header = "Manage Company Funds",
     menu_manage_company_funds_footer = "I want to manage this locations funds.",
@@ -175,13 +183,13 @@ local Translations = {
     input_max_fuel_footer_2 = "L of gas.",
     input_insert_nozzle = "Insert Nozzle", -- Used for Target as well!
 
-    input_purchase_reserves_header_1 = "Purchase Reserves<br>Current Price: $",
-    input_purchase_reserves_header_2 = Config.FuelReservesPrice .. " / Liter <br> Current Reserves: ",
-    input_purchase_reserves_header_3 = " Liters <br> Full Reserve Cost: $",
+    input_purchase_reserves_header_1 = "Purchase Reserves  \nCurrent Price: $",
+    input_purchase_reserves_header_2 = Config.FuelReservesPrice .. " / Liter  \nCurrent Reserves: ",
+    input_purchase_reserves_header_3 = " Liters  \nFull Reserve Cost: $",
     input_purchase_reserves_submit_text = "Buy Reserves",
     input_purchase_reserves_text = 'Purchase Fuel Reserves.',
 
-    input_alter_fuel_price_header_1 = "Alter Fuel Price <br>Current Price: $",
+    input_alter_fuel_price_header_1 = "Alter Fuel Price   \nCurrent Price: $",
     input_alter_fuel_price_header_2 = " / Liter",
     input_alter_fuel_price_submit_text = "Change Fuel Price",
 
@@ -190,11 +198,11 @@ local Translations = {
     input_change_name_submit_text = "Submit Name Change",
     input_change_name_text = "New Name..",
 
-    input_withdraw_funds_header = "Withdraw Funds<br>Current Balance: $",
+    input_withdraw_funds_header = "Withdraw Funds  \nCurrent Balance: $",
     input_withdraw_submit_text = "Withdraw",
     input_withdraw_text = "Withdraw Funds",
 
-    input_deposit_funds_header = "Deposit Funds<br>Current Balance: $",
+    input_deposit_funds_header = "Deposit Funds  \nCurrent Balance: $",
     input_deposit_submit_text = "Deposit",
     input_deposit_text = "Deposit Funds",
 
@@ -203,6 +211,8 @@ local Translations = {
     insert_electric_nozzle = "Insert Electric Nozzle",
     grab_nozzle = "Grab Nozzle",
     return_nozzle = "Return Nozzle",
+    grab_special_nozzle = "Grab Special Nozzle",
+    return_special_nozzle = "Return Special Nozzle",
     buy_jerrycan = "Purchase Jerry Can",
     station_talk_to_ped = "Discuss Gas Station",
 

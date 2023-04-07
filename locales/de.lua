@@ -19,6 +19,13 @@ local Translations = {
     cannot_refuel_inside = "Sie können nicht aus dem Fahrzeuginneren tanken!",
     vehicle_is_damaged = "Das Fahrzeug ist zu beschädigt zum Tanken!",
 
+    -- 2.1.0
+    no_nozzle = "Sie haben keine Zapfpistole!",
+    vehicle_too_far = "Sie sind zu weit entfernt, um dieses Fahrzeug zu betanken!",
+    inside_vehicle = "Sie können nicht von innen tanken!",
+    you_are_discount_eligible = "Wenn Sie im Dienst sind, können Sie einen Rabatt von "..Config.EmergencyServicesDiscount['discount'].."% erhalten!",
+    no_fuel = "Kein Treibstoff..",
+
     -- Electric
     electric_more_than_zero = "Sie müssen mehr als 0 KW laden!",
     electric_vehicle_not_electric = "Ihr Fahrzeug ist kein Elektrofahrzeug!",
@@ -206,6 +213,8 @@ local Translations = {
     insert_electric_nozzle = "Elektrischen Zapfhahn einsetzen",
     grab_nozzle = "Zapfhahn nehmen",
     return_nozzle = "Zapfhahn zurück hängen",
+    grab_special_nozzle = "Sonderdüse greifen",
+    return_special_nozzle = "Sonderdüse zurückgeben",
     buy_jerrycan = "Kanister kaufen",
     station_talk_to_ped = "Diskutieren Sie über Tankstelle",
 

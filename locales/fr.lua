@@ -18,6 +18,14 @@ local Translations = {
     need_electric_charger = "Vous avez besoin d'aller à un chargeur électrique!",
     cannot_refuel_inside = "Vous ne pouvez pas faire le plein depuis l'intérieur du véhicule!",
     vehicle_is_damaged = "Le véhicule est trop endommagé pour faire le plein!",
+
+    -- 2.1.0
+    no_nozzle = "Vous n'avez pas de buse !",
+    vehicle_too_far = "Vous êtes trop loin pour ravitailler ce véhicule !",
+    inside_vehicle = "Vous ne pouvez pas faire le plein depuis l'intérieur du véhicule !",
+    you_are_discount_eligible = "Si vous êtes en service, vous pourriez bénéficier d'une réduction de "..Config.EmergencyServicesDiscount['discount'].."% !",
+    no_fuel = "Sans carburant..",
+
     -- Electric
     electric_more_than_zero = "Vous devez charger plus de 0KW!",
     electric_vehicle_not_electric = "Votre véhicule n'est pas électrique!",
@@ -205,7 +213,9 @@ local Translations = {
     grab_electric_nozzle = "Prenez la buse électrique",
     insert_electric_nozzle = "Insérer la buse électrique",
     grab_nozzle = "Prendre la buse",
-    return_nozzle = "Remettre la buse",
+    return_nozzle = "Retourner la buse",
+    grab_special_nozzle = "Prendre la buse spéciale",
+    return_special_nozzle = "Retourner la buse spéciale",
     buy_jerrycan = "Acheter un jerrican",
     station_talk_to_ped = "Discuter de la station-service",
 

@@ -1,7 +1,7 @@
 if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stations are a Config Option, instead of forced. Set this option in shared/config.lua!
     
     -- Variables
-    local QBCore = exports['qb-core']:GetCoreObject()
+    local QBCore = exports[Config.Core]:GetCoreObject()
     
     -- Functions
     local function GlobalTax(value)
@@ -58,6 +58,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if Player.Functions.RemoveMoney("bank", CostOfStation, Lang:t("station_purchased_location_payment_label")..Config.GasStations[location].label) then
             MySQL.Async.execute('UPDATE fuel_stations SET owned = ? WHERE `location` = ?', {1, location})
             MySQL.Async.execute('UPDATE fuel_stations SET owner = ? WHERE `location` = ?', {CitizenID, location})
+            if Config.NPWD then TriggerClientEvent('cdn-fuel:client:buysellStationNPWDNotif', src, "buy", comma_value(CostOfStation), Config.GasStations[location].label) end
         end
     end)
 
@@ -70,6 +71,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             MySQL.Async.execute('UPDATE fuel_stations SET owned = ? WHERE `location` = ?', {0, location})
             MySQL.Async.execute('UPDATE fuel_stations SET owner = ? WHERE `location` = ?', {0, location})
             TriggerClientEvent('QBCore:Notify', src, Lang:t("station_sold_success"), 'success')
+            if Config.NPWD then TriggerClientEvent('cdn-fuel:client:buysellStationNPWDNotif', src, "sell", comma_value(SalePrice), Config.GasStations[location].label) end
         else
             TriggerClientEvent('QBCore:Notify', src, Lang:t("station_cannot_sell"), 'error')
         end
@@ -84,6 +86,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         MySQL.Async.execute('UPDATE fuel_stations SET balance = ? WHERE `location` = ?', {setamount, location})
         Player.Functions.AddMoney("bank", amount, Lang:t("station_withdraw_payment_label")..Config.GasStations[location].label)
         TriggerClientEvent('QBCore:Notify', src, Lang:t("station_success_withdrew_1")..amount..Lang:t("station_success_withdrew_2"), 'success')
+        if Config.NPWD then TriggerClientEvent('cdn-fuel:client:StationTransfersNPWDNotif', src, "deposit", comma_value(setamount), Config.GasStations[location].label) end
     end)
 
     RegisterNetEvent('cdn-fuel:station:server:Deposit', function(amount, location, StationBalance)
@@ -94,6 +97,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         if Player.Functions.RemoveMoney("bank", amount, Lang:t("station_deposit_payment_label")..Config.GasStations[location].label) then
             MySQL.Async.execute('UPDATE fuel_stations SET balance = ? WHERE `location` = ?', {setamount, location})
             TriggerClientEvent('QBCore:Notify', src, Lang:t("station_success_deposit_1")..amount..Lang:t("station_success_deposit_2"), 'success')
+            if Config.NPWD then TriggerClientEvent('cdn-fuel:client:StationTransfersNPWDNotif', src, "deposit", comma_value(setamount), Config.GasStations[location].label) end
         else
             TriggerClientEvent('QBCore:Notify', src, Lang:t("station_cannot_afford_deposit")..amount.."!", 'success')
         end
@@ -214,6 +218,22 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             end
         else
             if Config.FuelDebug then print("No Result Fetched!!") end
+        end
+	end)
+
+    QBCore.Functions.CreateCallback('cdn-fuel:server:doesPlayerOwnStation', function(source, cb)
+        local src = source
+        local Player = QBCore.Functions.GetPlayer(src)
+        local citizenid = Player.PlayerData.citizenid
+        if Config.FuelDebug then print("Checking if Player Already Owns Another Station...") end
+        local result = MySQL.Sync.fetchAll('SELECT * FROM fuel_stations WHERE `owner` = ?', {citizenid})
+        local tableEmpty = next(result) == nil
+        if result and not tableEmpty then
+            if Config.FuelDebug then print("Player already owns another station!") print("Result: "..json.encode(result)) end
+            cb(true)
+        else
+            if Config.FuelDebug then print("No Result Sadge!") end
+            cb(false)
         end
 	end)
 

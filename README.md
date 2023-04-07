@@ -1,29 +1,70 @@
 ![Codine Development Fuel Script Banner](https://i.imgur.com/qVOMMvW.png)
 
-# CDN-Fuel (2.0.0 Beta) 
+# _CDN-Fuel (2.1.0)_ 
 
 A functionality fuel system based off of [ps-fuel](https://github.com/Project-Sloth/ps-fuel) that uses PolyZones that target fueling pumps and vehicles to allow you to refuel your vehicle, as well as interact-sound to play accurate refueling sounds.
 
-### Disclaimer 
-This is the Beta version of cdn-fuel with the Player Owned Gas Stations & Electric Charging Features added. Since it is in Beta, some features may not be up to standard or include some issues. If you come across an issue, create an issue or go to our discord (located at the bottom of this read me) and explain what the problem is and we will work to get a solution as soon as possible.
+# _Lastest Patch Information_
+*Additions:*
+- Emergency Services Discounts (Config Enabled)
+- Air & Water Vehicle Fueling (Config Enabled)
+- Hose Attached To Nozzle (Config Enabled)
+- OX Library Support (Menu/Input/Inventory/Target) Additions.
+- QBox Framework now supported.
+- Electric Vehicles turn off when at 0 fuel. (Config Enabled)
+
+*Fixes:*
+- Bank Payment Double Taxing Payments.
+- Paleto BLVD Location PolyZone issue.
+
 
 ## Major Credits
 
 Major shoutout to the Project Sloth team. We based this script off of their wonderful ps-fuel script. We wanted to change it up a little bit, but ended up doing a lot more than originally planned, so we though we'd release this on it's own rather than PR things. (https://github.com/Project-Sloth/ps-fuel)
 
+<br>
+<br>
+
+![Codine Development Fuel Script Features Banner](https://i.imgur.com/ISHQJUL.png)
+
+#### Why should you pick **cdn-fuel**?
+
+- Show all gas station blips via Config Options.
+- Vehicle blowing up chance percent via Config Options.
+- Pump Explosion Chance when running away with Nozzles via Config Options.
+- Global Tax and Fuel Prices via Config Options.
+- Target eye for all base fuel actions, not including Jerry Can & Syphoning.
+- Fuel and Charging Nozzle with realistic animations.
+- Custom sounds for every action, like refueling & charging.
+- Select amount of fuel you want to put in your vehicle.
+- On cancel, the amount you put in will be filled.
+- Option to pay cash or with your bank.
+- Toggleable Jerry Cans via Config Options.
+- [CDN-Syphoning](https://github.com/CodineDev/cdn-syphoning) built-in via Config Options.
+- Electric Charging with a [Custom Model](https://i.imgur.com/WDxGoT6.png) & pre-configured locations.
+- [Player Owned Gas Stations](https://www.youtube.com/watch?v=3glln0S2QXo) that can be maintained by the Owner.
+- [Highly User Friendly Menus](https://i.imgur.com/f64IxpA.png) for Gas Station Owners.
+- Reserve Levels which are maintained by the Owner of the Gas Station or Unlimited based on Config Options.
+- Renamable Gas Stations on Map with Blacklisted words.
+- Helicopter and Boat Refueling.
+- Configurable discounts for Emergency Services.
+- Configurable Hose for the Fuel Nozzle.
+- Official Support for the [OX Library](https://github.com/overextended/ox_lib). (Inventory/Menus/Target)
+
+
+![Codine Development Fuel Script Install Banner](https://i.imgur.com/bEiV8G0.png)
+
+### Before your installation:
+Make sure you have the following dependencies, otherwise, issues most likely will arise:
+
 ### Dependencies:
 
 - [qb-target](https://github.com/BerkieBb/qb-target)
-- [qb-menu](https://github.com/qbcore-framework/qb-menu)
-- [qb-input](https://github.com/qbcore-framework/qb-input)
+- [qb-menu](https://github.com/qbcore-framework/qb-menu) **&** [qb-input](https://github.com/qbcore-framework/qb-input) **OR** [ox_lib](https://github.com/overextended/ox_lib)
 - [interact-sound](https://github.com/plunkettscott/interact-sound)
 - [PolyZone](https://github.com/qbcore-framework/PolyZone)
 - _Other dependencies are included in the resource._
 
-<br>
-<br>
-
-![Codine Development Fuel Script Install Banner](https://i.imgur.com/bEiV8G0.png)
 
 ### Begin your installation
 
@@ -78,7 +119,7 @@ Next, we will move our _fxmanifest.lua's_ entries for _data_file_ into our new r
 ![jRtUg319mL](https://user-images.githubusercontent.com/95599217/209604640-54e0a450-6a54-4afa-9fab-cda4f02e7091.gif)
 
 
-```
+```Lua
 data_file 'DLC_ITYP_REQUEST' 'stream/[electric_nozzle]/electric_nozzle_typ.ytyp'
 data_file 'DLC_ITYP_REQUEST' 'stream/[electric_charger]/electric_charger_typ.ytyp'
 ```
@@ -99,7 +140,7 @@ If you plan to not use them, you can skip this Step and Step 7!
 The first step of installing our items is to navigate to your *qb-core/shared/items.lua*.
 <br> <br>
 Once there, we will paste the following items at the bottom of our items table.
-```
+```Lua
 	["syphoningkit"]				 = {["name"] = "syphoningkit", 					["label"] = "Syphoning Kit", 			["weight"] = 5000, 		["type"] = "item", 		["image"] = "syphoningkit.png", 		["unique"] = true, 		["useable"] = true, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "A kit made to siphon gasoline from vehicles."},
 	["jerrycan"]				 	 = {["name"] = "jerrycan", 						["label"] = "Jerry Can", 				["weight"] = 15000, 	["type"] = "item", 		["image"] = "jerrycan.png", 			["unique"] = true, 		["useable"] = true, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "A Jerry Can made to hold gasoline."},
 ```
@@ -113,12 +154,12 @@ Now, we need to format item data in our inventory. Firstly, find the *app.js* lo
 <br> <br>
 Now we will CTRL+F the following line:
 <br> 
-```
+```js
 } else if (itemData.name == "harness") {
 ```
 Once you have found this line, copy the following one line above it:
 <br> 
-```
+```js
         } else if (itemData.name == "syphoningkit") { // Syphoning Kit (CDN-Fuel or CDN-Syphoning!)
             $(".item-info-title").html("<p>" + itemData.label + "</p>");
             $(".item-info-description").html(
@@ -153,14 +194,14 @@ You can follow this GIF to get a better understanding:
 This step is only necessary for you to be able to do the */giveitem* command or to put items in the qb-shops.
 
 Navigate to inventoryname/server/server.lua, and CTRL + F the following line:
-```
+```Lua
 				elseif itemData["name"] == "harness" then
 					info.uses = 20
 ```
 <br>
 Now we will add the following above the line below:
 
-```
+```Lua
 				elseif itemData["name"] == "syphoningkit" then
 					info.gasamount = 0
 				elseif itemData["name"] == "jerrycan" then
@@ -177,7 +218,7 @@ Alternatively, watch this GIF to better understand the process:
 
 Here are some preconfigured shop items if you wish to put them in the shop. (The Jerry Can is buyable via the Gas Pump!)
 
-```
+```Lua
         [10] = {
             name = "syphoningkit",
             price = 5000,
@@ -211,7 +252,7 @@ There is a **possible** issue with *qb-target* if you are using the *Config.Glob
 <br> 
 
 Firstly, this option will have to be added to your *Config.TargetBones* under the bones you are having trouble with:
-```
+```Lua
             {
 				type = "client",
 				event = "cdn-fuel:client:SendMenuToServer",
@@ -241,7 +282,7 @@ Firstly, this option will have to be added to your *Config.TargetBones* under th
 
 *Next, we'll add this simple Function & Export into our QB-Target in the Functions() area:*
 
-```
+```Lua
 local function AllowRefuel(state, electric) 
     if state then
 		if electric then
@@ -289,33 +330,7 @@ Now, set the *Config.FuelTargetExport* in *cdn-fuel/shared/config.lua* to **true
 
 <br> 
 
-Enjoy using **cdn-fuel**, if you have an issues, create an issue on the repository, and we will fix it **ASAP**!
-
-<br>
-<br>
-
-![Codine Development Fuel Script Features Banner](https://i.imgur.com/ISHQJUL.png)
-
-#### Some features to mention within cdn-fuel:
-
-- Show all gas station blips via Config Options.
-- Vehicle blowing up chance percent via Config Options.
-- Pump Explosion Chance when running away with Nozzles via Config Options.
-- Global Tax and Fuel Prices via Config Options.
-- Target eye for all base fuel actions, not including Jerry Can & Syphoning.
-- Menu estimating cost for vehicle being refueled. (Tax Included)
-- Fuel Nozzle and Charging Nozzle with realistic animations.
-- Custom sounds for every action, like refueling & charging.
-- Select amount of fuel you want to put in your vehicle.
-- On cancel, the amount you put in will be filled.
-- Option to pay cash or with your bank.
-- Toggleable Jerry Cans via Config Options.
-- [CDN-Syphoning](https://github.com/CodineDev/cdn-syphoning) built-in via Config Options.
-- Electric Charging with a [Custom Model](https://i.imgur.com/WDxGoT6.png) & pre-configured locations.
-- [Player Owned Gas Stations](https://www.youtube.com/watch?v=3glln0S2QXo) that can be maintained by the Owner.
-- [Highly User Friendly Menus](https://i.imgur.com/f64IxpA.png) for Gas Station Owners.
-- Reserve Levels which are maintained by the Owner of the Gas Station or Unlimited based on Config Options.
-- Renamable Gas Stations on Map with Blacklisted words.
+Enjoy using **cdn-fuel**, if you have an issues, [create an issue](https://github.com/CodineDev/cdn-fuel/issues/new/choose) on the repository, and we will fix it **ASAP**!
 
 <br>
 <br>
@@ -338,8 +353,7 @@ Here's a couple of videos showcasing the script in action!
 
 ### Future Plans
 
-- Make it work with the oil rig jobs using ps-playergroups!
-- Owners being able to hire employees.
+- Oil Rig Integration.
 - Send more suggestions in our discord server!
 
 <br>
@@ -355,5 +369,14 @@ Here's a couple of videos showcasing the script in action!
 
 ### Credits:
 
-Massive shoutout once again to the team at [Project Sloth](https://github.com/Project-Sloth)! <br><br> They create super sick scripts that have changed the game when it comes to fivem server development.
-This script is based off of their [ps-fuel script](https://github.com/Project-Sloth/ps-fuel).
+
+- **Base Fueling System:**
+Massive shoutout, once again, to the team at [Project Sloth](https://github.com/Project-Sloth)! They create super sick scripts that have changed the game when it comes to fivem server development. This script is based off of their [ps-fuel script](https://github.com/Project-Sloth/ps-fuel).
+
+- **OX Conversion:**
+<br><br><img src="https://avatars.githubusercontent.com/u/6962192?v=4" width="25" height="25">
+**[NoobySloth](https://github.com/noobysloth)**
+for making the initial **OX** portion of the script. 
+<br><br><img src="https://avatars.githubusercontent.com/u/82969741?v=4" width="25" height="25">
+**[xViperAG](https://www.github.com/xViperAG)**
+for adding more OX functionality & support for QBox Remastered.

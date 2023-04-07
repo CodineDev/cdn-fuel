@@ -16,6 +16,13 @@ local Translations = {
     cannot_refuel_inside = "No puedes repostar desde el interior del Vehiculo!",
     vehicle_is_damaged = "El vehiculo está demasiado dañado para repostarlo!",
 
+    -- 2.1.0
+    no_nozzle = "¡No tienes la boquilla!",
+    vehicle_too_far = "¡Estás demasiado lejos para repostar este vehículo!",
+    inside_vehicle = "¡No puedes repostar desde el interior del vehículo!",
+    you_are_discount_eligible = "Si entras en servicio, podrías recibir un descuento del "..Config.EmergencyServicesDiscount['discount'].."%!",
+    no_fuel = "Sin combustible..",
+    
     -- Electric
     electric_more_than_zero = "Debes cargar mas de 0KW!",
     electric_vehicle_not_electric = "Tu vehiculo no es Eléctrico!",
@@ -203,6 +210,8 @@ local Translations = {
     insert_electric_nozzle = "Dejar Boquilla Eléctrica",
     grab_nozzle = "Tomar Boquilla",
     return_nozzle = "Dejar Boquila",
+    grab_special_nozzle = "Tomar Boquilla Especial",
+    return_special_nozzle = "Devolver Boquilla Especial",
     buy_jerrycan = "Comprar Bidón",
     station_talk_to_ped = "Hablar sobre la Estación",
 

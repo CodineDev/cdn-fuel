@@ -19,6 +19,17 @@ function LoadAnimDict(dict)
 	end
 end
 
+function Comma_Value(amount)
+	local formatted = amount
+	while true do  
+	  formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+	  if (k==0) then
+		break
+	  end
+	end
+	return formatted
+end
+
 function Round(num, numDecimalPlaces)
 	local mult = 10^(numDecimalPlaces or 0)
 	return math.floor(num * mult + 0.5) / mult
@@ -31,12 +42,10 @@ function GetCurrentVehicleType(vehicle)
 	if not vehicle then return false end
 	local vehiclename = GetEntityModel(vehicle)
 	for _, currentCar in pairs(Config.ElectricVehicles) do
-		if currentCar == vehiclename or GetHashKey(currentCar) == vehiclename then
-			if Config.FuelDebug then print('Car is climate friendly') end
+		if currentCar == vehiclename or joaat(currentCar) == vehiclename then
 		  	return 'electricvehicle'
 		end
 	end
-	if Config.FuelDebug then print("Car is economically unviable.") end
 	return 'gasvehicle'
 end
 
