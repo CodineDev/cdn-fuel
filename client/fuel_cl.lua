@@ -233,7 +233,7 @@ CreateThread(function()
 			name = "CDN_FUEL_GAS_STATION_"..station_id,
 			minZ = Config.GasStations[station_id].minz,
 			maxZ = Config.GasStations[station_id].maxz,
-			debugPoly = true
+			debugPoly = Config.PolyDebug
 		})
 		Stations[station_id]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
@@ -2180,7 +2180,7 @@ CreateThread(function()
 			name = GeneratedName,
 			minZ = minimumZ,
 			maxZ = maximumZ,
-			debugPoly = Config.FuelDebug
+			debugPoly = Config.PolyDebug
 		})
 
 		-- Setup onPlayerInOut Events for zone that is created.
