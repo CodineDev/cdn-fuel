@@ -6,21 +6,20 @@ local inBlacklisted = false
 local holdingnozzle = false
 local Stations = {}
 local props = {
-	'prop_gas_pump_1d',
-	'prop_gas_pump_1a',
-	'prop_gas_pump_1b',
-	'prop_gas_pump_1c',
-	'prop_vintage_pump',
-	'prop_gas_pump_old2',
-	'prop_gas_pump_old3',
-	'denis3d_prop_gas_pump', -- Gabz Ballas Gas Station Pump.
+	"prop_gas_pump_1d",
+	"prop_gas_pump_1a",
+	"prop_gas_pump_1b",
+	"prop_gas_pump_1c",
+	"prop_vintage_pump",
+	"prop_gas_pump_old2",
+	"prop_gas_pump_old3",
+	"denis3d_prop_gas_pump", -- Gabz Ballas Gas Station Pump.
 }
 local refueling = false
 local GasStationBlips = {} -- Used for managing blips on the client, so labels can be updated.
 local RefuelingType = nil
 local PlayerInSpecialFuelZone = false
 local Rope = nil
-
 
 -- Debug ---
 if Config.FuelDebug then
@@ -36,7 +35,7 @@ if Config.FuelDebug then
 	end, false)
 	RegisterCommand('setfuel100', function()
 		local vehicle = QBCore.Functions.GetClosestVehicle()
-		SetFuel(vehicle, 0)
+		SetFuel(vehicle, 100)
 		QBCore.Functions.Notify(Lang:t("set_fuel_debug")..' 100L', 'success')
 	end, false)
 end
@@ -104,21 +103,21 @@ local function FetchStationInfo(info)
 	end, CurrentLocation)
 end exports(FetchStationInfo, FetchStationInfo)
 
-local function ManageFuelUsage(vehicle)
-	if not DecorExistOn(vehicle, Config.FuelDecor) then
-		SetFuel(vehicle, math.random(200, 800) / 10)
-	elseif not fuelSynced then
-		SetFuel(vehicle, GetFuel(vehicle))
+local function HandleFuelConsumption(vehicle)
+	local state = Entity(vehicle).state
+
+	if not state.fuel then
+		TriggerServerEvent('cdn-fuel:server:IntializeStateBag', NetworkGetNetworkIdFromEntity(vehicle), GetVehicleFuelLevel(vehicle))
+		while not state.fuel do Wait(0) end
 		fuelSynced = true
 	end
+
 	if IsVehicleEngineOn(vehicle) then
-		SetFuel(vehicle,
-		GetVehicleFuelLevel(vehicle) -
-		Config.FuelUsage[Round(GetVehicleCurrentRpm(vehicle), 1)] * (Config.Classes[GetVehicleClass(vehicle)] or 1.0) / 10)
-		SetVehicleEngineOn(veh, true, true, true)
-	else
+		SetFuel(vehicle, Entity(vehicle).state.fuel - Config.FuelUsage[Round(GetVehicleCurrentRpm(vehicle), 1)] * (Config.Classes[GetVehicleClass(vehicle)] or 1.0) / 10)
 		SetVehicleEngineOn(veh, true, true, true)
 	end
+
+	fuelSynced = true
 end
 
 local function CanAfford(price, purchasetype)
@@ -134,11 +133,6 @@ end
 function FetchCurrentLocation()
 	if Config.FuelDebug then print("Fetching Current Location") end
 	return CurrentLocation
-end
-
-function GlobalTax(value)
-	local tax = (value / 100 * Config.GlobalTax)
-	return tax
 end
 
 function IsInGasStation()
@@ -234,22 +228,20 @@ else
 end
 
 CreateThread(function()
-	for k = 1, #Config.GasStations do
-		Stations[k] = PolyZone:Create(Config.GasStations[k].zones, {
-			name = "GasStation" .. k,
-			minZ = Config.GasStations[k].minz,
-			maxZ = Config.GasStations[k].maxz,
-			debugPoly = false
+	for station_id = 1, #Config.GasStations, 1 do
+		Stations[station_id] = PolyZone:Create(Config.GasStations[station_id].zones, {
+			name = "CDN_FUEL_GAS_STATION_"..station_id,
+			minZ = Config.GasStations[station_id].minz,
+			maxZ = Config.GasStations[station_id].maxz,
+			debugPoly = true
 		})
-		Stations[k]:onPlayerInOut(function(isPointInside)
+		Stations[station_id]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
 				inGasStation = true
-				if Config.FuelDebug then print("Updating Location...")end
-				UpdatedLocation = k
-				CurrentLocation = UpdatedLocation
-				if Config.FuelDebug then print("New Location: "..CurrentLocation) end
+				CurrentLocation = station_id
+				if Config.FuelDebug then print("New Location: "..station_id) end
 				if Config.PlayerOwnedGasStationsEnabled then
-					TriggerEvent('cdn-fuel:stations:updatelocation', UpdatedLocation)
+					TriggerEvent('cdn-fuel:stations:updatelocation', station_id)
 				end
 			else
 				inGasStation = false
@@ -259,7 +251,6 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-	DecorRegister(Config.FuelDecor, 1)
 	while true do
 		Wait(1000)
 		local ped = PlayerPedId()
@@ -274,11 +265,12 @@ CreateThread(function()
 				inBlacklisted = false
 			end
 			if not inBlacklisted and GetPedInVehicleSeat(vehicle, -1) == ped then
-				ManageFuelUsage(vehicle)
+				HandleFuelConsumption(vehicle)
 			end
 		else
 			if fuelSynced then fuelSynced = false end
 			if inBlacklisted then inBlacklisted = false end
+			Wait(500)
 		end
 	end
 end)
@@ -482,14 +474,14 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 				Wait(0)
 			end
 
-			Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z, 0.0, 0.0, 0.0, 3.0, Config.RopeType, 8.0 --[[ DO NOT SET THIS TO 0.0!!! GAME WILL CRASH!]], 0.0, 1.0, false, false, false, 1.0, true)
+			Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z, 0.0, 0.0, 0.0, 3.0, Config.RopeType['fuel'], 8.0 --[[ DO NOT SET THIS TO 0.0!!! GAME WILL CRASH!]], 0.0, 1.0, false, false, false, 1.0, true)
 			while not Rope do
 				Wait(0)
 			end
 			ActivatePhysics(Rope)
 			Wait(100)
 			local nozzlePos = GetEntityCoords(fuelnozzle)
-			print("NOZZLE POS ".. nozzlePos)
+			if Config.FuelDebug then print("NOZZLE POS ".. nozzlePos) end
 			nozzlePos = GetOffsetFromEntityInWorldCoords(fuelnozzle, 0.0, -0.033, -0.195)
 			
 			local PumpHeightAdd = nil
@@ -554,10 +546,7 @@ RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
 		else
 			holdingnozzle = false
 			TargetCreated = false
-			LoadAnimDict("pickup_object")
-			TaskPlayAnim(ped, "pickup_object", "putdown_low", 2.0, 8.0, -1, 17, 0, 0, 0, 0)
 			TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
-			StopAnimTask(ped, 'pickup_object', 'putdown_low', 1.0)
 			Wait(250)
 			if Config.FuelTargetExport then exports[Config.TargetResource]:AllowRefuel(false) end
 			DeleteObject(fuelnozzle)
@@ -565,10 +554,7 @@ RegisterNetEvent('cdn-fuel:client:returnnozzle', function()
 	else
 		holdingnozzle = false
 		TargetCreated = false
-		LoadAnimDict("pickup_object")
-		TaskPlayAnim(ped, "pickup_object", "putdown_low", 2.0, 8.0, -1, 17, 0, 0, 0, 0)
 		TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
-		StopAnimTask(ped, 'pickup_object', 'putdown_low', 1.0)
 		Wait(250)
 		if Config.FuelTargetExport then exports[Config.TargetResource]:AllowRefuel(false) end
 		DeleteObject(fuelnozzle)
@@ -585,17 +571,21 @@ AddEventHandler('onResourceStop', function(resource)
 	if resource == GetCurrentResourceName() then
 		DeleteObject(fuelnozzle)
 		DeleteObject(SpecialFuelNozzleObj)
-		
+
 		if Config.PumpHose then
 			RopeUnloadTextures()
 			DeleteObject(Rope)
+		end	
+
+		if Config.TargetResource == 'ox_target' then
+			exports.ox_target:removeGlobalVehicle('cdn-fuel:options:1')
+			exports.ox_target:removeGlobalVehicle('cdn-fuel:options:2')
 		end
-		
+
 		-- Remove Blips from map so they dont double up.
 		for i = 1, #GasStationBlips, 1 do
 			RemoveBlip(GasStationBlips[i])
 		end
-		
 	end
 end)
 
@@ -823,7 +813,6 @@ end)
 RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function(type)
 	local vehicle = QBCore.Functions.GetClosestVehicle()
 	local NotElectric = false
-	local vehClass = GetVehicleClass(vehicle --[[ Vehicle ]])
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
 		if isElectric == 'electricvehicle' then
@@ -932,12 +921,10 @@ end)
 RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	if RefuelingType == nil then
 		FetchStationInfo("all")
-		Wait(100)	
+		Wait(100)
 	end
 
-	local purchasetype
-	local amount
-	local fuelamount
+	local purchasetype, amount, fuelamount
 
 	if not Config.RenewedPhonePayment then 
 		purchasetype = data.purchasetype 
@@ -1037,7 +1024,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	if amount < 10 then time = 10 * Config.RefuelTime end
 	local vehicleCoords = GetEntityCoords(vehicle)
 	if inGasStation then
-		if isCloseVeh() then
+		if IsPlayerNearVehicle() then
 			RequestAnimDict(Config.RefuelAnimationDictionary)
 			while not HasAnimDictLoaded('timetable@gardener@filling_can') do Wait(100) end
 			if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
@@ -1046,6 +1033,16 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					AddExplosion(vehicleCoords, 5, 50.0, true, false, true)
 					return
 				end
+			end
+			if Config.FaceTowardsVehicle then
+				local bootBoneIndex = GetEntityBoneIndexByName(vehicle --[[ Entity ]], 'boot' --[[ string ]])
+				local vehBootCoords = GetWorldPositionOfEntityBone(vehicle --[[ Entity ]],  joaat(bootBoneIndex)--[[ integer ]])
+				if Config.FuelDebug then
+					print("Vehicle Boot Bone Coords: "..vehBootCoords.x, vehBootCoords.y, vehBootCoords.z)
+				end
+				-- vehBootCoords = vector3(vehBootCoords.x, vehBootCoords.y, vehBootCoords.z)
+				TaskTurnPedToFaceCoord(PlayerPedId(), vehBootCoords, 500)
+				Wait(500)
 			end
 			TaskPlayAnim(ped, Config.RefuelAnimationDictionary, Config.RefuelAnimation, 8.0, 1.0, -1, 1, 0, 0, 0, 0)
 			refueling = true
@@ -1191,8 +1188,8 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 				end, "fas fa-gas-pump")
 			end
 		end
-	else 
-		return 
+	else
+		return
 	end
 end)
 
@@ -2103,14 +2100,14 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle:special', function()
 		while not pump do
 			Wait(0)
 		end
-		Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z + 2.0, 0.0, 0.0, 0.0, 3.0, Config.RopeType, 8.0 --[[ DO NOT SET THIS TO 0.0!!! GAME WILL CRASH!]], 0.0, 1.0, false, false, false, 1.0, true)
+		Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z + 2.0, 0.0, 0.0, 0.0, 3.0, Config.RopeType['fuel'], 8.0 --[[ DO NOT SET THIS TO 0.0!!! GAME WILL CRASH!]], 0.0, 1.0, false, false, false, 1.0, true)
 		while not Rope do
 			Wait(0)
 		end
 		ActivatePhysics(Rope)
 		Wait(100)
 		local nozzlePos = GetEntityCoords(SpecialFuelNozzleObj)
-		print("NOZZLE POS ".. nozzlePos)
+		if Config.FuelDebug then print("NOZZLE POS ".. nozzlePos) end
 		nozzlePos = GetOffsetFromEntityInWorldCoords(SpecialFuelNozzleObj, 0.0, -0.033, -0.195)
 		AttachEntitiesToRope(Rope, pump, SpecialFuelNozzleObj, pumpCoords.x, pumpCoords.y, pumpCoords.z + 2.1, nozzlePos.x, nozzlePos.y, nozzlePos.z, length, false, false, nil, nil)
 		
@@ -2150,10 +2147,7 @@ end)
 
 RegisterNetEvent('cdn-fuel:client:returnnozzle:special', function()
 	HoldingSpecialNozzle = false
-	LoadAnimDict("pickup_object")
-	TaskPlayAnim(ped, "pickup_object", "putdown_low", 2.0, 8.0, -1, 17, 0, 0, 0, 0)
 	TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbacknozzle", 0.4)
-	StopAnimTask(ped, 'pickup_object', 'putdown_low', 1.0)
 	Wait(250)
 	DeleteObject(SpecialFuelNozzleObj)
 	
@@ -2348,28 +2342,23 @@ CreateThread(function()
 		"engine",
 	}
 
-	exports[Config.TargetResource]:AddTargetBone(bones, {
-		options = {
-			{
-				type = "client",
-				action = function ()
-					TriggerEvent('cdn-fuel:client:RefuelMenu')
-				end,
+	if Config.TargetResource == 'ox_target' then
+		local options = {
+			[1] = {
+				name = 'cdn-fuel:options:1',
 				icon = "fas fa-gas-pump",
-				label = Lang:t("input_insert_nozzle"),
+				label = tostring(Lang:t("input_insert_nozzle")),
 				canInteract = function()
 					if inGasStation and not refueling and holdingnozzle then
 						return true
 					end
-				end
-			},
-			{
-				type = "client",
-				action = function()
-					TriggerEvent('cdn-fuel:client:electric:RefuelMenu')
 				end,
+				event = 'cdn-fuel:client:RefuelMenu'
+			},
+			[2] = {
+				name = 'cdn-fuel:options:2',
 				icon = "fas fa-bolt",
-				label = Lang:t("insert_electric_nozzle"),
+				label = tostring(Lang:t("insert_electric_nozzle")),
 				canInteract = function()
 					if Config.ElectricVehicleCharging == true then
 						if inGasStation and not refueling and IsHoldingElectricNozzle() then
@@ -2380,78 +2369,185 @@ CreateThread(function()
 					else
 						return false
 					end
-				end
-			},
-		},
-		distance = 1.5,
-	})
+				end,
+				event = "cdn-fuel:client:electric:RefuelMenu",
+			}
+		}
 
-	exports[Config.TargetResource]:AddTargetModel(props, {
-		options = {
-			{
-				num = 1,
-				type = "client",
-				event = "cdn-fuel:client:grabnozzle",
-				icon = "fas fa-gas-pump",
-				label = Lang:t("grab_nozzle"),
-				canInteract = function()
-					if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
-						return true
+		exports.ox_target:addGlobalVehicle(options)
+
+		exports['qb-target']:AddTargetModel(props, {
+			options = {
+				{
+					num = 1,
+					type = "client",
+					event = "cdn-fuel:client:grabnozzle",
+					icon = "fas fa-gas-pump",
+					label = Lang:t("grab_nozzle"),
+					canInteract = function()
+						if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
+							return true
+						end
+					end,
+				},
+				{
+					num = 2,
+					type = "client",
+					event = "cdn-fuel:client:purchasejerrycan",
+					icon = "fas fa-fire-flame-simple",
+					label = Lang:t("buy_jerrycan"),
+					canInteract = function()
+						if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
+							return true
+						end
+					end,
+				},
+				{
+					num = 3,
+					type = "client",
+					event = "cdn-fuel:client:returnnozzle",
+					icon = "fas fa-hand",
+					label = Lang:t("return_nozzle"),
+					canInteract = function()
+						if holdingnozzle and not refueling then
+							return true
+						end
+					end,
+				},
+				{
+					num = 4,
+					type = "client",
+					event = "cdn-fuel:client:grabnozzle:special",
+					icon = "fas fa-gas-pump",
+					label = Lang:t("grab_special_nozzle"),
+					canInteract = function()
+						if Config.FuelDebug then print("Is Player In Special Fuel Zone?: "..tostring(PlayerInSpecialFuelZone)) end
+						if not HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) and PlayerInSpecialFuelZone then	
+							return true
+						end
+					end,
+				},
+				{
+					num = 5,
+					type = "client",
+					event = "cdn-fuel:client:returnnozzle:special",
+					icon = "fas fa-hand",
+					label = Lang:t("return_special_nozzle"),
+					canInteract = function()
+						if HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) then
+							return true
+						end
 					end
-				end,
+				},
 			},
-			{
-				num = 2,
-				type = "client",
-				event = "cdn-fuel:client:purchasejerrycan",
-				icon = "fas fa-fire-flame-simple",
-				label = Lang:t("buy_jerrycan"),
-				canInteract = function()
-					if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
-						return true
+			distance = 2.0
+		})
+	else
+		exports[Config.TargetResource]:AddTargetBone(bones, {
+			options = {
+				{
+					type = "client",
+					action = function ()
+						TriggerEvent('cdn-fuel:client:RefuelMenu')
+					end,
+					icon = "fas fa-gas-pump",
+					label = Lang:t("input_insert_nozzle"),
+					canInteract = function()
+						if inGasStation and not refueling and holdingnozzle then
+							return true
+						end
 					end
-				end,
-			},
-			{
-				num = 3,
-				type = "client",
-				event = "cdn-fuel:client:returnnozzle",
-				icon = "fas fa-hand",
-				label = Lang:t("return_nozzle"),
-				canInteract = function()
-					if holdingnozzle and not refueling then
-						return true
+				},
+				{
+					type = "client",
+					action = function()
+						TriggerEvent('cdn-fuel:client:electric:RefuelMenu')
+					end,
+					icon = "fas fa-bolt",
+					label = Lang:t("insert_electric_nozzle"),
+					canInteract = function()
+						if Config.ElectricVehicleCharging == true then
+							if inGasStation and not refueling and IsHoldingElectricNozzle() then
+								return true
+							else
+								return false
+							end
+						else
+							return false
+						end
 					end
-				end,
+				},
 			},
-			{
-				num = 4,
-				type = "client",
-				event = "cdn-fuel:client:grabnozzle:special",
-				icon = "fas fa-gas-pump",
-				label = Lang:t("grab_special_nozzle"),
-				canInteract = function()
-					print("Is Player In Special Fuel Zone?: "..tostring(PlayerInSpecialFuelZone))
-					if not HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) and PlayerInSpecialFuelZone then	
-						return true
+			distance = 1.5,
+		})
+	
+		exports[Config.TargetResource]:AddTargetModel(props, {
+			options = {
+				{
+					num = 1,
+					type = "client",
+					event = "cdn-fuel:client:grabnozzle",
+					icon = "fas fa-gas-pump",
+					label = Lang:t("grab_nozzle"),
+					canInteract = function()
+						if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
+							return true
+						end
+					end,
+				},
+				{
+					num = 2,
+					type = "client",
+					event = "cdn-fuel:client:purchasejerrycan",
+					icon = "fas fa-fire-flame-simple",
+					label = Lang:t("buy_jerrycan"),
+					canInteract = function()
+						if not IsPedInAnyVehicle(PlayerPedId()) and not holdingnozzle and not HoldingSpecialNozzle and inGasStation == true then
+							return true
+						end
+					end,
+				},
+				{
+					num = 3,
+					type = "client",
+					event = "cdn-fuel:client:returnnozzle",
+					icon = "fas fa-hand",
+					label = Lang:t("return_nozzle"),
+					canInteract = function()
+						if holdingnozzle and not refueling then
+							return true
+						end
+					end,
+				},
+				{
+					num = 4,
+					type = "client",
+					event = "cdn-fuel:client:grabnozzle:special",
+					icon = "fas fa-gas-pump",
+					label = Lang:t("grab_special_nozzle"),
+					canInteract = function()
+						if Config.FuelDebug then print("Is Player In Special Fuel Zone?: "..tostring(PlayerInSpecialFuelZone)) end
+						if not HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) and PlayerInSpecialFuelZone then	
+							return true
+						end
+					end,
+				},
+				{
+					num = 5,
+					type = "client",
+					event = "cdn-fuel:client:returnnozzle:special",
+					icon = "fas fa-hand",
+					label = Lang:t("return_special_nozzle"),
+					canInteract = function()
+						if HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) then
+							return true
+						end
 					end
-				end,
+				},
 			},
-			{
-				num = 5,
-				type = "client",
-				event = "cdn-fuel:client:returnnozzle:special",
-				icon = "fas fa-hand",
-				label = Lang:t("return_special_nozzle"),
-				canInteract = function()
-					if HoldingSpecialNozzle and not IsPedInAnyVehicle(PlayerPedId()) then
-						return true
-					end
-				end
-			},
-		},
-		distance = 2.0
-	})
+			distance = 2.0
+		})
+	end
 end)
 
 if Config.VehicleShutoffOnLowFuel['enabled'] == true then
@@ -2495,7 +2591,6 @@ if Config.VehicleShutoffOnLowFuel['enabled'] == true then
 								end
 							end
 						end
-						
 					end
 				end
 			end)

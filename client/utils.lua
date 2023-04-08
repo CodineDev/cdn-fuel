@@ -1,22 +1,44 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
 function GetFuel(vehicle)
-	return DecorGetFloat(vehicle, Config.FuelDecor)
+	if Entity(vehicle).state.fuel then
+		return Entity(vehicle).state.fuel
+	else
+		return 0
+	end
 end
 
-function SetFuel(vehicle, fuel)
-	if type(fuel) == 'number' and fuel >= 0 and fuel <= 100 then
-		SetVehicleFuelLevel(vehicle, fuel + 0.0)
-		DecorSetFloat(vehicle, Config.FuelDecor, GetVehicleFuelLevel(vehicle))
+function SetFuel(vehicle, newFuelLevel, toReplicate)
+	if toReplicate == nil then toReplicate = true end
+
+	if DoesEntityExist(vehicle) then
+		local CurrentState = Entity(vehicle).state
+		SetVehicleFuelLevel(vehicle, newFuelLevel)
+
+		if not CurrentState.fuel then
+			if Config.FuelDebug then print("CurrentState.fuel is not valid, so we are creating a state bag for this entity.") end 
+			TriggerServerEvent('cdn-fuel:server:IntializeStateBag', NetworkGetNetworkIdFromEntity(vehicle), newFuelLevel)
+		else
+			SetVehicleFuelLevel(vehicle, newFuelLevel)
+			CurrentState:set('fuel', newFuelLevel, toReplicate)
+		end
+	else
+		if Config.FuelDebug then
+			print("Entity Used in SetFuel is not valid.. Are you using the correct entity?")
+		end
 	end
 end
 
 function LoadAnimDict(dict)
-	if not HasAnimDictLoaded(dict) then
+	while (not HasAnimDictLoaded(dict)) do
 		RequestAnimDict(dict)
-
-		while not HasAnimDictLoaded(dict) do
-			Wait(1)
-		end
+		Wait(5)
 	end
+end
+
+function GlobalTax(value)
+	local tax = (value / 100 * Config.GlobalTax)
+	return tax
 end
 
 function Comma_Value(amount)
@@ -28,6 +50,13 @@ function Comma_Value(amount)
 	  end
 	end
 	return formatted
+end
+
+function math.percent(percent, maxvalue)
+	if tonumber(percent) and tonumber(maxvalue) then
+		return (maxvalue*percent)/100
+	end
+	return false
 end
 
 function Round(num, numDecimalPlaces)
@@ -69,29 +98,14 @@ function CreateBlip(coords, label)
 	return blip
 end
 
-
-function isCloseVeh()
-    local ped = PlayerPedId()
-    coordA = GetEntityCoords(ped, 1)
-    coordB = GetOffsetFromEntityInWorldCoords(ped, 0.0, 200.0, 0.0)
-    vehicle = getVehicleInDirection(coordA, coordB)
-    if DoesEntityExist(vehicle) and NetworkHasControlOfEntity(vehicle) then
-        return true
-    end
-    return false
-end
-
-function getVehicleInDirection(coordFrom, coordTo)
-	local offset = 0
-	local rayHandle
-	local vehicle
-	for i = 0, 100 do
-		rayHandle = CastRayPointToPoint(coordFrom.x, coordFrom.y, coordFrom.z, coordTo.x, coordTo.y, coordTo.z + offset, 10, PlayerPedId(), 0)	
-		a, b, c, d, vehicle = GetRaycastResult(rayHandle)
-		offset = offset - 1
-		if vehicle ~= 0 then break end
+function IsPlayerNearVehicle()
+	if Config.FuelDebug then
+		print("Checking if player is near a vehicle!")
 	end
-	local distance = Vdist2(coordFrom, GetEntityCoords(vehicle))
-	if distance > 25 then vehicle = nil end
-    return vehicle ~= nil and vehicle or 0
+	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local closestVehCoords = GetEntityCoords(vehicle)
+	if #(GetEntityCoords(PlayerPedId(), closestVehCoords)) > 3.0 then
+		return true
+	end
+	return false
 end

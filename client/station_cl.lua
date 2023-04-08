@@ -4,13 +4,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
     local PedsSpawned = false
 
     -- Functions
-    function math.percent(percent, maxvalue)
-        if tonumber(percent) and tonumber(maxvalue) then
-            return (maxvalue*percent)/100
-        end
-        return false
-    end
-
     local function UpdateStationInfo(info)
         if Config.FuelDebug then print("Fetching Information for Location #" ..CurrentLocation) end
         QBCore.Functions.TriggerCallback('cdn-fuel:server:fetchinfo', function(result)

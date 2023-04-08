@@ -7,12 +7,11 @@ Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5
 Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
 Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
-Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
-Config.FuelTargetExport = false -- This is only used to fix this issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
+Config.FuelTargetExport = false -- DO NOT USE WITH OX_TARGET! This is only used to fix this qb-target issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
 -- 2.1.0 Update
-Config.EmergencyServicesDiscount = { -- & Electrici**ty
+Config.EmergencyServicesDiscount = {
     ['enabled'] = true, -- Enables Emergency Services Getting a discount based on the value below for Refueling & Electricity Charging Cost
     ['discount'] = 23, -- % Discount off of price (before tax).
     ['emergency_vehicles_only'] = true, -- Only allows discounts to be applied to Emergency Vehicles
@@ -24,40 +23,42 @@ Config.EmergencyServicesDiscount = { -- & Electrici**ty
         "ambulance",
     }
 }
-Config.Core = 'qb-core' -- Change this to what your core is named (LOOK FOR FOLDER)
-Config.Ox = { -- TO USE OX_LIB YOU MUST UN-LINE THE OX_LIB IN THE FXMANIFEST!!!
-    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's
-    Menu = false, -- Uses OX Libraries instead of qb-menu
-    Input = false, -- Uses Ox Input Dialog instead of qb-input
-    DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText
-    Progress = false -- Uses Ox ProgressBar instead of progressbar
+Config.Core = 'qb-core' -- Change this to your core resources (Ex: 'qbx-core' | 'qb-core'), must be qb based!
+Config.Ox = {
+    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
+    Menu = false, -- Uses OX Libraries instead of qb-menu.
+    Input = false, -- Uses Ox Input Dialog instead of qb-input.
+    DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText.
+    Progress = false -- Uses Ox ProgressBar instead of progressbar.
 }
-Config.TargetResource = "qb-target" -- Or Target Name of Your Choice, must use the same format as QB-Target, or manual configuration is required.
+Config.TargetResource = "qb-target" -- Supported: { 'qb-target', 'ox_target'} -- Others must use the same format as QB-Target or manual configuration is required.
 Config.PumpHose = true -- If true, it creates a hose from the pump to the nozzle the client is holding, to give it a more realistic feel.
-Config.RopeType = 1 -- Options: 1-2-3-4-5; 1: Khaki Color, Kind of Thick, 2: Very Thick Khaki Rope, 3: Very Thick Black Rope, 4: Very Thin Black Rope, 5: Same as 3
-
--- Phone --
-Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
-Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
-
+Config.RopeType = { -- Options: 1-2-3-4-5; 1: Khaki Color, Kind of Thick, 2: Very Thick Khaki Rope, 3: Very Thick Black Rope, 4: Very Thin Black Rope, 5: Same as 3
+    ['fuel'] = 1,
+    ['electric'] = 1,
+}
+Config.FaceTowardsVehicle = true -- Ped will turn towards the entity's boot bone for refueling, sometimes can result in incorrect nozzle placement when refueling.
 Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when the reach 0 fuel. This works well in conjuction with disallowing people to turn on a vehicle with 0 fuel.
     ['enabled'] = true, -- Is the loop for shutting vehicles off when the fuel level is low turned on?
-    ['shutOffLevel'] = 0, -- At this fuel level, the vehicle will shut off. Default: 0, Recommended: 0-5.
+    ['shutOffLevel'] = 5, -- At this fuel level, the vehicle will shut off. Default: 0, Recommended: 0-5.
     ['sounds'] = {
         ['enabled'] = true, -- Are Sounds Enabled when vehicle has no fuel?
-        -- Find sound banks and sounds here: https://pastebin.com/A8Ny8AHZ
+        -- Find sound banks and sounds here: https://pastebin.com/A8Ny8AHZ.
         ['audio_bank'] = "DLC_PILOT_ENGINE_FAILURE_SOUNDS", -- Audio Bank of Sound.
         ['sound'] = "Landing_Tone", -- Sound Name in Audio Bank.
     }
 }
 
--- 2.1.0 End 
+-- 2.1.0 End
+
+-- Phone --
+Config.RenewedPhonePayment = true -- Enables use of Renewed-Phone Payment System and Notifications
+Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
 
 
 -- Syphoning --
 Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
 Config.SyphonDebug = false -- Used for Debugging the syphon portion!
-Config.SyphonFuelDecor = Config.FuelDecor -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25%
 Config.SyphonDispatchSystem = "ps-dispatch" -- Options: "ps-dispatch", "qb-dispatch", "qb-default" (just blips) or "custom" (Custom: you must configure yourself!)
@@ -1004,16 +1005,15 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [13] = {
         zones = {
-            vector2(143.18, 6588.64),
-            vector2(155.68, 6610.61),
-            vector2(171.59, 6631.44),
-            vector2(193.18, 6630.30),
-            vector2(206.06, 6618.94),
-            vector2(210.98, 6561.74),
-            vector2(161.74, 6538.64)
+            vector2(167.08, 6631.73),
+            vector2(176.47, 6640.66),
+            vector2(199.71, 6632.08),
+            vector2(202.3, 6597.25),
+            vector2(162.95, 6590.22),
+            vector2(158.64, 6610.64),
         },
         minz = 30.7,
-        maxz = 32.91,
+        maxz = 33.4,
         pedmodel = "a_m_m_indian_01",
         cost = 100000,
         shutoff = false,

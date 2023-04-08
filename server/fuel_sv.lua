@@ -16,6 +16,33 @@ if Config.RenewedPhonePayment then
 	end)
 end
 
+RegisterNetEvent('cdn-fuel:server:IntializeStateBag', function(vehicleNetId, newValue)
+	local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+	local state = vehicle and Entity(vehicle).state
+
+	if not newValue then
+		if Config.FuelDebug then
+			print("newValue was sent, but, it is nil.")
+		end
+		return
+	end
+
+	if state and not state.fuel and GetEntityType(vehicle) == 2 and NetworkGetEntityOwner(vehicle) == source then
+		if newValue < 0 then
+			newValue = 0
+		end
+
+		if newValue > 100 then
+			newValue = 100
+		end
+
+		if Config.FuelDebug then
+			print("Creating the fuel state for vehicle!")
+		end
+		state:set('fuel', newValue or 100, true)
+	end
+end)
+
 RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasWeapon, purchasetype, FuelPrice)
 	local src = source
 	if not src then return end

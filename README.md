@@ -2,7 +2,7 @@
 
 # _CDN-Fuel (2.1.0)_ 
 
-A functionality fuel system based off of [ps-fuel](https://github.com/Project-Sloth/ps-fuel) that uses PolyZones that target fueling pumps and vehicles to allow you to refuel your vehicle, as well as interact-sound to play accurate refueling sounds.
+A highly in-depth fuel system for FiveM with support for the QBCore Framework & QBox Remastered.
 
 # _Lastest Patch Information_
 *Additions:*
@@ -15,12 +15,7 @@ A functionality fuel system based off of [ps-fuel](https://github.com/Project-Sl
 
 *Fixes:*
 - Bank Payment Double Taxing Payments.
-- Paleto BLVD Location PolyZone issue.
-
-
-## Major Credits
-
-Major shoutout to the Project Sloth team. We based this script off of their wonderful ps-fuel script. We wanted to change it up a little bit, but ended up doing a lot more than originally planned, so we though we'd release this on it's own rather than PR things. (https://github.com/Project-Sloth/ps-fuel)
+- Paleto Locations PolyZone issue.
 
 <br>
 <br>
@@ -368,10 +363,6 @@ Here's a couple of videos showcasing the script in action!
 - [Youtube](https://www.youtube.com/channel/UC3Nr0qtyQP9cGRK1m25pOqg)
 
 ### Credits:
-
-
-- **Base Fueling System:**
-Massive shoutout, once again, to the team at [Project Sloth](https://github.com/Project-Sloth)! They create super sick scripts that have changed the game when it comes to fivem server development. This script is based off of their [ps-fuel script](https://github.com/Project-Sloth/ps-fuel).
 
 - **OX Conversion:**
 <br><br><img src="https://avatars.githubusercontent.com/u/6962192?v=4" width="25" height="25">

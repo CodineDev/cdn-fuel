@@ -1,7 +1,7 @@
 if Config.ElectricVehicleCharging then
     -- Variables   
     local QBCore = exports[Config.Core]:GetCoreObject()
-    HoldingElectricNozzle = false
+    local HoldingElectricNozzle = false
     local RefuelPossible = false
     local RefuelPossibleAmount = 0 
     local RefuelCancelled = false
@@ -27,7 +27,6 @@ if Config.ElectricVehicleCharging then
     
     function SetElectricNozzle(state)
         if state == "putback" then
-            LoadAnimDict("pickup_object")
             TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbackcharger", 0.4)
             Wait(250)
             if Config.FuelTargetExport then exports[Config.TargetResource]:AllowRefuel(false, true) end
@@ -194,7 +193,7 @@ if Config.ElectricVehicleCharging then
             ElectricityAmount = tonumber(Electricity[4])
 
             if Electricity then
-                if not ElectricityAmount then print("ElectricityAmount is invalid!") return end
+                if not ElectricityAmount then if Config.FuelDebug then print("ElectricityAmount is invalid!") end return end
                 if not HoldingElectricNozzle then QBCore.Functions.Notify(Lang:t("electric_no_nozzle"), 'error', 7500) return end
                 if (ElectricityAmount + finalfuel) >= 100 then
                     QBCore.Functions.Notify(Lang:t("tank_already_full"), "error")
@@ -586,7 +585,7 @@ if Config.ElectricVehicleCharging then
             while not pump do
                 Wait(0)
             end
-            Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z, 0.0, 0.0, 0.0, 3.0, 1, 1000.0, 0.0, 1.0, false, false, false, 1.0, true)
+            Rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z, 0.0, 0.0, 0.0, 3.0, Config.RopeType['electric'], 1000.0, 0.0, 1.0, false, false, false, 1.0, true)
             while not Rope do
                 Wait(0)
             end
@@ -757,7 +756,12 @@ if Config.ElectricVehicleCharging then
     end)
 
     -- Target
-    exports[Config.TargetResource]:AddTargetModel('electric_charger', {
+    local TargetResource = Config.TargetResource
+    if Config.TargetResource == 'ox_target' then
+        TargetResource = 'qb-target'
+    end
+    
+    exports[TargetResource]:AddTargetModel('electric_charger', {
         options = {
             {
                 num = 1,
