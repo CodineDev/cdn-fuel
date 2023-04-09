@@ -1,5 +1,6 @@
 Config = {}
-Config.FuelDebug = true -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
+Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
+Config.PolyDebug = false -- Enables Polyzone Debugging to see PolyZones!
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
 Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
@@ -26,9 +27,9 @@ Config.EmergencyServicesDiscount = {
 }
 Config.Core = 'qb-core' -- Change this to your core resources (Ex: 'qbx-core' | 'qb-core'), must be qb based!
 Config.Ox = {
-    Inventory = true, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
-    Menu = true, -- Uses OX Libraries instead of qb-menu.
-    Input = true, -- Uses Ox Input Dialog instead of qb-input.
+    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
+    Menu = false, -- Uses OX Libraries instead of qb-menu.
+    Input = false, -- Uses Ox Input Dialog instead of qb-input.
     DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText.
     Progress = false -- Uses Ox ProgressBar instead of progressbar.
 }
@@ -53,12 +54,12 @@ Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when th
 -- 2.1.0 End
 
 -- Phone --
-Config.RenewedPhonePayment = true -- Enables use of Renewed-Phone Payment System and Notifications
+Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
 Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
 
 
 -- Syphoning --
-Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
+Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
 Config.SyphonDebug = false -- Used for Debugging the syphon portion!
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25%
