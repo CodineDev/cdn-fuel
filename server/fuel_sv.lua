@@ -170,28 +170,49 @@ RegisterNetEvent('cdn-fuel:info', function(type, amount, srcPlayerData, itemdata
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local srcPlayerData = srcPlayerData
+	local ItemName = itemdata.name
+
 	if Config.Ox.Inventory then
 		if itemdata == "jerrycan" then
 			if amount < 1 or amount > Config.JerryCanCap then if Config.FuelDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
 		elseif itemdata == "syphoningkit" then
 			if amount < 1 or amount > Config.SyphonKitCap then if Config.SyphonDebug then print("Error, amount is invalid (< 1 or > "..Config.SyphonKitCap..")! Amount:" ..amount) end return end
 		end
-		local jerry_can = exports.ox_inventory:Search(source, 1, itemdata)
-		for k, v in pairs(jerry_can) do
-			jerry_can = v
-			break
-		end
-		local fuel_amount = tonumber(jerry_can.metadata.cdn_fuel)
-		if type == "add" then
-			fuel_amount = fuel_amount + amount
-			jerry_can.metadata.cdn_fuel = tostring(fuel_amount)
-			exports.ox_inventory:SetMetadata(src, jerry_can.slot, jerry_can.metadata)
-		elseif type == "remove" then
-			fuel_amount = fuel_amount - amount
-			jerry_can.metadata.cdn_fuel = tostring(fuel_amount)
-			exports.ox_inventory:SetMetadata(src, jerry_can.slot, jerry_can.metadata)
+		if ItemName ~= nil then
+			-- Ignore --
+			itemdata.metadata = itemdata.metadata
+			itemdata.slot = itemdata.slot
+			if ItemName == 'jerrycan' then
+				local fuel_amount = tonumber(itemdata.metadata.cdn_fuel)
+				if type == "add" then
+					fuel_amount = fuel_amount + amount
+					itemdata.metadata.cdn_fuel = tostring(fuel_amount)
+					exports.ox_inventory:SetMetadata(src, itemdata.slot, itemdata.metadata)
+				elseif type == "remove" then
+					fuel_amount = fuel_amount - amount
+					itemdata.metadata.cdn_fuel = tostring(fuel_amount)
+					exports.ox_inventory:SetMetadata(src, itemdata.slot, itemdata.metadata)
+				else
+					if Config.FuelDebug then print("error, type is invalid!") end
+				end
+			elseif ItemName == 'syphoningkit' then
+				local fuel_amount = tonumber(itemdata.metadata.cdn_fuel)
+				if type == "add" then
+					fuel_amount = fuel_amount + amount
+					itemdata.metadata.cdn_fuel = tostring(fuel_amount)
+					exports.ox_inventory:SetMetadata(src, itemdata.slot, itemdata.metadata)
+				elseif type == "remove" then
+					fuel_amount = fuel_amount - amount
+					itemdata.metadata.cdn_fuel = tostring(fuel_amount)
+					exports.ox_inventory:SetMetadata(src, itemdata.slot, itemdata.metadata)
+				else
+					if Config.SyphonDebug then print("error, type is invalid!") end
+				end
+			end
 		else
-			if Config.SyphonDebug then print("error, type is invalid!") end
+			if Config.FuelDebug then
+				print("ItemName is invalid!")
+			end
 		end
 	else
 		if itemdata.info.name == "jerrycan" then

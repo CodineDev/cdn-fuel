@@ -1,31 +1,13 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 function GetFuel(vehicle)
-	if Entity(vehicle).state.fuel then
-		return Entity(vehicle).state.fuel
-	else
-		return 0
-	end
+	return DecorGetFloat(vehicle, Config.FuelDecor)
 end
 
-function SetFuel(vehicle, newFuelLevel, toReplicate)
-	if toReplicate == nil then toReplicate = true end
-
-	if DoesEntityExist(vehicle) then
-		local CurrentState = Entity(vehicle).state
-		SetVehicleFuelLevel(vehicle, newFuelLevel)
-
-		if not CurrentState.fuel then
-			if Config.FuelDebug then print("CurrentState.fuel is not valid, so we are creating a state bag for this entity.") end 
-			TriggerServerEvent('cdn-fuel:server:IntializeStateBag', NetworkGetNetworkIdFromEntity(vehicle), newFuelLevel)
-		else
-			SetVehicleFuelLevel(vehicle, newFuelLevel)
-			CurrentState:set('fuel', newFuelLevel, toReplicate)
-		end
-	else
-		if Config.FuelDebug then
-			print("Entity Used in SetFuel is not valid.. Are you using the correct entity?")
-		end
+function SetFuel(vehicle, fuel)
+	if type(fuel) == 'number' and fuel >= 0 and fuel <= 100 then
+		SetVehicleFuelLevel(vehicle, fuel + 0.0)
+		DecorSetFloat(vehicle, Config.FuelDecor, GetVehicleFuelLevel(vehicle))
 	end
 end
 

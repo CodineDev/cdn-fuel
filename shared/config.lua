@@ -1,6 +1,5 @@
 Config = {}
-Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
-Config.PolyDebug = false -- Used for showing debug zones for PolyZones. (Default: False)
+Config.FuelDebug = true -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
 Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
@@ -8,6 +7,7 @@ Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5
 Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
 Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
+Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
 Config.FuelTargetExport = false -- DO NOT USE WITH OX_TARGET! This is only used to fix this qb-target issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
@@ -26,9 +26,9 @@ Config.EmergencyServicesDiscount = {
 }
 Config.Core = 'qb-core' -- Change this to your core resources (Ex: 'qbx-core' | 'qb-core'), must be qb based!
 Config.Ox = {
-    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
-    Menu = false, -- Uses OX Libraries instead of qb-menu.
-    Input = false, -- Uses Ox Input Dialog instead of qb-input.
+    Inventory = true, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
+    Menu = true, -- Uses OX Libraries instead of qb-menu.
+    Input = true, -- Uses Ox Input Dialog instead of qb-input.
     DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText.
     Progress = false -- Uses Ox ProgressBar instead of progressbar.
 }
@@ -58,7 +58,7 @@ Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
 
 
 -- Syphoning --
-Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
+Config.UseSyphoning = true -- Follow the Syphoning Install Guide to enable this option!
 Config.SyphonDebug = false -- Used for Debugging the syphon portion!
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25%
