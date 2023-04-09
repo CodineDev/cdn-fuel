@@ -432,7 +432,7 @@ if Config.ElectricVehicleCharging then
         if amount < 10 then time = 10 * Config.RefuelTime end
         local vehicleCoords = GetEntityCoords(vehicle)
         if IsInGasStation() then
-            if isCloseVeh() then
+            if IsPlayerNearVehicle() then
                 RequestAnimDict(Config.RefuelAnimationDictionary)
                 while not HasAnimDictLoaded('timetable@gardener@filling_can') do Wait(100) end
                 if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
