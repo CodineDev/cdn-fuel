@@ -1,8 +1,8 @@
 ![Codine Development Fuel Script Banner](https://i.imgur.com/qVOMMvW.png)
 
-# _CDN-Fuel (2.1.0)_ 
+# _CDN-Fuel (2.1.1)_ 
 
-A highly in-depth fuel system for FiveM with support for the QBCore Framework & QBox Remastered.
+A highly in-depth fuel system for **FiveM** with support for the **QBCore Framework & QBox Remastered**.
 
 # _Lastest Patch Information_
 *Additions:*
@@ -16,6 +16,9 @@ A highly in-depth fuel system for FiveM with support for the QBCore Framework & 
 *Fixes:*
 - Bank Payment Double Taxing Payments.
 - Paleto Locations PolyZone issue.
+- Fix Electric Vehicles Not Stopping On 0 Fuel
+- Fix Emergency Services Discounts
+- Fix Polyzone for MRPD Helicopter Refuel
 
 <br>
 <br>
@@ -320,6 +323,45 @@ Now, set the *Config.FuelTargetExport* in *cdn-fuel/shared/config.lua* to **true
 <br> 
 
 ![Step5 Part 1421942151251](https://i.imgur.com/InBl500.png)
+
+## ___Recommended Snippets:___
+
+We highly recommend you add the following snippet to your engine toggle command. It will make it to where players cannot turn their vehicle on if they have no fuel! Seems pretty important to us!
+
+##### ***Engine Toggle Snippet***
+```Lua
+-- FOR QB-VEHICLEKEYS, FUNCTION ToggleEngine();
+local NotifyCooldown = false
+function ToggleEngine(veh)
+    if veh then
+        local EngineOn = GetIsVehicleEngineRunning(veh)
+        if not isBlacklistedVehicle(veh) then
+            if HasKeys(QBCore.Functions.GetPlate(veh)) or AreKeysJobShared(veh) then
+                if EngineOn then
+                    SetVehicleEngineOn(veh, false, false, true)
+                else
+                    if exports['cdn-fuel']:GetFuel(veh) ~= 0 then
+                        SetVehicleEngineOn(veh, true, false, true)
+                    else
+                        if not NotifyCooldown then
+                            RequestAmbientAudioBank("DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0)
+                            PlaySoundFromEntity(l_2613, "Landing_Tone", PlayerPedId(), "DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0, 0)
+                            NotifyCooldown = true
+                            QBCore.Functions.Notify('No fuel..', 'error')
+                            Wait(1500)
+                            StopSound(l_2613)
+                            Wait(3500)
+                            NotifyCooldown = false
+                        end
+                    end                
+                end
+            end
+        end
+    end
+end
+```
+
+<br> 
 
 ### You are now officially done installing!
 

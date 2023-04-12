@@ -15,8 +15,8 @@ Config.FuelTargetExport = false -- DO NOT USE WITH OX_TARGET! This is only used 
 -- 2.1.0 Update
 Config.EmergencyServicesDiscount = {
     ['enabled'] = true, -- Enables Emergency Services Getting a discount based on the value below for Refueling & Electricity Charging Cost
-    ['discount'] = 23, -- % Discount off of price (before tax).
-    ['emergency_vehicles_only'] = true, -- Only allows discounts to be applied to Emergency Vehicles
+    ['discount'] = 25, -- % Discount off of price.
+    ['emergency_vehicles_only'] = false, -- Only allows discounts to be applied to Emergency Vehicles
     ['ondutyonly'] = true, -- Discount only applies while on duty.
     ['job'] = {
         "police",
@@ -41,8 +41,7 @@ Config.RopeType = { -- Options: 1-2-3-4-5; 1: Khaki Color, Kind of Thick, 2: Ver
 }
 Config.FaceTowardsVehicle = true -- Ped will turn towards the entity's boot bone for refueling, sometimes can result in incorrect nozzle placement when refueling.
 Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when the reach 0 fuel. This works well in conjuction with disallowing people to turn on a vehicle with 0 fuel.
-    ['enabled'] = true, -- Is the loop for shutting vehicles off when the fuel level is low turned on?
-    ['shutOffLevel'] = 5, -- At this fuel level, the vehicle will shut off. Default: 0, Recommended: 0-5.
+    ['shutOffLevel'] = 0, -- At this fuel level, the vehicle will shut off. Default: 0, Recommended: 0-5.
     ['sounds'] = {
         ['enabled'] = true, -- Are Sounds Enabled when vehicle has no fuel?
         -- Find sound banks and sounds here: https://pastebin.com/A8Ny8AHZ.
@@ -56,7 +55,6 @@ Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when th
 -- Phone --
 Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
 Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
-
 
 -- Syphoning --
 Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
@@ -78,7 +76,6 @@ Config.JerryCanAnimDict = 'weapon@w_sp_jerrycan' -- Used for Syphoning & Jerry C
 Config.JerryCanAnim = 'fire' -- Used for Syphoning & Jerry Can
 Config.RefuelAnimation = "gar_ig_5_filling_can" -- This is for refueling and charging.
 Config.RefuelAnimationDictionary = "timetable@gardener@filling_can" -- This is for refueling and charging.
-
 
 --- Player Owned Gas (Gasoline) Ergonomic Refueling Stations (Poggers) ---
 Config.PlayerOwnedGasStationsEnabled = true -- When true, peds will be located at all gas stations, and players will be able to talk with peds & purchase gas stations, having to manage fuel supplies.
@@ -124,7 +121,6 @@ Config.ElectricSprite = 620 -- This is for when the player is in an electric cha
 Config.ElectricChargerModel = true -- If you wish, you can set this to false to add your own props, or use a ymap for the props instead.
 
 -- Basic Configuration Settings
-
 Config.NoFuelUsage = { -- This is for you to put vehicles that you don't want to use fuel.
     "example",
     "example",
@@ -177,10 +173,10 @@ Config.AirAndWaterVehicleFueling = {
         [1] = {
             ['PolyZone'] = {
                 ['coords'] = {
-                    vector2(455.01, -986.64),
-                    vector2(443.77, -986.87),
-                    vector2(444.06, -975.21),
-                    vector2(454.93, -975.38),
+                    vector2(439.96, -973.0),
+                    vector2(458.09, -973.04),
+                    vector2(458.26, -989.47),
+                    vector2(439.58, -989.94),
                 },
                 ['minmax'] = {
                     ['min'] = 40,

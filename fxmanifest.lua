@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 author 'https://www.github.com/CodineDev' -- Base Refueling System: (https://github.com/InZidiuZ/LegacyFuel), other code by Codine (https://www.github.com/CodineDev).
 description 'cdn-fuel'
-version '2.1.0'
+version '2.1.1'
 
 client_scripts {
     '@PolyZone/client.lua',
@@ -27,6 +27,7 @@ shared_scripts {
     -- 'locales/de.lua', -- German / Deutsch Locales
     -- 'locales/fr.lua', -- French / Français Locales
     -- 'locales/es.lua', -- Spanish / Español / Española Locales
+    -- 'locales/ee.lua', -- Estonian Locales
 }
 
 exports { -- Call with exports['cdn-fuel']:GetFuel or exports['cdn-fuel']:SetFuel

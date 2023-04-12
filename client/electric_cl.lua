@@ -24,7 +24,7 @@ if Config.ElectricVehicleCharging then
     function IsHoldingElectricNozzle()
         return HoldingElectricNozzle
     end exports('IsHoldingElectricNozzle', IsHoldingElectricNozzle)
-    
+
     function SetElectricNozzle(state)
         if state == "putback" then
             TriggerServerEvent("InteractSound_SV:PlayOnSource", "putbackcharger", 0.4)
@@ -137,9 +137,9 @@ if Config.ElectricVehicleCharging then
 
             if shouldRecieveDiscount then
                 local discount = Config.EmergencyServicesDiscount['discount']
-                if discount > 100 then 
-                    discount = 100 
-                else 
+                if discount > 100 then
+                    discount = 100
+                else
                     if discount <= 0 then discount = 0 end
                 end
                 if discount ~= 0 then
@@ -183,9 +183,9 @@ if Config.ElectricVehicleCharging then
                 default = maxfuel,
                 disabled = true },
                 { type = "slider", label = 'Full Charge Cost: $' ..wholetankcostwithtax.. '',
-                default = maxfuel, 
-                min = 0, 
-                max = maxfuel 
+                default = maxfuel,
+                min = 0,
+                max = maxfuel
                 },
             })
 
@@ -207,7 +207,7 @@ if Config.ElectricVehicleCharging then
                 end
             end
         else
-        
+
             Electricity = exports['qb-input']:ShowInput({
                 header = "Select the Amount of Fuel<br>Current Price: $" ..
                 FuelPrice .. " / KWh <br> Current Charge: " .. finalfuel .. " KWh <br> Full Charge Cost: $" ..
@@ -219,7 +219,7 @@ if Config.ElectricVehicleCharging then
                     name = 'amount',
                     text = 'The Battery Can Hold ' .. maxfuel .. ' More KWh.'
                 }}
-            })	
+            })
             if Electricity then
                 if not Electricity.amount then print("Electricity.amount is invalid!") return end
                 if not HoldingElectricNozzle then QBCore.Functions.Notify(Lang:t("electric_no_nozzle"), 'error', 7500) return end
@@ -227,8 +227,7 @@ if Config.ElectricVehicleCharging then
                     QBCore.Functions.Notify(Lang:t("tank_already_full"), "error")
                 else
                     if GlobalTax(Electricity.amount * FuelPrice) + (Electricity.amount * FuelPrice) <= money then
-                        local totalcost = (Electricity.amount * FuelPrice)
-                        TriggerServerEvent('cdn-fuel:server:electric:OpenMenu', totalcost, IsInGasStation(), false, purchasetype, FuelPrice)
+                        TriggerServerEvent('cdn-fuel:server:electric:OpenMenu', Electricity.amount, IsInGasStation(), false, purchasetype, FuelPrice)
                     else
                         QBCore.Functions.Notify(Lang:t("not_enough_money"), 'error', 7500)
                     end
@@ -236,7 +235,7 @@ if Config.ElectricVehicleCharging then
             end
         end
     end)
-    
+
     RegisterNetEvent('cdn-fuel:client:electric:SendMenuToServer', function()
         local vehicle = QBCore.Functions.GetClosestVehicle()
         local vehiclename = GetEntityModel(vehicle)
@@ -354,7 +353,7 @@ if Config.ElectricVehicleCharging then
     RegisterNetEvent('cdn-fuel:client:electric:ChargeVehicle', function(data)
        if Config.FuelDebug then print("Charging Vehicle") end
         if not Config.RenewedPhonePayment then 
-            purchasetype = data.purchasetype 
+            purchasetypeq = data.purchasetype 
         elseif data.purchasetype == "cash" then 
             purchasetype = "cash"
         else
@@ -369,6 +368,7 @@ if Config.ElectricVehicleCharging then
             amount = RefuelPossibleAmount 
         end
         if not HoldingElectricNozzle then return end
+        amount = tonumber(amount)
         if amount < 1 then return end
         if amount < 10 then fuelamount = string.sub(amount, 1, 1) else fuelamount = string.sub(amount, 1, 2) end
 
@@ -791,3 +791,17 @@ if Config.ElectricVehicleCharging then
         distance = 2.0
     })
 end
+
+
+CreateThread(function()
+    while true do
+        Wait(0)
+        -- Disable vehicle turning on when pressing W while the car is off.
+        local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+        if IsPedInVehicle(PlayerPedId(), veh, false) and (GetIsVehicleEngineRunning(veh) == false) then
+            DisableControlAction(0, 71, true)
+        elseif IsPedInVehicle(PlayerPedId(), veh, false) and (GetIsVehicleEngineRunning(veh) == true) then
+            EnableControlAction(0, 71, true)
+        end
+    end
+end)

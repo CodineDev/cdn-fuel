@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore = exports[Config.Core]:GetCoreObject()
 
 function GetFuel(vehicle)
 	return DecorGetFloat(vehicle, Config.FuelDecor)
