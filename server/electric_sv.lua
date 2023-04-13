@@ -23,7 +23,7 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 			TriggerClientEvent("cdn-fuel:client:electric:phone:PayForFuel", src, amount)
 		else
 			if Config.Ox.Menu then
-				TriggerClientEvent('cdn-electric:client:OpenContextMenu', src, total, amount, purchasetype)
+				TriggerClientEvent('cdn-electric:client:OpenContextMenu', src, math.ceil(total), amount, purchasetype)
 			else
 				TriggerClientEvent('qb-menu:client:openMenu', src, {
 					{
@@ -35,7 +35,7 @@ RegisterNetEvent("cdn-fuel:server:electric:OpenMenu", function(amount, inGasStat
 						header = "",
 						icon = "fas fa-info-circle",
 						isMenuHeader = true,
-						txt = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2"),
+						txt = Lang:t("menu_purchase_station_header_1")..math.ceil(total)..Lang:t("menu_purchase_station_header_2"),
 					},
 					{
 						header = Lang:t("menu_purchase_station_confirm_header"),

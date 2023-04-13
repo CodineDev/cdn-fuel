@@ -318,7 +318,7 @@ if Config.RenewedPhonePayment then
 						if Config.FuelDebug then
 							print(FuelPrice, FuelPrice*discount)
 						end
-						FuelPrice = FuelPrice - FuelPrice*discount
+						FuelPrice = FuelPrice - (FuelPrice*discount)
 
 						if Config.FuelDebug then
 							print("Your discount for Emergency Services is set @ "..discount.."%. Setting new price to: $"..FuelPrice)
@@ -371,7 +371,7 @@ if Config.Ox.Menu then
 		if Config.FuelDebug then print("OpenContextMenu for OX sent from server.") end
 		lib.registerContext({
 			id = 'cdnconfirmationmenu',
-			title = Lang:t("menu_purchase_station_header_1")..total..Lang:t("menu_purchase_station_header_2"),
+			title = Lang:t("menu_purchase_station_header_1")..math.ceil(total)..Lang:t("menu_purchase_station_header_2"),
 			options = {
 				{
 					title = Lang:t("menu_purchase_station_confirm_header"),
@@ -628,11 +628,12 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 		end
 		if shouldRecieveDiscount then
 			local discount = Config.EmergencyServicesDiscount['discount']
-			if discount > 100 then 
-				discount = 100 
-			else 
+			if discount > 100 then
+				discount = 100
+			else
 				if discount <= 0 then discount = 0 end
 			end
+			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
 					FuelPrice = 0
@@ -641,7 +642,10 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 					end
 				else
 					discount = discount / 100
-					FuelPrice = FuelPrice - math.ceil(FuelPrice*discount)
+					if Config.FuelDebug then
+						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
+					end
+					FuelPrice = (FuelPrice) - (FuelPrice*discount)
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."%. Setting new price to: $"..FuelPrice)
 					end
@@ -701,7 +705,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 				QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), "error")
 			else
 				if GlobalTax(fuelAmount * FuelPrice) + (fuelAmount * FuelPrice) <= money then
-					TriggerServerEvent('cdn-fuel:server:OpenMenu', fuel.amount, inGasStation, false, purchasetype, tonumber(FuelPrice))
+					TriggerServerEvent('cdn-fuel:server:OpenMenu', fuelAmount, inGasStation, false, purchasetype, tonumber(FuelPrice))
 				else
 					QBCore.Functions.Notify(Lang:t("not_enough_money"), 'error', 7500)
 				end
@@ -768,6 +772,9 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 				QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), "error")
 			else
 				if GlobalTax(fuel.amount * FuelPrice) + (fuel.amount * FuelPrice) <= money then
+					if Config.FuelDebug then
+						print("Player is getting "..fuel.amount.."L of Fuel @ "..FuelPrice..'/L, Total Cost: '..GlobalTax(fuel.amount * FuelPrice) + (fuel.amount * FuelPrice))
+					end
 					TriggerServerEvent('cdn-fuel:server:OpenMenu', fuel.amount, inGasStation, false, purchasetype, tonumber(FuelPrice))
 				else
 					QBCore.Functions.Notify(Lang:t("not_enough_money"), 'error', 7500)
@@ -941,20 +948,25 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 		end
 		if shouldRecieveDiscount then
 			local discount = Config.EmergencyServicesDiscount['discount']
-			if discount > 100 then 
-				discount = 100 
-			else 
+			if discount > 100 then
+				discount = 100
+			else
 				if discount <= 0 then discount = 0 end
 			end
+			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
 					FuelPrice = 0
 					if Config.FuelDebug then
-						print("Your discount for Emergency Services is set @ "..discount.."% so fuel is free!")
+						print("Your discount for Emergency Services is set @ | "..discount.."% | so fuel is free!")
 					end
 				else
 					discount = discount / 100
-					FuelPrice = FuelPrice - math.ceil(FuelPrice*discount)
+					if Config.FuelDebug then
+						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
+					end
+
+					FuelPrice = FuelPrice - (FuelPrice*discount)
 
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."%. Setting new price to: $"..FuelPrice)
@@ -967,7 +979,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 			end
 		end
 	end
-	local refillCost = (amount * FuelPrice)
+	local refillCost = (amount * FuelPrice) + GlobalTax(amount * FuelPrice)
 	local ped = PlayerPedId()
 	local time = amount * Config.RefuelTime
 	if amount < 10 then time = 10 * Config.RefuelTime end
@@ -975,7 +987,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	if inGasStation then
 		if IsPlayerNearVehicle() then
 			RequestAnimDict(Config.RefuelAnimationDictionary)
-			while not HasAnimDictLoaded('timetable@gardener@filling_can') do Wait(100) end
+			while not HasAnimDictLoaded(Config.RefuelAnimationDictionary) do Wait(100) end
 			if GetIsVehicleEngineRunning(vehicle) and Config.VehicleBlowUp then
 				local Chance = math.random(1, 100)
 				if Chance <= Config.BlowUpChance then
@@ -1002,7 +1014,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					Refuelamount = Refuelamount + 1
 					if Cancelledrefuel then
 						local finalrefuelamount = math.floor(Refuelamount)
-						local refillCost = (finalrefuelamount * FuelPrice)
+						local refillCost = (finalrefuelamount * FuelPrice) + GlobalTax(finalrefuelamount * FuelPrice)
 						if Config.RenewedPhonePayment and purchasetype == "bank" then
 							local remainingamount = (amount - Refuelamount)
 							MoneyToGiveBack = (GlobalTax(remainingamount * RefuelCancelledFuelCost) + (remainingamount * RefuelCancelledFuelCost))
@@ -1051,12 +1063,10 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
 					elseif purchasetype == "bank" then
 						if Config.NPWD then
-							local tax = GlobalTax(refillCost)
-							local totalPayment = math.ceil(refillCost + tax)
 							exports["npwd"]:createNotification({ -- You can change this export to your own notification
 								notisId = "npwd:fuelPaidFor",
 								appId = "BANK",
-								content = "You have paid $"..totalPayment.." for fuel at $"..FuelPrice.." Per Liter + tax",
+								content = "You have paid $"..refillCost.." for fuel at $"..FuelPrice.." Per Liter + tax",
 								secondaryTitle = "New Transaction",
 								keepOpen = false,
 								duration = 15000,
@@ -1542,7 +1552,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 				else
 					if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 				end
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', tonumber(refuelAmount) * FuelPrice, "cash", FuelPrice)
+				local total = (tonumber(refuelAmount) * FuelPrice) + GlobalTax(tonumber(refuelAmount) * FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice)
 			else 
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
@@ -1599,7 +1610,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 						if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 					end
 				end
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', tonumber(refuel.amount) * FuelPrice, "cash", FuelPrice)
+				local total = (tonumber(refuel.amount) * FuelPrice) + GlobalTax(tonumber(refuel.amount) * FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice)
 			end, function() -- Play When Cancel
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)

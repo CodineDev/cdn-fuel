@@ -43,7 +43,7 @@ RegisterNetEvent("cdn-fuel:server:OpenMenu", function(amount, inGasStation, hasW
 						header = "",
 						icon = "fas fa-info-circle",
 						isMenuHeader = true,
-						txt = Lang:t("menu_purchase_station_header_1")..tostring(total)..Lang:t("menu_purchase_station_header_2") ,
+						txt = Lang:t("menu_purchase_station_header_1")..math.ceil(total)..Lang:t("menu_purchase_station_header_2") ,
 					},
 					{
 						header = Lang:t("menu_purchase_station_confirm_header"),
@@ -82,6 +82,7 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	end
 	local moneyremovetype = purchasetype
 	if Config.FuelDebug then print("Player is attempting to purchase fuel with the money type: " ..moneyremovetype) end
+	if Config.FuelDebug then print("Attempting to charge client: $"..total.." for Fuel @ "..FuelPrice.." PER LITER | PER KW") end
 	if purchasetype == "bank" then
 		moneyremovetype = "bank"
 	elseif purchasetype == "cash" then

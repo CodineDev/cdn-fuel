@@ -19,6 +19,9 @@ function LoadAnimDict(dict)
 end
 
 function GlobalTax(value)
+	if Config.GlobalTax < 0.1 then
+		return 0
+	end
 	local tax = (value / 100 * Config.GlobalTax)
 	return tax
 end
