@@ -577,8 +577,8 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 	end
 	if RefuelingType == nil then
 		FetchStationInfo("all")
-		Wait(100)
-		if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then 
+		Wait(Config.WaitTime)
+		if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 			if ReserveLevels < 1 then
 				QBCore.Functions.Notify(Lang:t("station_no_fuel"), 'error', 7500) return
 			end
@@ -1838,12 +1838,16 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 								},
 							}) then
 								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
-								PoliceAlert(GetEntityCoords(PlayerPedId()))
-								QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
-								SetFuel(vehicle, removeamount)
-								local syphonData = data.itemData
-								local srcPlayerData = QBCore.Functions.GetPlayerData()
-								TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphonAmount), srcPlayerData, syphonData)
+								if GetFuel(vehicle) >= syphonAmount then
+									PoliceAlert(GetEntityCoords(PlayerPedId()))
+									QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
+									SetFuel(vehicle, removeamount)
+									local syphonData = data.itemData
+									local srcPlayerData = QBCore.Functions.GetPlayerData()
+									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphonAmount), srcPlayerData, syphonData)
+								else
+									QBCore.Functions.Notify(Lang:t("menu_syphon_vehicle_empty"), 'error')
+								end
 							else
 								PoliceAlert(GetEntityCoords(PlayerPedId()))
 								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
@@ -1884,13 +1888,16 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 								anim = Config.StealAnim,
 								flags = 1,
 							}, {}, {}, function() -- Play When Done
-								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
-								PoliceAlert(GetEntityCoords(PlayerPedId()))
-								QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
-								SetFuel(vehicle, removeamount)
-								local syphonData = data.itemData
-								local srcPlayerData = QBCore.Functions.GetPlayerData()
-								TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphon.amount), srcPlayerData, syphonData)
+								if GetFuel(vehicle) >= syphonAmount then
+									PoliceAlert(GetEntityCoords(PlayerPedId()))
+									QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
+									SetFuel(vehicle, removeamount)
+									local syphonData = data.itemData
+									local srcPlayerData = QBCore.Functions.GetPlayerData()
+									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphonAmount), srcPlayerData, syphonData)
+								else
+									QBCore.Functions.Notify(Lang:t("menu_syphon_vehicle_empty"), 'error')
+								end
 							end, function() -- Play When Cancel
 								PoliceAlert(GetEntityCoords(PlayerPedId()))
 								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
