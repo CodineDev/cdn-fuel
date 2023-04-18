@@ -71,8 +71,8 @@ function CreateBlip(coords, label)
 		SetBlipSprite(blip, electricbolt) -- This is where the fuel thing will get changed into the electric bolt instead of the pump.
 		SetBlipColour(blip, 5)
 	else
-		SetBlipColour(blip, 4)
 		SetBlipSprite(blip, 361)
+		SetBlipColour(blip, 4)
 	end
 	SetBlipScale(blip, 0.6)
 	SetBlipDisplay(blip, 4)
