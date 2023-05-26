@@ -71,8 +71,8 @@ function CreateBlip(coords, label)
 		SetBlipSprite(blip, electricbolt) -- This is where the fuel thing will get changed into the electric bolt instead of the pump.
 		SetBlipColour(blip, 5)
 	else
-		SetBlipColour(blip, 4)
 		SetBlipSprite(blip, 361)
+		SetBlipColour(blip, 4)
 	end
 	SetBlipScale(blip, 0.6)
 	SetBlipDisplay(blip, 4)
@@ -83,11 +83,33 @@ function CreateBlip(coords, label)
 	return blip
 end
 
+function GetClosestVehicle(coords)
+    local ped = PlayerPedId()
+    local vehicles = GetGamePool('CVehicle')
+    local closestDistance = -1
+    local closestVehicle = -1
+    if coords then
+        coords = type(coords) == 'table' and vec3(coords.x, coords.y, coords.z) or coords
+    else
+        coords = GetEntityCoords(ped)
+    end
+    for i = 1, #vehicles, 1 do
+        local vehicleCoords = GetEntityCoords(vehicles[i])
+        local distance = #(vehicleCoords - coords)
+        if closestDistance == -1 or closestDistance > distance then
+            closestVehicle = vehicles[i]
+            closestDistance = distance
+        end
+    end
+    return closestVehicle, closestDistance
+end
+
+
 function IsPlayerNearVehicle()
 	if Config.FuelDebug then
 		print("Checking if player is near a vehicle!")
 	end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local closestVehCoords = GetEntityCoords(vehicle)
 	if #(GetEntityCoords(PlayerPedId(), closestVehCoords)) > 3.0 then
 		return true

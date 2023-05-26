@@ -20,14 +20,19 @@ local GasStationBlips = {} -- Used for managing blips on the client, so labels c
 local RefuelingType = nil
 local PlayerInSpecialFuelZone = false
 local Rope = nil
+local CachedFuelPrice = nil
 
 -- Debug ---
 if Config.FuelDebug then
 	RegisterCommand('setfuel', function(source, args)
 		if args[1] == nil then print("You forgot to put a fuel level!") return end
-		local vehicle = QBCore.Functions.GetClosestVehicle()
+		local vehicle = GetClosestVehicle()
 		SetFuel(vehicle, tonumber(args[1]))
 		QBCore.Functions.Notify(Lang:t("set_fuel_debug")..' '..args[1]..'L', 'success')
+	end, false)
+
+	RegisterCommand('getCachedFuelPrice', function ()
+		print(CachedFuelPrice)
 	end, false)
 end
 
@@ -309,6 +314,7 @@ if Config.RenewedPhonePayment then
 				end
 				if discount ~= 0 then
 					if discount == 100 then
+						CachedFuelPrice = FuelPrice
 						FuelPrice = 0
 						if Config.FuelDebug then
 							print("Your discount for Emergency Services is set @ "..discount.."% so fuel is free!")
@@ -318,6 +324,7 @@ if Config.RenewedPhonePayment then
 						if Config.FuelDebug then
 							print(FuelPrice, FuelPrice*discount)
 						end
+						CachedFuelPrice = FuelPrice
 						FuelPrice = FuelPrice - (FuelPrice*discount)
 
 						if Config.FuelDebug then
@@ -339,7 +346,7 @@ if Config.RenewedPhonePayment then
 			if QBCore.Functions.GetPlayerData().money['bank'] <= total then
 				QBCore.Functions.Notify(Lang:t("not_enough_money"), "error")
 			else
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice, false, CachedFuelPrice)
 				RefuelPossible = true
 				RefuelPossibleAmount = amount
 				RefuelCancelledFuelCost = FuelPrice
@@ -592,7 +599,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 	if not Config.PlayerOwnedGasStationsEnabled then
 		FuelPrice = (1 * Config.CostMultiplier)
 	end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local curfuel = GetFuel(vehicle)
 	local finalfuel
 	if curfuel < 10 then finalfuel = string.sub(curfuel, 1, 1) else finalfuel = string.sub(curfuel, 1, 2) end
@@ -636,6 +643,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
+					CachedFuelPrice = FuelPrice
 					FuelPrice = 0
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."% so fuel is free!")
@@ -645,6 +653,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 					if Config.FuelDebug then
 						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
 					end
+					CachedFuelPrice = FuelPrice
 					FuelPrice = (FuelPrice) - (FuelPrice*discount)
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."%. Setting new price to: $"..FuelPrice)
@@ -785,7 +794,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 end)
 
 RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function(type)
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -918,7 +927,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	amount = tonumber(amount)
 	if amount < 1 then return end
 	if amount < 10 then fuelamount = string.sub(amount, 1, 1) else fuelamount = string.sub(amount, 1, 2) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	if Config.AirAndWaterVehicleFueling['enabled'] then
 		local vehClass = GetVehicleClass(vehicle)
 		if vehClass == 14 then
@@ -956,6 +965,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
+					CachedFuelPrice = FuelPrice
 					FuelPrice = 0
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ | "..discount.."% | so fuel is free!")
@@ -966,6 +976,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
 					end
 
+					CachedFuelPrice = FuelPrice
 					FuelPrice = FuelPrice - (FuelPrice*discount)
 
 					if Config.FuelDebug then
@@ -1019,13 +1030,23 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 							local remainingamount = (amount - Refuelamount)
 							MoneyToGiveBack = (GlobalTax(remainingamount * RefuelCancelledFuelCost) + (remainingamount * RefuelCancelledFuelCost))
 							TriggerServerEvent("cdn-fuel:server:phone:givebackmoney", MoneyToGiveBack)
+							CachedFuelPrice = nil
 						else
-							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
+							CachedFuelPrice = nil
 						end
 						if RefuelingType == nil then
 							if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 								TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", finalrefuelamount, ReserveLevels, CurrentLocation)
-								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, FuelPrice)
+								if CachedFuelPrice ~= nil then
+									if Config.FuelDebug then
+										print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+									end
+									TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+									CachedFuelPrice = nil
+								else
+									TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, FuelPrice)
+								end
 							end
 						end
 						local curfuel = GetFuel(vehicle)
@@ -1060,7 +1081,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 				}) then
 					refueling = false
 					if purchasetype == "cash" then
-						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 					elseif purchasetype == "bank" then
 						if Config.NPWD then
 							exports["npwd"]:createNotification({ -- You can change this export to your own notification
@@ -1074,7 +1095,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 							})
 						end
 						if not Config.RenewedPhonePayment or purchasetype == "cash" then 
-							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 						end
 					end
 					local curfuel = GetFuel(vehicle)
@@ -1087,7 +1108,15 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					if RefuelingType == nil then
 						if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 							TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", fuelamount, ReserveLevels, CurrentLocation)
-							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							if CachedFuelPrice ~= nil then
+								if Config.FuelDebug then
+									print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+								end
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+								CachedFuelPrice = nil
+							else
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							end
 						else
 							if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 						end
@@ -1127,7 +1156,15 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					if RefuelingType == nil then
 						if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 							TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", fuelamount, ReserveLevels, CurrentLocation)
-							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							if CachedFuelPrice ~= nil then
+								if Config.FuelDebug then
+									print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+								end
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+								CachedFuelPrice = nil
+							else
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							end
 						else
 							if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 						end
@@ -1156,7 +1193,7 @@ end)
 RegisterNetEvent('cdn-fuel:jerrycan:refuelmenu', function(itemData)
 	if IsPedInAnyVehicle(PlayerPedId(), false) then QBCore.Functions.Notify(Lang:t("cannot_refuel_inside"), 'error') return end
 	if Config.FuelDebug then print("Item Data: " .. json.encode(itemData)) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local vehiclecoords = GetEntityCoords(vehicle)
 	local pedcoords = GetEntityCoords(PlayerPedId())
 	if GetVehicleBodyHealth(vehicle) < 100 then QBCore.Functions.Notify(Lang:t("vehicle_is_damaged"), 'error') return end
@@ -1381,7 +1418,7 @@ RegisterNetEvent('cdn-fuel:client:purchasejerrycan', function()
 end)
 
 RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local vehfuel = math.floor(GetFuel(vehicle))
 	local maxvehrefuel = (100 - math.ceil(vehfuel))
 	local itemData = data.itemData
@@ -1391,7 +1428,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 	else
 		jerrycanfuelamount = itemData.info.gasamount
 	end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -1548,7 +1585,11 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 				TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
 				if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 					TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", tonumber(refuelAmount), ReserveLevels, CurrentLocation)
-					TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, FuelPrice)
+					if CachedFuelPrice ~= nil then
+						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, CachedFuelPrice)
+					else
+						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, FuelPrice)
+					end
 				else
 					if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 				end
@@ -1605,13 +1646,18 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 				if RefuelingType == nil then	
 					if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 						TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", tonumber(refuel.amount), ReserveLevels, CurrentLocation)
-						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, FuelPrice)
+						if CachedFuelPrice ~= nil then
+							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, CachedFuelPrice)
+						else
+							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, FuelPrice)
+						end
+						
 					else
 						if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 					end
 				end
 				local total = (tonumber(refuel.amount) * FuelPrice) + GlobalTax(tonumber(refuel.amount) * FuelPrice)
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice, false, CachedFuelPrice)
 			end, function() -- Play When Cancel
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
@@ -1644,7 +1690,7 @@ end
 RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 	if IsPedInAnyVehicle(PlayerPedId(), false) then QBCore.Functions.Notify(Lang:t("syphon_inside_vehicle"), 'error') return end
 	if Config.SyphonDebug then print("Item Data: " .. json.encode(itemData)) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local vehiclename = GetEntityModel(vehicle)
 	local vehiclecoords = GetEntityCoords(vehicle)
 	local pedcoords = GetEntityCoords(PlayerPedId())
@@ -1765,7 +1811,7 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 	local reason = data.reason
 	if Config.SyphonDebug then print('Item Data Syphon: ' .. json.encode(data.itemData)) end
 	if Config.SyphonDebug then print('Reason: ' .. reason) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -1790,7 +1836,7 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 		
 		if HasSyphon then
 			local fitamount = (Config.SyphonKitCap - currentsyphonamount)
-			local vehicle = QBCore.Functions.GetClosestVehicle()
+			local vehicle = GetClosestVehicle()
 			local vehiclecoords = GetEntityCoords(vehicle)
 			local pedcoords = GetEntityCoords(PlayerPedId())
 			if #(vehiclecoords - pedcoords) > 2.5 then return end
@@ -2188,7 +2234,7 @@ CreateThread(function()
 					CreateThread(function()
 						while PlayerInSpecialFuelZone do
 							Wait(3000)
-							vehicle = QBCore.Functions.GetClosestVehicle()
+							vehicle = GetClosestVehicle()
 						end
 					end)
 
