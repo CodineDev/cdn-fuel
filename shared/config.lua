@@ -5,7 +5,7 @@ Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas st
 Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
 Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5% or 5)
-Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
+Config.CostMultiplier = 3 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
 Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
@@ -54,7 +54,6 @@ Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when th
 
 -- Phone --
 Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
-Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
 
 -- Syphoning --
 Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!

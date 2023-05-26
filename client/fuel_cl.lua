@@ -1083,17 +1083,6 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					if purchasetype == "cash" then
 						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 					elseif purchasetype == "bank" then
-						if Config.NPWD then
-							exports["npwd"]:createNotification({ -- You can change this export to your own notification
-								notisId = "npwd:fuelPaidFor",
-								appId = "BANK",
-								content = "You have paid $"..refillCost.." for fuel at $"..FuelPrice.." Per Liter + tax",
-								secondaryTitle = "New Transaction",
-								keepOpen = false,
-								duration = 15000,
-								path = "/BANK",
-							})
-						end
 						if not Config.RenewedPhonePayment or purchasetype == "cash" then 
 							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 						end
@@ -1330,17 +1319,6 @@ RegisterNetEvent('cdn-fuel:client:jerrycanfinalmenu', function(purchasetype)
 		Moneyamount = QBCore.Functions.GetPlayerData().money['cash']
 	end
 	if Moneyamount > math.ceil(Config.JerryCanPrice + GlobalTax(Config.JerryCanPrice)) then
-		if purchasetype == 'bank' and Config.NPWD then
-			exports["npwd"]:createNotification({ -- You can change this export to your own notification
-				notisId = "npwd:JerryCanBought",
-				appId = "BANK",
-				content = "You have paid $"..math.ceil(Config.JerryCanPrice + GlobalTax(Config.JerryCanPrice)).." for a jerry can",
-				secondaryTitle = "New Transaction",
-				keepOpen = false,
-				duration = 15000,
-				path = "/BANK",
-			})
-		end
 		TriggerServerEvent('cdn-fuel:server:purchase:jerrycan', purchasetype)
 	else
 		if purchasetype == 'bank' then QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), 'error') end
@@ -1934,13 +1912,14 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 								anim = Config.StealAnim,
 								flags = 1,
 							}, {}, {}, function() -- Play When Done
-								if GetFuel(vehicle) >= syphonAmount then
+								if GetFuel(vehicle) >= tonumber(syphon.amount) then
 									PoliceAlert(GetEntityCoords(PlayerPedId()))
 									QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
 									SetFuel(vehicle, removeamount)
 									local syphonData = data.itemData
 									local srcPlayerData = QBCore.Functions.GetPlayerData()
-									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphonAmount), srcPlayerData, syphonData)
+									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphon.amount), srcPlayerData, syphonData)
+									StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
 								else
 									QBCore.Functions.Notify(Lang:t("menu_syphon_vehicle_empty"), 'error')
 								end

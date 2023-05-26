@@ -461,17 +461,6 @@ if Config.ElectricVehicleCharging then
                         if purchasetype == "cash" then
                             TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, true)
                         elseif purchasetype == "bank" then
-                            if Config.NPWD then
-                                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                                    notisId = "npwd:electricityPaidFor",
-                                    appId = "BANK",
-                                    content = "You have paid $"..refillCost.." for electric at $"..FuelPrice.." per KWh + tax",
-                                    secondaryTitle = "New Transaction",
-                                    keepOpen = false,
-                                    duration = 15000,
-                                    path = "/BANK",
-                                })
-                            end
                             TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, true)
                         end
                         local curfuel = GetFuel(vehicle)

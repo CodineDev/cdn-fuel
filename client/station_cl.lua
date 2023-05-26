@@ -1183,56 +1183,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         end
     end)
 
-    if Config.NPWD then
-        RegisterNetEvent('cdn-fuel:client:buysellStationNPWDNotif', function(type, totalcost, location)
-            if type == "buy" then
-                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                    notisId = "npwd:stationPaidFor",
-                    appId = "BANK",
-                    content = "You have paid $"..totalcost.." for " .. location,
-                    secondaryTitle = "New Transaction",
-                    keepOpen = false,
-                    duration = 15000,
-                    path = "/BANK",
-                })
-            elseif type == "sell" then
-                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                    notisId = "npwd:stationSell",
-                    appId = "BANK",
-                    content = "You have recieved $"..totalcost.." for selling " .. location,
-                    secondaryTitle = "New Transaction",
-                    keepOpen = false,
-                    duration = 15000,
-                    path = "/BANK",
-                })
-            end
-        end)
-
-        RegisterNetEvent('cdn-fuel:client:StationTransfersNPWDNotif', function(type, totalcost, location)
-            if type == "deposit" then
-                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                    notisId = "npwd:stationDeposit",
-                    appId = "BANK",
-                    content = "You have depositted $"..totalcost.." into " .. location,
-                    secondaryTitle = "Deposit Transaction",
-                    keepOpen = false,
-                    duration = 15000,
-                    path = "/BANK",
-                })
-            elseif type == "withdraw" then
-                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                    notisId = "npwd:stationWithdraw",
-                    appId = "BANK",
-                    content = "You have withdrawn $"..totalcost.." from " .. location,
-                    secondaryTitle = "Withdraw Transaction",
-                    keepOpen = false,
-                    duration = 15000,
-                    path = "/BANK",
-                })
-            end
-        end)
-    end -- Config.NPWD
-
     -- Threads
     CreateThread(function() -- Spawn the Peds for Gas Stations when the resource starts.
         SpawnGasStationPeds()
