@@ -202,7 +202,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             if FuelPickupSent[location] then
                 local cid = QBCore.Functions.GetPlayer(src).PlayerData.citizenid
                 MySQL.Async.execute('UPDATE fuel_stations SET fuel = ? WHERE `location` = ?', {FuelPickupSent[location]['refuelAmount'], location})
-                TriggerClientEvent('QBCore:Notify', src, "Ron Oil has just dropped off the fuel to your station!", 'success')
+                TriggerClientEvent('QBCore:Notify', src, Lang:t("fuel_pickup_failed"), 'success')
                 -- This will print player information just in case someone figures out a way to exploit this.
                 print("User encountered an error with fuel pickup, so we are updating the fuel level anyways, and cancelling the pickup. SQL Execute Update: fuel_station level to: "..FuelPickupSent[location].refuelAmount.. " | Source: "..src.." | Citizen Id: "..cid..".")
                 FuelPickupSent[location] = nil
@@ -221,7 +221,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             if FuelPickupSent[location] then
                 local cid = QBCore.Functions.GetPlayer(src).PlayerData.citizenid
                 MySQL.Async.execute('UPDATE fuel_stations SET fuel = ? WHERE `location` = ?', {FuelPickupSent[location].refuelAmount, location})
-                TriggerClientEvent('QBCore:Notify', src, 'Your reserves have been filled to: '..tostring(tonumber(FuelPickupSent[location].refuelAmount)).."L", 'success')
+                TriggerClientEvent('QBCore:Notify', src, string.format(Lang:t("fuel_pickup_success"), tostring(tonumber(FuelPickupSent[location].refuelAmount))), 'success')
                 -- This will print player information just in case someone figures out a way to exploit this.
                 if Config.FuelDebug then
                     print("User successfully dropped off fuel truck, so we are updating the fuel level and clearing the pickup table. SQL Execute Update: fuel_station level to: "..FuelPickupSent[location].refuelAmount.. " | Source: "..src.." | Citizen Id: "..cid..".")

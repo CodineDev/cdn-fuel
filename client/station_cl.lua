@@ -134,7 +134,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
             }
 
             if SpawnPickupVehicles() then
-                QBCore.Functions.Notify('Your fuel order is available for pickup! Take a look at your GPS to find the pickup!', 'success')
+                QBCore.Functions.Notify(Lang:t("fuel_order_ready"), 'success')
                 SetNewWaypoint(Config.DeliveryTruckSpawns['truck'].x, Config.DeliveryTruckSpawns['truck'].y)
                 SetUseWaypointAsDestination(true)
                 ReservePickupData.blip = CreateBlip(vector3(Config.DeliveryTruckSpawns['truck'].x, Config.DeliveryTruckSpawns['truck'].y, Config.DeliveryTruckSpawns['truck'].z), "Truck Pickup")
@@ -197,7 +197,7 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                                                                 if distBetweenTruckAndTrailer > 10.0 then
                                                                     distBetweenTruckAndTrailer = nil
                                                                     if not stopNotifyTemp then
-                                                                        QBCore.Functions.Notify('The trailer is not attached to the truck or is too far!', 'error', 7500)
+                                                                        QBCore.Functions.Notify(Lang:t("trailer_too_far"), 'error', 7500)
                                                                     end
                                                                     stopNotifyTemp = true
                                                                     Wait(1000)
@@ -260,11 +260,11 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
                                                     else
                                                         hasArrivedAtLocation = true
                                                         if Config.Ox.DrawText then
-                                                            lib.showTextUI("[E] Drop Off Truck", {
+                                                            lib.showTextUI(Lang:t("draw_text_fuel_dropoff"), {
                                                                 position = 'left-center'
                                                             })
                                                         else
-                                                            exports[Config.Core]:DrawText("[E] Drop Off Truck", 'left')
+                                                            exports[Config.Core]:DrawText(Lang:t("draw_text_fuel_dropoff"), 'left')
                                                         end
                                                         -- Add Listner for Keypress
                                                         AwaitInput()

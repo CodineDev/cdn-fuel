@@ -19,6 +19,13 @@ local Translations = {
     cannot_refuel_inside = "Vous ne pouvez pas faire le plein depuis l'intérieur du véhicule!",
     vehicle_is_damaged = "Le véhicule est trop endommagé pour faire le plein!",
 
+    -- 2.1.2 -- Récupération des réserves ---
+    fuel_order_ready = "Votre commande de carburant est disponible pour récupération ! Consultez votre GPS pour trouver l'endroit de récupération !",
+    draw_text_fuel_dropoff = "[E] Déposer le camion",
+    fuel_pickup_success = "Vos réserves ont été remplies à hauteur de : %sL",
+    fuel_pickup_failed = "Ron Oil vient de livrer le carburant à votre station !",
+    trailer_too_far = "La remorque n'est pas attachée au camion ou est trop éloignée !",
+
     -- 2.1.0
     no_nozzle = "Vous n'avez pas de buse !",
     vehicle_too_far = "Vous êtes trop loin pour ravitailler ce véhicule !",

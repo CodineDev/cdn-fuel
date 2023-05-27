@@ -19,6 +19,13 @@ local Translations = {
     cannot_refuel_inside = "Sie können nicht aus dem Fahrzeuginneren tanken!",
     vehicle_is_damaged = "Das Fahrzeug ist zu beschädigt zum Tanken!",
 
+    -- 2.1.2 -- Reservenabholung ---
+    fuel_order_ready = "Ihre Kraftstoffbestellung ist abholbereit! Schauen Sie auf Ihrem GPS nach, um die Abholstelle zu finden!",
+    draw_text_fuel_dropoff = "[E] LKW abstellen",
+    fuel_pickup_success = "Ihre Reserven wurden aufgefüllt: %sL",
+    fuel_pickup_failed = "Ron Oil hat gerade den Kraftstoff an Ihre Tankstelle geliefert!",
+    trailer_too_far = "Der Anhänger ist nicht mit dem LKW verbunden oder zu weit entfernt!",
+
     -- 2.1.0
     no_nozzle = "Sie haben keine Zapfpistole!",
     vehicle_too_far = "Sie sind zu weit entfernt, um dieses Fahrzeug zu betanken!",
