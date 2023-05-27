@@ -2,21 +2,45 @@ Config = {}
 Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
 Config.PolyDebug = false -- Enables Polyzone Debugging to see PolyZones!
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
-Config.LeaveEngineRunning = true -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
+Config.LeaveEngineRunning = false -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
 Config.BlowUpChance = 5 -- Percentage for Chance of Engine Explosion (Default: 5% or 5)
-Config.CostMultiplier = 3.0 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
+Config.CostMultiplier = 3 -- Amount to multiply 1 by. This indicates fuel price. (Default: $3.0/l or 3.0)
 Config.GlobalTax = 15.0 -- The tax, in %, that people will be charged at the pump. (Default: 15% or 15.0)
 Config.FuelNozzleExplosion = false -- When true, it enables the fuel pump exploding when players run away with the nozzle. Highly recommeded to be false.
 Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
 Config.FuelTargetExport = false -- DO NOT USE WITH OX_TARGET! This is only used to fix this qb-target issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
+-- 2.1.1 Update --
+Config.OwnersPickupFuel = false -- If an owner buys fuel, they will have to go pick it up at a configured location.
+Config.PossibleDeliveryTrucks = {
+    "hauler",
+    "phantom",
+    -- "phantom3", --  This is an fast version of the normal phantom.
+    "packer",
+}
+Config.DeliveryTruckSpawns = { -- https://i.imgur.com/VS22i8R.jpeg
+    ['trailer'] = vector4(1724.0, -1649.7, 112.57, 194.24),
+    ['truck'] = vector4(1727.08, -1664.01, 112.62, 189.62),
+    ['PolyZone'] = {
+        ['coords'] = {
+            vector2(1724.62, -1672.36),
+            vector2(1719.01, -1648.33),
+            vector2(1730.99, -1645.62),
+            vector2(1734.42, -1673.32),
+        },
+        ['minz'] = 110.0,
+        ['maxz'] = 115.0,
+    }
+}
+-- 2.1.1 End
+
 -- 2.1.0 Update
 Config.EmergencyServicesDiscount = {
     ['enabled'] = true, -- Enables Emergency Services Getting a discount based on the value below for Refueling & Electricity Charging Cost
     ['discount'] = 25, -- % Discount off of price.
-    ['emergency_vehicles_only'] = false, -- Only allows discounts to be applied to Emergency Vehicles
+    ['emergency_vehicles_only'] = true, -- Only allows discounts to be applied to Emergency Vehicles
     ['ondutyonly'] = true, -- Discount only applies while on duty.
     ['job'] = {
         "police",
@@ -34,7 +58,7 @@ Config.Ox = {
     Progress = false -- Uses Ox ProgressBar instead of progressbar.
 }
 Config.TargetResource = "qb-target" -- Supported: { 'qb-target', 'ox_target'} -- Others must use the same format as QB-Target or manual configuration is required.
-Config.PumpHose = true -- If true, it creates a hose from the pump to the nozzle the client is holding, to give it a more realistic feel.
+Config.PumpHose = false -- If true, it creates a hose from the pump to the nozzle the client is holding, to give it a more realistic feel.
 Config.RopeType = { -- Options: 1-2-3-4-5; 1: Khaki Color, Kind of Thick, 2: Very Thick Khaki Rope, 3: Very Thick Black Rope, 4: Very Thin Black Rope, 5: Same as 3
     ['fuel'] = 1,
     ['electric'] = 1,
@@ -54,7 +78,6 @@ Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when th
 
 -- Phone --
 Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
-Config.NPWD = false -- Enables phone notifications for New-Phone-Who-Dis.
 
 -- Syphoning --
 Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this option!
@@ -687,37 +710,38 @@ Config.AirAndWaterVehicleFueling = {
             }
         },
         -- La Mesa Landing Pad (Custom)
-        [19] = {
-            ['PolyZone'] = {
-                ['coords'] = {
-                    vector2(830.66, -1378.54),
-                    vector2(834.87, -1382.59),
-                    vector2(834.81, -1388.5),
-                    vector2(830.75, -1392.54),
-                    vector2(824.96, -1392.58),
-                    vector2(820.8, -1388.39),
-                    vector2(820.84, -1382.65),
-                    vector2(824.97, -1378.52)
-                },
-                ['minmax'] = {
-                    ['min'] = 35.67,
-                    ['max'] = 38.67
-                },
-            },
-            ['draw_text'] = "[G] Refuel Aircraft",
-            ['type'] = 'air',
-            ['whitelist'] = {
-                ['enabled'] = false,
-                ['on_duty_only'] = true,
-                ['whitelisted_jobs'] = {
-                    'police', 'ambulance',
-                }
-            },
-            ['prop'] = {
-                ['model'] = 'prop_gas_pump_1c',
-                ['coords'] = vector4(827.55, -1378.57, 36.67, 1.11)
-            }
-        }
+        -- Does not work in conjunction with Gabz Trooper PD.
+        -- [19] = {
+        --     ['PolyZone'] = {
+        --         ['coords'] = {
+        --             vector2(830.66, -1378.54),
+        --             vector2(834.87, -1382.59),
+        --             vector2(834.81, -1388.5),
+        --             vector2(830.75, -1392.54),
+        --             vector2(824.96, -1392.58),
+        --             vector2(820.8, -1388.39),
+        --             vector2(820.84, -1382.65),
+        --             vector2(824.97, -1378.52)
+        --         },
+        --         ['minmax'] = {
+        --             ['min'] = 35.67,
+        --             ['max'] = 38.67
+        --         },
+        --     },
+        --     ['draw_text'] = "[G] Refuel Aircraft",
+        --     ['type'] = 'air',
+        --     ['whitelist'] = {
+        --         ['enabled'] = false,
+        --         ['on_duty_only'] = true,
+        --         ['whitelisted_jobs'] = {
+        --             'police', 'ambulance',
+        --         }
+        --     },
+        --     ['prop'] = {
+        --         ['model'] = 'prop_gas_pump_1c',
+        --         ['coords'] = vector4(827.55, -1378.57, 36.67, 1.11)
+        --     }
+        -- }
     },
     ['refuel_button'] = 47, -- "G" Button for Draw Text.
     ['nozzle_length'] = 20.0, -- The max distance you can go from the "Special Pump" before the nozzle in returned to the pump.

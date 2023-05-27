@@ -1,24 +1,23 @@
 ![Codine Development Fuel Script Banner](https://i.imgur.com/qVOMMvW.png)
 
-# _CDN-Fuel (2.1.1)_ 
+# _CDN-Fuel (2.1.2)_ 
 
 A highly in-depth fuel system for **FiveM** with support for the **QBCore Framework & QBox Remastered**.
 
 # _Lastest Patch Information_
 *Additions:*
-- Emergency Services Discounts (Config Enabled)
-- Air & Water Vehicle Fueling (Config Enabled)
-- Hose Attached To Nozzle (Config Enabled)
-- OX Library Support (Menu/Input/Inventory/Target) Additions.
-- QBox Framework now supported.
-- Electric Vehicles turn off when at 0 fuel. (Config Enabled)
+- Various Optimizations Throughout
+- Config Option for Having Owners Pickup Reserves they Purchase
 
 *Fixes:*
-- Bank Payment Double Taxing Payments.
-- Paleto Locations PolyZone issue.
-- Fix Electric Vehicles Not Stopping On 0 Fuel
-- Fix Emergency Services Discounts
-- Fix Polyzone for MRPD Helicopter Refuel
+- Blip Color on Normal Blip not working.
+- [Jerry Can Flipped Orientation](https://github.com/dnelyk/cdn-grub-updates/assets/95599217/0489397e-99c9-43d9-8aab-0d4a45463cfd)
+- Various Syphoning Issues (Item Data / Input / Menu etc)
+- Various Jerry Can Issues (Similar to Syphon Issues)
+- Station Owners Not Recieving Full Price on Discounted Purchases
+
+*Removals:*
+- NPWD "Support" as there are various large issues.
 
 <br>
 <br>

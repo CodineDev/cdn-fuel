@@ -81,7 +81,7 @@ if Config.ElectricVehicleCharging then
         local money = nil
         if purchasetype == "bank" then money = QBCore.Functions.GetPlayerData().money['bank'] elseif purchasetype == 'cash' then money = QBCore.Functions.GetPlayerData().money['cash'] end
         FuelPrice = (1 * Config.ElectricChargingPrice)
-        local vehicle = QBCore.Functions.GetClosestVehicle()
+        local vehicle = GetClosestVehicle()
 
         -- Police Discount Math --
         if Config.EmergencyServicesDiscount['enabled'] == true and (Config.EmergencyServicesDiscount['emergency_vehicles_only'] == false or (Config.EmergencyServicesDiscount['emergency_vehicles_only'] == true and GetVehicleClass(vehicle) == 18)) then
@@ -205,7 +205,7 @@ if Config.ElectricVehicleCharging then
     end)
 
     RegisterNetEvent('cdn-fuel:client:electric:SendMenuToServer', function()
-        local vehicle = QBCore.Functions.GetClosestVehicle()
+        local vehicle = GetClosestVehicle()
         local vehiclename = GetEntityModel(vehicle)
         AwaitingElectricCheck = true
         FoundElectricVehicle = false
@@ -340,7 +340,7 @@ if Config.ElectricVehicleCharging then
         if amount < 1 then return end
         if amount < 10 then fuelamount = string.sub(amount, 1, 1) else fuelamount = string.sub(amount, 1, 2) end
         local FuelPrice = (Config.ElectricChargingPrice * 1)
-        local vehicle = QBCore.Functions.GetClosestVehicle()
+        local vehicle = GetClosestVehicle()
 
         -- Police Discount Math --
         if Config.EmergencyServicesDiscount['enabled'] == true and (Config.EmergencyServicesDiscount['emergency_vehicles_only'] == false or (Config.EmergencyServicesDiscount['emergency_vehicles_only'] == true and GetVehicleClass(vehicle) == 18)) then
@@ -394,7 +394,7 @@ if Config.ElectricVehicleCharging then
         end
 
         local refillCost = (fuelamount * FuelPrice) + GlobalTax(fuelamount*FuelPrice)
-        local vehicle = QBCore.Functions.GetClosestVehicle()
+        local vehicle = GetClosestVehicle()
         local ped = PlayerPedId()
         local time = amount * Config.RefuelTime
         if amount < 10 then time = 10 * Config.RefuelTime end
@@ -461,17 +461,6 @@ if Config.ElectricVehicleCharging then
                         if purchasetype == "cash" then
                             TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, true)
                         elseif purchasetype == "bank" then
-                            if Config.NPWD then
-                                exports["npwd"]:createNotification({ -- You can change this export to your own notification
-                                    notisId = "npwd:electricityPaidFor",
-                                    appId = "BANK",
-                                    content = "You have paid $"..refillCost.." for electric at $"..FuelPrice.." per KWh + tax",
-                                    secondaryTitle = "New Transaction",
-                                    keepOpen = false,
-                                    duration = 15000,
-                                    path = "/BANK",
-                                })
-                            end
                             TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, true)
                         end
                         local curfuel = GetFuel(vehicle)

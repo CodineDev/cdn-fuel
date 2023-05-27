@@ -20,14 +20,19 @@ local GasStationBlips = {} -- Used for managing blips on the client, so labels c
 local RefuelingType = nil
 local PlayerInSpecialFuelZone = false
 local Rope = nil
+local CachedFuelPrice = nil
 
 -- Debug ---
 if Config.FuelDebug then
 	RegisterCommand('setfuel', function(source, args)
 		if args[1] == nil then print("You forgot to put a fuel level!") return end
-		local vehicle = QBCore.Functions.GetClosestVehicle()
+		local vehicle = GetClosestVehicle()
 		SetFuel(vehicle, tonumber(args[1]))
 		QBCore.Functions.Notify(Lang:t("set_fuel_debug")..' '..args[1]..'L', 'success')
+	end, false)
+
+	RegisterCommand('getCachedFuelPrice', function ()
+		print(CachedFuelPrice)
 	end, false)
 end
 
@@ -232,6 +237,7 @@ CreateThread(function()
 					TriggerEvent('cdn-fuel:stations:updatelocation', station_id)
 				end
 			else
+				TriggerEvent('cdn-fuel:stations:updatelocation', nil)
 				inGasStation = false
 			end
 		end)
@@ -309,6 +315,7 @@ if Config.RenewedPhonePayment then
 				end
 				if discount ~= 0 then
 					if discount == 100 then
+						CachedFuelPrice = FuelPrice
 						FuelPrice = 0
 						if Config.FuelDebug then
 							print("Your discount for Emergency Services is set @ "..discount.."% so fuel is free!")
@@ -318,6 +325,7 @@ if Config.RenewedPhonePayment then
 						if Config.FuelDebug then
 							print(FuelPrice, FuelPrice*discount)
 						end
+						CachedFuelPrice = FuelPrice
 						FuelPrice = FuelPrice - (FuelPrice*discount)
 
 						if Config.FuelDebug then
@@ -339,7 +347,7 @@ if Config.RenewedPhonePayment then
 			if QBCore.Functions.GetPlayerData().money['bank'] <= total then
 				QBCore.Functions.Notify(Lang:t("not_enough_money"), "error")
 			else
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "bank", FuelPrice, false, CachedFuelPrice)
 				RefuelPossible = true
 				RefuelPossibleAmount = amount
 				RefuelCancelledFuelCost = FuelPrice
@@ -495,7 +503,7 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle', function()
 			end
 		end
 		holdingnozzle = true
-		Citizen.CreateThread(function()
+		CreateThread(function()
 			while holdingnozzle do
 				local currentcoords = GetEntityCoords(ped)
 				local dist = #(grabbednozzlecoords - currentcoords)
@@ -592,7 +600,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 	if not Config.PlayerOwnedGasStationsEnabled then
 		FuelPrice = (1 * Config.CostMultiplier)
 	end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local curfuel = GetFuel(vehicle)
 	local finalfuel
 	if curfuel < 10 then finalfuel = string.sub(curfuel, 1, 1) else finalfuel = string.sub(curfuel, 1, 2) end
@@ -636,6 +644,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
+					CachedFuelPrice = FuelPrice
 					FuelPrice = 0
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."% so fuel is free!")
@@ -645,6 +654,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 					if Config.FuelDebug then
 						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
 					end
+					CachedFuelPrice = FuelPrice
 					FuelPrice = (FuelPrice) - (FuelPrice*discount)
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ "..discount.."%. Setting new price to: $"..FuelPrice)
@@ -785,7 +795,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 end)
 
 RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function(type)
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -918,7 +928,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 	amount = tonumber(amount)
 	if amount < 1 then return end
 	if amount < 10 then fuelamount = string.sub(amount, 1, 1) else fuelamount = string.sub(amount, 1, 2) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	if Config.AirAndWaterVehicleFueling['enabled'] then
 		local vehClass = GetVehicleClass(vehicle)
 		if vehClass == 14 then
@@ -956,6 +966,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 			if Config.FuelDebug then print("Before we apply the discount the FuelPrice is: $"..FuelPrice) end
 			if discount ~= 0 then
 				if discount == 100 then
+					CachedFuelPrice = FuelPrice
 					FuelPrice = 0
 					if Config.FuelDebug then
 						print("Your discount for Emergency Services is set @ | "..discount.."% | so fuel is free!")
@@ -966,6 +977,7 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 						print("Math( Current Fuel Price: "..FuelPrice.. " - " ..FuelPrice * discount.. "<<-- FuelPrice * Discount)")
 					end
 
+					CachedFuelPrice = FuelPrice
 					FuelPrice = FuelPrice - (FuelPrice*discount)
 
 					if Config.FuelDebug then
@@ -1019,13 +1031,23 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 							local remainingamount = (amount - Refuelamount)
 							MoneyToGiveBack = (GlobalTax(remainingamount * RefuelCancelledFuelCost) + (remainingamount * RefuelCancelledFuelCost))
 							TriggerServerEvent("cdn-fuel:server:phone:givebackmoney", MoneyToGiveBack)
+							CachedFuelPrice = nil
 						else
-							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
+							CachedFuelPrice = nil
 						end
 						if RefuelingType == nil then
 							if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 								TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", finalrefuelamount, ReserveLevels, CurrentLocation)
-								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, FuelPrice)
+								if CachedFuelPrice ~= nil then
+									if Config.FuelDebug then
+										print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+									end
+									TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+									CachedFuelPrice = nil
+								else
+									TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", finalrefuelamount, StationBalance, CurrentLocation, FuelPrice)
+								end
 							end
 						end
 						local curfuel = GetFuel(vehicle)
@@ -1060,21 +1082,10 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 				}) then
 					refueling = false
 					if purchasetype == "cash" then
-						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+						TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 					elseif purchasetype == "bank" then
-						if Config.NPWD then
-							exports["npwd"]:createNotification({ -- You can change this export to your own notification
-								notisId = "npwd:fuelPaidFor",
-								appId = "BANK",
-								content = "You have paid $"..refillCost.." for fuel at $"..FuelPrice.." Per Liter + tax",
-								secondaryTitle = "New Transaction",
-								keepOpen = false,
-								duration = 15000,
-								path = "/BANK",
-							})
-						end
 						if not Config.RenewedPhonePayment or purchasetype == "cash" then 
-							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice)
+							TriggerServerEvent('cdn-fuel:server:PayForFuel', refillCost, purchasetype, FuelPrice, false, CachedFuelPrice)
 						end
 					end
 					local curfuel = GetFuel(vehicle)
@@ -1087,7 +1098,15 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					if RefuelingType == nil then
 						if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 							TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", fuelamount, ReserveLevels, CurrentLocation)
-							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							if CachedFuelPrice ~= nil then
+								if Config.FuelDebug then
+									print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+								end
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+								CachedFuelPrice = nil
+							else
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							end
 						else
 							if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 						end
@@ -1127,7 +1146,15 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 					if RefuelingType == nil then
 						if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 							TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", fuelamount, ReserveLevels, CurrentLocation)
-							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							if CachedFuelPrice ~= nil then
+								if Config.FuelDebug then
+									print("We have a cached price: $"..CachedFuelPrice..", we will credit this to the gas station.")
+								end
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, CachedFuelPrice)
+								CachedFuelPrice = nil
+							else
+								TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", fuelamount, StationBalance, CurrentLocation, FuelPrice)
+							end
 						else
 							if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 						end
@@ -1156,7 +1183,7 @@ end)
 RegisterNetEvent('cdn-fuel:jerrycan:refuelmenu', function(itemData)
 	if IsPedInAnyVehicle(PlayerPedId(), false) then QBCore.Functions.Notify(Lang:t("cannot_refuel_inside"), 'error') return end
 	if Config.FuelDebug then print("Item Data: " .. json.encode(itemData)) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local vehiclecoords = GetEntityCoords(vehicle)
 	local pedcoords = GetEntityCoords(PlayerPedId())
 	if GetVehicleBodyHealth(vehicle) < 100 then QBCore.Functions.Notify(Lang:t("vehicle_is_damaged"), 'error') return end
@@ -1202,7 +1229,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelmenu', function(itemData)
 				title = Lang:t("menu_header_jerry_can"),
 				options = {
 					{
-						title = Lang:t("menu_header_refuel_jerry_can"),
+						title = Lang:t("menu_header_refuel_vehicle"),
 						event = 'cdn-fuel:jerrycan:refuelvehicle',
 						args = {itemData = itemData},
 						disabled = nogas,
@@ -1293,17 +1320,6 @@ RegisterNetEvent('cdn-fuel:client:jerrycanfinalmenu', function(purchasetype)
 		Moneyamount = QBCore.Functions.GetPlayerData().money['cash']
 	end
 	if Moneyamount > math.ceil(Config.JerryCanPrice + GlobalTax(Config.JerryCanPrice)) then
-		if purchasetype == 'bank' and Config.NPWD then
-			exports["npwd"]:createNotification({ -- You can change this export to your own notification
-				notisId = "npwd:JerryCanBought",
-				appId = "BANK",
-				content = "You have paid $"..math.ceil(Config.JerryCanPrice + GlobalTax(Config.JerryCanPrice)).." for a jerry can",
-				secondaryTitle = "New Transaction",
-				keepOpen = false,
-				duration = 15000,
-				path = "/BANK",
-			})
-		end
 		TriggerServerEvent('cdn-fuel:server:purchase:jerrycan', purchasetype)
 	else
 		if purchasetype == 'bank' then QBCore.Functions.Notify(Lang:t("not_enough_money_in_bank"), 'error') end
@@ -1381,7 +1397,8 @@ RegisterNetEvent('cdn-fuel:client:purchasejerrycan', function()
 end)
 
 RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local ped = PlayerPedId()
+	local vehicle = GetClosestVehicle()
 	local vehfuel = math.floor(GetFuel(vehicle))
 	local maxvehrefuel = (100 - math.ceil(vehfuel))
 	local itemData = data.itemData
@@ -1391,7 +1408,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 	else
 		jerrycanfuelamount = itemData.info.gasamount
 	end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -1410,82 +1427,154 @@ RegisterNetEvent('cdn-fuel:jerrycan:refuelvehicle', function(data)
 			maxvehrefuel = Config.JerryCanCap
 		end
 		if maxvehrefuel >= jerrycanfuelamount then maxvehrefuel = jerrycanfuelamount elseif maxvehrefuel < jerrycanfuelamount then maxvehrefuel = maxvehrefuel end
-		local refuel = exports['qb-input']:ShowInput({
-			header = Lang:t("input_select_refuel_header"),
-			submitText = Lang:t("input_refuel_submit"),
-			inputs = {
-				{
-					type = 'number',
-					isRequired = true,
-					name = 'amount',
-					text = Lang:t("input_max_fuel_footer_1") .. maxvehrefuel .. Lang:t("input_max_fuel_footer_2")
-				}
-			}
-		})
-		if refuel then
-			if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return end
-			if tonumber(refuel.amount) > jerrycanfuelamount then QBCore.Functions.Notify(Lang:t("jerry_can_not_enough_fuel"), 'error') return end
-			local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
-			if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
-			if vehfuel + tonumber(refuel.amount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
-			local refuelAmount = tonumber(refuel.amount)
-			JerrycanProp = CreateObject(joaat('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
-			local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
-			AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
-			if Config.Ox.Progress then
-				if lib.progressCircle({
-					duration = refueltimer,
-					label = Lang:t("prog_refueling_vehicle"),
-					position = 'bottom',
-					useWhileDead = false,
-					canCancel = true,
-					disable = {
-						car = true,
-						move = true,
-						combat = true
-					},
-					anim = {
-						dict = Config.JerryCanAnimDict,
-						clip = Config.JerryCanAnim
-					},
-				}) then 
-					DeleteObject(JerrycanProp)
-					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-					QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
-					local JerryCanItemData = data.itemData
-					local srcPlayerData = QBCore.Functions.GetPlayerData()
-					TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuelAmount), srcPlayerData, JerryCanItemData)
-					SetFuel(vehicle, (vehfuel + refuelAmount))
-				else 
-					DeleteObject(JerrycanProp)
-					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-					QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+		-- Need to Convert to OX --
+		if Config.Ox.Input then
+			local refuel = lib.inputDialog(Lang:t("input_select_refuel_header"), {Lang:t("input_max_fuel_footer_1") .. maxvehrefuel .. Lang:t("input_max_fuel_footer_2")})
+			if not refuel then return end
+			local refuelAmount = tonumber(refuel[1])
+			-- 
+			if refuel and refuelAmount then
+				if tonumber(refuelAmount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuelAmount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return end
+				if tonumber(refuelAmount) > jerrycanfuelamount then QBCore.Functions.Notify(Lang:t("jerry_can_not_enough_fuel"), 'error') return end
+				local refueltimer = Config.RefuelTime * tonumber(refuelAmount)
+				if tonumber(refuelAmount) < 10 then refueltimer = Config.RefuelTime * 10 end
+				if vehfuel + tonumber(refuelAmount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
+				local refuelAmount = tonumber(refuelAmount)
+				JerrycanProp = CreateObject(joaat('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
+				local lefthand = GetPedBoneIndex(ped, 18905)
+				AttachEntityToEntity(JerrycanProp, ped, lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.0 --[[Up - Down]], 0.25 --[[Forward - Backward]], 15.0, 170.0, 90.42, 0, 1, 0, 1, 0, 1)
+				if Config.Ox.Progress then
+					if lib.progressCircle({
+						duration = refueltimer,
+						label = Lang:t("prog_refueling_vehicle"),
+						position = 'bottom',
+						useWhileDead = false,
+						canCancel = true,
+						disable = {
+							car = true,
+							move = true,
+							combat = true
+						},
+						anim = {
+							dict = Config.JerryCanAnimDict,
+							clip = Config.JerryCanAnim
+						},
+					}) then 
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
+						local JerryCanItemData = data.itemData
+						local srcPlayerData = QBCore.Functions.GetPlayerData()
+						TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuelAmount), srcPlayerData, JerryCanItemData)
+						SetFuel(vehicle, (vehfuel + refuelAmount))
+					else 
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+					end
+				else
+					QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
+						disableMovement = true,
+						disableCarMovement = true,
+						disableMouse = false,
+						disableCombat = true,
+					}, { 
+						animDict = Config.JerryCanAnimDict,
+						anim = Config.JerryCanAnim,
+						flags = 17,
+					}, {}, {}, function() -- Play When Done
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
+						local JerryCanItemData = data.itemData
+						local srcPlayerData = QBCore.Functions.GetPlayerData()
+						TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuelAmount), srcPlayerData, JerryCanItemData)
+						SetFuel(vehicle, (vehfuel + refuelAmount))
+					end, function() -- Play When Cancel
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+					end, "jerrycan")
 				end
-			else
-				QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
-					disableMovement = true,
-					disableCarMovement = true,
-					disableMouse = false,
-					disableCombat = true,
-				}, { 
-					animDict = Config.JerryCanAnimDict,
-					anim = Config.JerryCanAnim,
-					flags = 17,
-				}, {}, {}, function() -- Play When Done
-					DeleteObject(JerrycanProp)
-					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-					QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
-					local JerryCanItemData = data.itemData
-					local srcPlayerData = QBCore.Functions.GetPlayerData()
-					TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, JerryCanItemData)
-					SetFuel(vehicle, (vehfuel + refuel.amount))
-				end, function() -- Play When Cancel
-					DeleteObject(JerrycanProp)
-					StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
-					QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
-				end, "jerrycan")
+			end
+		else
+			local refuel = exports['qb-input']:ShowInput({
+				header = Lang:t("input_select_refuel_header"),
+				submitText = Lang:t("input_refuel_submit"),
+				inputs = {
+					{
+						type = 'number',
+						isRequired = true,
+						name = 'amount',
+						text = Lang:t("input_max_fuel_footer_1") .. maxvehrefuel .. Lang:t("input_max_fuel_footer_2")
+					}
+				}
+			})
+			if refuel then
+				if tonumber(refuel.amount) == 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return elseif tonumber(refuel.amount) < 0 then QBCore.Functions.Notify(Lang:t("more_than_zero"), 'error') return end
+				if tonumber(refuel.amount) > jerrycanfuelamount then QBCore.Functions.Notify(Lang:t("jerry_can_not_enough_fuel"), 'error') return end
+				local refueltimer = Config.RefuelTime * tonumber(refuel.amount)
+				if tonumber(refuel.amount) < 10 then refueltimer = Config.RefuelTime * 10 end
+				if vehfuel + tonumber(refuel.amount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
+				JerrycanProp = CreateObject(joaat('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
+				local lefthand = GetPedBoneIndex(ped, 18905)
+				AttachEntityToEntity(JerrycanProp, ped, lefthand, 0.11 --[[Left - Right (Kind of)]] , 0.0 --[[Up - Down]], 0.25 --[[Forward - Backward]], 15.0, 170.0, 90.42, 0, 1, 0, 1, 0, 1)
+				if Config.Ox.Progress then
+					if lib.progressCircle({
+						duration = refueltimer,
+						label = Lang:t("prog_refueling_vehicle"),
+						position = 'bottom',
+						useWhileDead = false,
+						canCancel = true,
+						disable = {
+							car = true,
+							move = true,
+							combat = true
+						},
+						anim = {
+							dict = Config.JerryCanAnimDict,
+							clip = Config.JerryCanAnim
+						},
+					}) then 
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
+						local JerryCanItemData = data.itemData
+						local srcPlayerData = QBCore.Functions.GetPlayerData()
+						TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, JerryCanItemData)
+						SetFuel(vehicle, (vehfuel + refuel.amount))
+					else 
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+					end
+				else
+					QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_refueling_vehicle"), refueltimer, false, true, { -- Name | Label | Time | useWhileDead | canCancel
+						disableMovement = true,
+						disableCarMovement = true,
+						disableMouse = false,
+						disableCombat = true,
+					}, { 
+						animDict = Config.JerryCanAnimDict,
+						anim = Config.JerryCanAnim,
+						flags = 17,
+					}, {}, {}, function() -- Play When Done
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("jerry_can_success_vehicle"), 'success')
+						local JerryCanItemData = data.itemData
+						local srcPlayerData = QBCore.Functions.GetPlayerData()
+						TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, JerryCanItemData)
+						SetFuel(vehicle, (vehfuel + refuel.amount))
+					end, function() -- Play When Cancel
+						DeleteObject(JerrycanProp)
+						StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+						QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
+					end, "jerrycan")
+				end
 			end
 		end
+
 	else
 		QBCore.Functions.Notify(Lang:t("need_electric_charger"), 'error', 7500) return 
 	end
@@ -1506,8 +1595,11 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 	else
 		jerrycanfuelamount = itemData.info.gasamount
 	end
+
+	local ped = PlayerPedId()
+
 	if Config.Ox.Input then
-		local JerryCanMaxRefuel = (Config.JerryCanCap - itemData.metadata.cdn_fuel)
+		local JerryCanMaxRefuel = (Config.JerryCanCap - jerrycanfuelamount)
 		local refuel = lib.inputDialog(Lang:t("input_select_refuel_header"), {Lang:t("input_max_fuel_footer_1") .. JerryCanMaxRefuel .. Lang:t("input_max_fuel_footer_2")})
 		if not refuel then return end
 		local refuelAmount = tonumber(refuel[1])
@@ -1521,8 +1613,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			if not CanAfford(price, "cash") then QBCore.Functions.Notify(Lang:t("not_enough_money_in_cash"), 'error') return end
 
 			JerrycanProp = CreateObject(joaat('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
-			local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
-			AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
+			local lefthand = GetPedBoneIndex(ped, 18905)
+			AttachEntityToEntity(JerrycanProp, ped, lefthand, 0.11 --[[Left - Right]] , 0.05--[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
 			SetEntityVisible(fuelnozzle, false, 0)
 			if lib.progressCircle({
 				duration = refueltimer,
@@ -1542,13 +1634,22 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			}) then 
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+				StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 				QBCore.Functions.Notify(Lang:t("jerry_can_success"), 'success')
 				local srcPlayerData = QBCore.Functions.GetPlayerData()
-				TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
+				if Config.Ox.Inventory then
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
+				else
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, itemData)
+				end
+				
 				if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 					TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", tonumber(refuelAmount), ReserveLevels, CurrentLocation)
-					TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, FuelPrice)
+					if CachedFuelPrice ~= nil then
+						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, CachedFuelPrice)
+					else
+						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuelAmount), StationBalance, CurrentLocation, FuelPrice)
+					end
 				else
 					if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 				end
@@ -1557,7 +1658,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			else 
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+				StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 				QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 			end
 		end
@@ -1582,8 +1683,8 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			local price = (tonumber(refuel.amount) * FuelPrice) + GlobalTax(tonumber(refuel.amount) * FuelPrice)
 			if not CanAfford(price, "cash") then QBCore.Functions.Notify(Lang:t("not_enough_money_in_cash"), 'error') return end
 			JerrycanProp = CreateObject(joaat('w_am_jerrycan'), 1.0, 1.0, 1.0, true, true, false)
-			local lefthand = GetPedBoneIndex(PlayerPedId(), 18905)
-			AttachEntityToEntity(JerrycanProp, PlayerPedId(), lefthand, 0.11 --[[Left - Right]] , 0.05 --[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
+			local lefthand = GetPedBoneIndex(ped, 18905)
+			AttachEntityToEntity(JerrycanProp, ped, lefthand, 0.11 --[[Left - Right]] , 0.05 --[[Up - Down]], 0.27 --[[Forward - Backward]], -15.0, 170.0, -90.42, 0, 1, 0, 1, 0, 1)
 			SetEntityVisible(fuelnozzle, false, 0)
 			QBCore.Functions.Progressbar('refuel_gas', Lang:t("prog_jerry_can_refuel"), refueltimer, false,true, { -- Name | Label | Time | useWhileDead | canCancel
 				disableMovement = true,
@@ -1597,25 +1698,34 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 			}, {}, {}, function() -- Play When Done
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+				StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 				QBCore.Functions.Notify(Lang:t("jerry_can_success"), 'success')
 				local jerryCanData = data.itemData
 				local srcPlayerData = QBCore.Functions.GetPlayerData()
-				TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuel.amount), srcPlayerData, jerryCanData)
+				if Config.Ox.Inventory then
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
+				else
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, jerryCanData)
+				end
 				if RefuelingType == nil then	
 					if Config.PlayerOwnedGasStationsEnabled and not Config.UnlimitedFuel then
 						TriggerServerEvent('cdn-fuel:station:server:updatereserves', "remove", tonumber(refuel.amount), ReserveLevels, CurrentLocation)
-						TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, FuelPrice)
+						if CachedFuelPrice ~= nil then
+							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, CachedFuelPrice)
+						else
+							TriggerServerEvent('cdn-fuel:station:server:updatebalance', "add", tonumber(refuel.amount), StationBalance, CurrentLocation, FuelPrice)
+						end
+						
 					else
 						if Config.FuelDebug then print("Config.PlayerOwnedGasStationsEnabled == false or Config.UnlimitedFuel == true, this means reserves will not be changed.") end
 					end
 				end
 				local total = (tonumber(refuel.amount) * FuelPrice) + GlobalTax(tonumber(refuel.amount) * FuelPrice)
-				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice)
+				TriggerServerEvent('cdn-fuel:server:PayForFuel', total, "cash", FuelPrice, false, CachedFuelPrice)
 			end, function() -- Play When Cancel
 				SetEntityVisible(fuelnozzle, true, 0)
 				DeleteObject(JerrycanProp)
-				StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+				StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 				QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 			end, "jerrycan")
 		end
@@ -1644,7 +1754,7 @@ end
 RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 	if IsPedInAnyVehicle(PlayerPedId(), false) then QBCore.Functions.Notify(Lang:t("syphon_inside_vehicle"), 'error') return end
 	if Config.SyphonDebug then print("Item Data: " .. json.encode(itemData)) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local vehiclename = GetEntityModel(vehicle)
 	local vehiclecoords = GetEntityCoords(vehicle)
 	local pedcoords = GetEntityCoords(PlayerPedId())
@@ -1763,9 +1873,10 @@ end)
 
 RegisterNetEvent('cdn-syphoning:syphon', function(data)
 	local reason = data.reason
+	local ped = PlayerPedId()
 	if Config.SyphonDebug then print('Item Data Syphon: ' .. json.encode(data.itemData)) end
 	if Config.SyphonDebug then print('Reason: ' .. reason) end
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = GetClosestVehicle()
 	local NotElectric = false
 	if Config.ElectricVehicleCharging then
 		local isElectric = GetCurrentVehicleType(vehicle)
@@ -1790,9 +1901,9 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 		
 		if HasSyphon then
 			local fitamount = (Config.SyphonKitCap - currentsyphonamount)
-			local vehicle = QBCore.Functions.GetClosestVehicle()
+			local vehicle = GetClosestVehicle()
 			local vehiclecoords = GetEntityCoords(vehicle)
-			local pedcoords = GetEntityCoords(PlayerPedId())
+			local pedcoords = GetEntityCoords(ped)
 			if #(vehiclecoords - pedcoords) > 2.5 then return end
 			local cargasamount = GetFuel(vehicle)
 			local maxsyphon = math.floor(GetFuel(vehicle))
@@ -1837,9 +1948,9 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 									clip = Config.StealAnim
 								},
 							}) then
-								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+								StopAnimTask(ped, Config.StealAnimDict, Config.StealAnim, 1.0)
 								if GetFuel(vehicle) >= syphonAmount then
-									PoliceAlert(GetEntityCoords(PlayerPedId()))
+									PoliceAlert(GetEntityCoords(ped))
 									QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
 									SetFuel(vehicle, removeamount)
 									local syphonData = data.itemData
@@ -1849,8 +1960,8 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 									QBCore.Functions.Notify(Lang:t("menu_syphon_vehicle_empty"), 'error')
 								end
 							else
-								PoliceAlert(GetEntityCoords(PlayerPedId()))
-								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+								PoliceAlert(GetEntityCoords(ped))
+								StopAnimTask(ped, Config.StealAnimDict, Config.StealAnim, 1.0)
 								QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 							end
 						end
@@ -1888,19 +1999,20 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 								anim = Config.StealAnim,
 								flags = 1,
 							}, {}, {}, function() -- Play When Done
-								if GetFuel(vehicle) >= syphonAmount then
-									PoliceAlert(GetEntityCoords(PlayerPedId()))
+								if GetFuel(vehicle) >= tonumber(syphon.amount) then
+									PoliceAlert(GetEntityCoords(ped))
 									QBCore.Functions.Notify(Lang:t("syphon_success"), 'success')
 									SetFuel(vehicle, removeamount)
 									local syphonData = data.itemData
 									local srcPlayerData = QBCore.Functions.GetPlayerData()
-									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphonAmount), srcPlayerData, syphonData)
+									TriggerServerEvent('cdn-fuel:info', "add", tonumber(syphon.amount), srcPlayerData, syphonData)
+									StopAnimTask(ped, Config.StealAnimDict, Config.StealAnim, 1.0)
 								else
 									QBCore.Functions.Notify(Lang:t("menu_syphon_vehicle_empty"), 'error')
 								end
 							end, function() -- Play When Cancel
-								PoliceAlert(GetEntityCoords(PlayerPedId()))
-								StopAnimTask(PlayerPedId(), Config.StealAnimDict, Config.StealAnim, 1.0)
+								PoliceAlert(GetEntityCoords(ped))
+								StopAnimTask(ped, Config.StealAnimDict, Config.StealAnim, 1.0)
 								QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 							end, "syphoningkit")
 						end
@@ -1924,7 +2036,6 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 						if tonumber(refuelAmount) + tonumber(cargasamount) > 100 then QBCore.Functions.Notify(Lang:t("tank_cannot_fit"), 'error') return end
 						local refueltimer = Config.RefuelTime * tonumber(refuelAmount)
 						if tonumber(refuelAmount) < 10 then refueltimer = Config.RefuelTime * 10 end
-						
 						if lib.progressCircle({
 							duration = refueltimer,
 							label = Lang:t("prog_refueling_vehicle"),
@@ -1941,14 +2052,14 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 								clip = Config.JerryCanAnim
 							},
 						}) then
-							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+							StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 							QBCore.Functions.Notify(Lang:t("syphon_success_vehicle"), 'success')
 							SetFuel(vehicle, cargasamount + tonumber(refuelAmount))
 							local syphonData = data.itemData
 							local srcPlayerData = QBCore.Functions.GetPlayerData()
 							TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuelAmount), srcPlayerData, syphonData)
 						else
-							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+							StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 							QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 						end
 					end
@@ -1981,14 +2092,14 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 							anim = Config.JerryCanAnim,
 							flags = 17,
 						}, {}, {}, function() -- Play When Done
-							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+							StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 							QBCore.Functions.Notify(Lang:t("syphon_success_vehicle"), 'success')
 							SetFuel(vehicle, cargasamount + tonumber(refuel.amount))
 							local syphonData = data.itemData
 							local srcPlayerData = QBCore.Functions.GetPlayerData()
 							TriggerServerEvent('cdn-fuel:info', "remove", tonumber(refuel.amount), srcPlayerData, syphonData)
 						end, function() -- Play When Cancel
-							StopAnimTask(PlayerPedId(), Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
+							StopAnimTask(ped, Config.JerryCanAnimDict, Config.JerryCanAnim, 1.0)
 							QBCore.Functions.Notify(Lang:t("cancelled"), 'error')
 						end, "syphoningkit")
 					end
@@ -2073,12 +2184,12 @@ RegisterNetEvent('cdn-fuel:client:grabnozzle:special', function()
 			SetEntityDrawOutline(SpecialFuelNozzleObj --[[ Entity ]], true --[[ boolean ]])
 		end
 	end
-	Citizen.CreateThread(function()
+	CreateThread(function()
 		while HoldingSpecialNozzle do
 			local currentcoords = GetEntityCoords(ped)
 			local dist = #(grabbednozzlecoords - currentcoords)
 			TargetCreated = true
-			if dist > Config.AirAndWaterVehicleFueling['nozzle_length'] or IsPedInAnyVehicle(PlayerPedId(), false) then
+			if dist > Config.AirAndWaterVehicleFueling['nozzle_length'] or IsPedInAnyVehicle(ped, false) then
 				HoldingSpecialNozzle = false
 				DeleteObject(SpecialFuelNozzleObj)
 				QBCore.Functions.Notify(Lang:t("nozzle_cannot_reach"), 'error')
@@ -2188,7 +2299,7 @@ CreateThread(function()
 					CreateThread(function()
 						while PlayerInSpecialFuelZone do
 							Wait(3000)
-							vehicle = QBCore.Functions.GetClosestVehicle()
+							vehicle = GetClosestVehicle()
 						end
 					end)
 
@@ -2551,6 +2662,8 @@ if Config.VehicleShutoffOnLowFuel['shutOffLevel'] == 0 then
 	Config.VehicleShutoffOnLowFuel['shutOffLevel'] = 0.55
 end
 
+-- This loop does use quite a bit of performance, but, is needed due to electric vehicles running without fuel & normal vehicles driving backwards! 
+-- You can remove if you need the performance, but we believe it is very important.
 CreateThread(function()
 	while true do
 		Wait(0)

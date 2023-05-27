@@ -16,13 +16,20 @@ local Translations = {
     cannot_refuel_inside = "No puedes repostar desde el interior del Vehiculo!",
     vehicle_is_damaged = "El vehiculo está demasiado dañado para repostarlo!",
 
+    -- 2.1.2 -- Recogida de reservas ---
+    fuel_order_ready = "¡Tu pedido de combustible está disponible para recoger! ¡Consulta tu GPS para encontrar el lugar de recogida!",
+    draw_text_fuel_dropoff = "[E] Dejar camión",
+    fuel_pickup_success = "Tus reservas se han llenado con: %sL",
+    fuel_pickup_failed = "¡Ron Oil acaba de entregar el combustible a tu estación!",
+    trailer_too_far = "¡El remolque no está enganchado al camión o está demasiado lejos!",
+
     -- 2.1.0
     no_nozzle = "¡No tienes la boquilla!",
     vehicle_too_far = "¡Estás demasiado lejos para repostar este vehículo!",
     inside_vehicle = "¡No puedes repostar desde el interior del vehículo!",
     you_are_discount_eligible = "Si entras en servicio, podrías recibir un descuento del "..Config.EmergencyServicesDiscount['discount'].."%!",
     no_fuel = "Sin combustible..",
-    
+
     -- Electric
     electric_more_than_zero = "Debes cargar mas de 0KW!",
     electric_vehicle_not_electric = "Tu vehiculo no es Eléctrico!",

@@ -16,6 +16,13 @@ local Translations = {
     need_electric_charger = "I need to go to an electric charger!",
     cannot_refuel_inside = "You cannot refuel from inside of the vehicle!",
     
+    -- 2.1.2 -- Reserves Pickup ---
+    fuel_order_ready = "Your fuel order is available for pickup! Take a look at your GPS to find the pickup!",
+    draw_text_fuel_dropoff = "[E] Drop Off Truck",
+    fuel_pickup_success = "Your reserves have been filled to: %sL",
+    fuel_pickup_failed = "Ron Oil has just dropped off the fuel to your station!",
+    trailer_too_far = "The trailer is not attached to the truck or is too far!",
+
     -- 2.1.0
     no_nozzle = "You do not have the nozzle!",
     vehicle_is_damaged = "Vehicle is too damaged to refuel!",

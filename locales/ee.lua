@@ -16,6 +16,13 @@ local Translations = {
     need_electric_charger = "Elektri auto jaoks, peaksid sa minema laadimispunkti!",
     cannot_refuel_inside = "Sa ei saa tankida sõidukit, kui ise seal sees istud!",
     
+    -- 2.1.2 -- Reservi kogumine ---
+    fuel_order_ready = "Teie kütuse tellimus on saadaval kogumiseks! Vaadake oma GPS-i, et leida kogumiskoht!",
+    draw_text_fuel_dropoff = "[E] Jäta veok maha",
+    fuel_pickup_success = "Teie reservuaarid on täidetud: %sL",
+    fuel_pickup_failed = "Ron Oil on just teie jaama kütust maha toimetanud!",
+    trailer_too_far = "Haagis pole veokiga ühendatud või on liiga kaugel!",
+
     -- 2.1.0
     no_nozzle = "Sul ei ole kütuse otsikut!",
     vehicle_is_damaged = "Sõiduk on liiga katki, et seda tankida!",
