@@ -819,11 +819,12 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [4] = {
         zones = { 
-            vector2(-696.97, -948.86),
-            vector2(-737.88, -950.76),
-            vector2(-741.67, -942.80),
-            vector2(-729.55, -910.61),
-            vector2(-696.21, -909.85)
+            vector2(-696.77, -948.94),
+            vector2(-739.47, -951.07),
+            vector2(-734.73, -906.5),
+            vector2(-711.0, -906.76),
+            vector2(-710.65, -903.27),
+            vector2(-696.82, -903.21),
         },
         minz = 18.0,
         maxz = 20.4,
@@ -848,7 +849,7 @@ Config.GasStations = { -- Configuration options for various gas station related 
             vector2(300.76, -1286.36)
         },
         minz = 28.1,
-        maxz = 30.3,
+        maxz = 31.3,
         pedmodel = "a_m_m_indian_01",
         cost = 100000,
         shutoff = false,
@@ -911,14 +912,14 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [8] = {
         zones = {
-            vector2(1146.21, -316.29),
-            vector2(1151.52, -348.48),
-            vector2(1192.42, -357.20),
-            vector2(1195.83, -344.70),
-            vector2(1188.64, -314.02)
+            vector2(1188.28, -306.38),
+            vector2(1145.24, -314.19),
+            vector2(1150.81, -346.52),
+            vector2(1195.44, -353.92),
+            vector2(1197.01, -340.55),
         },
-        minz = 68.1,
-        maxz = 70.2,
+        minz = 67.1,
+        maxz = 70.7,
         pedmodel = "a_m_m_indian_01",
         cost = 100000,
         shutoff = false,
@@ -1010,7 +1011,7 @@ Config.GasStations = { -- Configuration options for various gas station related 
             vector2(-113.59, 6409.91)
         },
         minz = 30.34,
-        maxz = 32.5,
+        maxz = 33.5,
         pumpheightadd = 1.5, --  For Config.PumpHose
         pedmodel = "a_m_m_indian_01",
         cost = 100000,
@@ -1051,10 +1052,10 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [14] = {
         zones = {
-            vector2(1691.67, 6427.27),
-            vector2(1722.73, 6411.74),
-            vector2(1708.33, 6385.61),
-            vector2(1678.41, 6402.65)
+            vector2(1684.5, 6413.73),
+            vector2(1693.67, 6431.38),
+            vector2(1721.72, 6428.14),
+            vector2(1710.47, 6402.65)
         },
         minz = 31.4,
         maxz = 34.2,
