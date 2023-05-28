@@ -116,3 +116,38 @@ function IsPlayerNearVehicle()
 	end
 	return false
 end
+
+function IsVehicleBlacklisted(veh)
+	if Config.FuelDebug then print("checking if vehicle is blacklisted") end
+	if veh and veh ~= 0 then
+		veh = string.lower(GetDisplayNameFromVehicleModel(GetEntityModel(veh)))
+		if Config.FuelDebug then print(veh) end
+		-- Puts Vehicles In Blacklist if you have electric charging on.
+		if not Config.ElectricVehicleCharging then
+			for i = 1, #Config.ElectricVehicles, 1 do
+				local cur = Config.ElectricVehicles[i]
+				if cur == veh then
+					print("Vehicle: "..cur.." is in the Blacklist.")
+					return true
+				end
+			end
+		end
+
+		for i = 1, #Config.NoFuelUsage, 1 do
+			local cur = Config.NoFuelUsage[i]
+			if cur == veh then
+				if Config.FuelDebug then
+					print("Vehicle: "..cur.." is in the Blacklist.")
+				end
+				-- If the veh equals a vehicle in the list then return true.
+				return true
+			end
+		end
+		-- Default False
+		if Config.FuelDebug then print("Vehicle is not blacklisted.") end
+		return false
+	else
+		if Config.FuelDebug then print("veh is nil!") end
+		return false
+	end
+end
