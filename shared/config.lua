@@ -144,10 +144,9 @@ Config.ElectricSprite = 620 -- This is for when the player is in an electric cha
 Config.ElectricChargerModel = true -- If you wish, you can set this to false to add your own props, or use a ymap for the props instead.
 
 -- Basic Configuration Settings
+-- Turn on Config.FuelDebug and use this command to get the name for here: getVehNameForBlacklist
 Config.NoFuelUsage = { -- This is for you to put vehicles that you don't want to use fuel.
-    "example",
-    "example",
-    "example",
+    "bmx",
 }
 
 Config.Classes = { -- Class multipliers. If you want SUVs to use less fuel, you can change it to anything under 1.0, and vise versa.

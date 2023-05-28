@@ -34,6 +34,13 @@ if Config.FuelDebug then
 	RegisterCommand('getCachedFuelPrice', function ()
 		print(CachedFuelPrice)
 	end, false)
+
+	RegisterCommand('getVehNameForBlacklist', function()
+		local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+		if veh ~= 0 then
+			print(string.lower(GetDisplayNameFromVehicleModel(GetEntityModel(veh))))
+		end
+	end, false)
 end
 
 -- Functions
@@ -104,7 +111,6 @@ local function HandleFuelConsumption(vehicle)
 		SetFuel(vehicle, math.random(200, 800) / 10)
 	elseif not fuelSynced then
 		SetFuel(vehicle, GetFuel(vehicle))
-
 		fuelSynced = true
 	end
 
@@ -252,13 +258,7 @@ CreateThread(function()
 		-- Blacklist Electric Vehicles, if you disables the Config.ElectricVehicleCharging or put the vehicle in Config.NoFuelUsage!
 		if IsPedInAnyVehicle(ped) then
 			local vehicle = GetVehiclePedIsIn(ped)
-			if Config.ElectricVehicles[GetEntityModel(vehicle)] and not Config.ElectricVehicleCharging then
-				inBlacklisted = true
-			elseif Config.NoFuelUsage[GetEntityModel(vehicle)] then
-				inBlacklisted = true
-			else
-				inBlacklisted = false
-			end
+			inBlacklisted = IsVehicleBlacklisted(vehicle)
 			if not inBlacklisted and GetPedInVehicleSeat(vehicle, -1) == ped then
 				HandleFuelConsumption(vehicle)
 			end
@@ -2620,8 +2620,11 @@ CreateThread(function()
 	while true do
 		Wait(3000)
 		local vehPedIsIn = GetVehiclePedIsIn(PlayerPedId(), false)
-		if not vehPedIsIn then
+		if not vehPedIsIn or vehPedIsIn == 0 then
 			Wait(2500)
+			if inBlacklisted then
+				inBlacklisted = false
+			end
 		else
 			local vehType = GetCurrentVehicleType(vehPedIsIn)
 			if not Config.ElectricVehicleCharging and vehType == 'electricvehicle' then
@@ -2629,28 +2632,30 @@ CreateThread(function()
 					print("Vehicle Type is Electric, so we will not remove shut the engine off.")
 				end
 			else
-				local vehFuelLevel = GetFuel(vehPedIsIn)
-				local vehFuelShutoffLevel = Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1
-				if vehFuelLevel <= vehFuelShutoffLevel then
-					if GetIsVehicleEngineRunning(vehPedIsIn) then
-						if Config.FuelDebug then
-							print("Vehicle is running with zero fuel, shutting it down.")
+				if not IsVehicleBlacklisted(vehPedIsIn) then
+					local vehFuelLevel = GetFuel(vehPedIsIn)
+					local vehFuelShutoffLevel = Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1
+					if vehFuelLevel <= vehFuelShutoffLevel then
+						if GetIsVehicleEngineRunning(vehPedIsIn) then
+							if Config.FuelDebug then
+								print("Vehicle is running with zero fuel, shutting it down.")
+							end
+							-- If the vehicle is on, we shut the vehicle off:
+							SetVehicleEngineOn(vehPedIsIn, false, true, true)
+							-- Then alert the client with notify.
+							QBCore.Functions.Notify(Lang:t("no_fuel"), 'error', 3500)
+							-- Play Sound, if enabled in config.
+							if Config.VehicleShutoffOnLowFuel['sounds']['enabled'] then
+								RequestAmbientAudioBank("DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0)
+								PlaySoundFromEntity(l_2613, "Landing_Tone", vehPedIsIn, "DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0, 0)
+								Wait(1500)
+								StopSound(l_2613)
+							end
 						end
-						-- If the vehicle is on, we shut the vehicle off:
-						SetVehicleEngineOn(vehPedIsIn, false, true, true)
-						-- Then alert the client with notify.
-						QBCore.Functions.Notify(Lang:t("no_fuel"), 'error', 3500)
-						-- Play Sound, if enabled in config.
-						if Config.VehicleShutoffOnLowFuel['sounds']['enabled'] then
-							RequestAmbientAudioBank("DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0)
-							PlaySoundFromEntity(l_2613, "Landing_Tone", vehPedIsIn, "DLC_PILOT_ENGINE_FAILURE_SOUNDS", 0, 0)
-							Wait(1500)
-							StopSound(l_2613)
+					else
+						if vehFuelLevel - 10 > vehFuelShutoffLevel then
+							Wait(7500)
 						end
-					end
-				else
-					if vehFuelLevel - 10 > vehFuelShutoffLevel then
-						Wait(7500)
 					end
 				end
 			end
@@ -2669,10 +2674,14 @@ CreateThread(function()
 		Wait(0)
 		local ped = PlayerPedId()
 		local veh = GetVehiclePedIsIn(ped, false)
-		if IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == false) or GetFuel(veh) < (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
-			DisableControlAction(0, 71, true)
-		elseif IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == true) and GetFuel(veh) > (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
-			EnableControlAction(0, 71, true)
+		if veh ~= 0 then
+			if not IsVehicleBlacklisted(veh) then
+				if IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == false) or GetFuel(veh) < (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
+					DisableControlAction(0, 71, true)
+				elseif IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == true) and GetFuel(veh) > (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
+					EnableControlAction(0, 71, true)
+				end
+			end
 		end
 	end
 end)
