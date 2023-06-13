@@ -1782,8 +1782,10 @@ RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 			if tonumber(itemData.metadata.cdn_fuel) < 1 then nogas = true Nogasstring = Lang:t("menu_syphon_empty") else nogas = false Nogasstring = Lang:t("menu_syphon_refuel") end
 			if tonumber(itemData.metadata.cdn_fuel) == Config.SyphonKitCap then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_kit_full") elseif GetFuel(vehicle) < 1 then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_vehicle_empty") else syphonfull = false Stealfuelstring = Lang:t("menu_syphon_allowed") end -- Disable Options based on item data
 		else
-			if itemData.info.gasamount < 1 then nogas = true Nogasstring = Lang:t("menu_syphon_empty") else nogas = false Nogasstring = Lang:t("menu_syphon_refuel") end
-			if itemData.info.gasamount == Config.SyphonKitCap then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_kit_full") elseif GetFuel(vehicle) < 1 then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_vehicle_empty") else syphonfull = false Stealfuelstring = Lang:t("menu_syphon_allowed") end -- Disable Options based on item data
+			if itemData.info.gasamount then
+				if itemData.info.gasamount < 1 then nogas = true Nogasstring = Lang:t("menu_syphon_empty") else nogas = false Nogasstring = Lang:t("menu_syphon_refuel") end
+				if itemData.info.gasamount == Config.SyphonKitCap then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_kit_full") elseif GetFuel(vehicle) < 1 then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_vehicle_empty") else syphonfull = false Stealfuelstring = Lang:t("menu_syphon_allowed") end -- Disable Options based on item data
+			end
 		end
 		if Config.Ox.Menu then
 			lib.registerContext({
@@ -1895,9 +1897,10 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 			currentsyphonamount = tonumber(data.itemData.metadata.cdn_fuel)
 			HasSyphon = exports.ox_inventory:Search('count', 'syphoningkit')
 		else
-			currentsyphonamount = data.itemData.info.gasamount
+			currentsyphonamount = data.itemData.info.gasamount or 0
 			HasSyphon = QBCore.Functions.HasItem("syphoningkit", 1)
 		end
+ 
 		
 		if HasSyphon then
 			local fitamount = (Config.SyphonKitCap - currentsyphonamount)
@@ -1927,6 +1930,7 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 						if tonumber(syphonAmount) < 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
 						if tonumber(syphonAmount) == 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
 						if tonumber(syphonAmount) > maxsyphon then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
+						
 						if currentsyphonamount + syphonAmount > Config.SyphonKitCap then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
 						if (tonumber(syphonAmount) <= tonumber(cargasamount)) then
 							local removeamount = (tonumber(cargasamount) - tonumber(syphonAmount))
@@ -1983,7 +1987,9 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 						if not syphon.amount then return end
 						if tonumber(syphon.amount) < 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
 						if tonumber(syphon.amount) == 0 then QBCore.Functions.Notify(Lang:t("syphon_more_than_zero"), 'error') return end
-						if tonumber(syphon.amount) > maxsyphon then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
+						 
+						if tonumber(syphon.amount) > maxsyphon then QBCore.Functions.Notify("Current vehicle fuel level : "..maxsyphon.."L", 'error') return end
+						
 						if currentsyphonamount + syphon.amount > Config.SyphonKitCap then QBCore.Functions.Notify(Lang:t("syphon_kit_cannot_fit_1").. fitamount .. Lang:t("syphon_kit_cannot_fit_2"), 'error') return end
 						if (tonumber(syphon.amount) <= tonumber(cargasamount)) then
 							local removeamount = (tonumber(cargasamount) - tonumber(syphon.amount))
