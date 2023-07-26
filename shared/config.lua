@@ -84,7 +84,7 @@ Config.UseSyphoning = false -- Follow the Syphoning Install Guide to enable this
 Config.SyphonDebug = false -- Used for Debugging the syphon portion!
 Config.SyphonKitCap = 50 -- Maximum amount (in L) the syphon kit can fit!
 Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25%
-Config.SyphonDispatchSystem = "ps-dispatch" -- Options: "ps-dispatch", "qb-dispatch", "qb-default" (just blips) or "custom" (Custom: you must configure yourself!)
+Config.SyphonDispatchSystem = "ps-dispatch" -- Options: "cd_dispatch", "ps-dispatch", "qb-dispatch", "qb-default" (just blips) or "custom" (Custom: you must configure yourself!)
 
 --- Jerry Can -----
 Config.UseJerryCan = true -- Enable the Jerry Can functionality. Will only work if properly installed.
