@@ -346,7 +346,6 @@ if Config.PlayerOwnedGasStationsEnabled then -- This is so Player Owned Gas Stat
         local location = 0
         for value in ipairs(Config.GasStations) do
             location = location + 1
-            
             UpdateStationLabel(location)
         end
     end

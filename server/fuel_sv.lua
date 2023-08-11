@@ -197,7 +197,13 @@ RegisterNetEvent('cdn-fuel:info', function(type, amount, srcPlayerData, itemdata
 		end
 
 		if type == "add" then
-			srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount + amount
+			if not srcPlayerData.items[itemdata.slot].info.gasamount then
+				srcPlayerData.items[itemdata.slot].info = {
+					gasamount = amount,
+				}
+			else
+				srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount + amount
+			end
 			Player.Functions.SetInventory(srcPlayerData.items)
 		elseif type == "remove" then
 			srcPlayerData.items[itemdata.slot].info.gasamount = srcPlayerData.items[itemdata.slot].info.gasamount - amount
