@@ -1638,7 +1638,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 				QBCore.Functions.Notify(Lang:t("jerry_can_success"), 'success')
 				local srcPlayerData = QBCore.Functions.GetPlayerData()
 				if Config.Ox.Inventory then
-					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, itemData)
 				else
 					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, itemData)
 				end
@@ -1704,7 +1704,7 @@ RegisterNetEvent('cdn-fuel:jerrycan:refueljerrycan', function(data)
 				local srcPlayerData = QBCore.Functions.GetPlayerData()
 				local refuelAmount = tonumber(refuel.amount)
 				if Config.Ox.Inventory then
-					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, 'jerrycan')
+					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, jerryCanData)
 				else
 					TriggerServerEvent('cdn-fuel:info', "add", tonumber(refuelAmount), srcPlayerData, jerryCanData)
 				end
@@ -1783,6 +1783,7 @@ RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 			if tonumber(itemData.metadata.cdn_fuel) < 1 then nogas = true Nogasstring = Lang:t("menu_syphon_empty") else nogas = false Nogasstring = Lang:t("menu_syphon_refuel") end
 			if tonumber(itemData.metadata.cdn_fuel) == Config.SyphonKitCap then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_kit_full") elseif GetFuel(vehicle) < 1 then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_vehicle_empty") else syphonfull = false Stealfuelstring = Lang:t("menu_syphon_allowed") end -- Disable Options based on item data
 		else
+			if not itemData.info.gasamount then nogas = true Nogasstring = Lang:t("menu_syphon_empty") end
 			if itemData.info.gasamount < 1 then nogas = true Nogasstring = Lang:t("menu_syphon_empty") else nogas = false Nogasstring = Lang:t("menu_syphon_refuel") end
 			if itemData.info.gasamount == Config.SyphonKitCap then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_kit_full") elseif GetFuel(vehicle) < 1 then syphonfull = true Stealfuelstring = Lang:t("menu_syphon_vehicle_empty") else syphonfull = false Stealfuelstring = Lang:t("menu_syphon_allowed") end -- Disable Options based on item data
 		end
@@ -1896,7 +1897,7 @@ RegisterNetEvent('cdn-syphoning:syphon', function(data)
 			currentsyphonamount = tonumber(data.itemData.metadata.cdn_fuel)
 			HasSyphon = exports.ox_inventory:Search('count', 'syphoningkit')
 		else
-			currentsyphonamount = data.itemData.info.gasamount
+			currentsyphonamount = data.itemData.info.gasamount or 0
 			HasSyphon = QBCore.Functions.HasItem("syphoningkit", 1)
 		end
 		

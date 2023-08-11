@@ -679,9 +679,6 @@ if Config.ElectricVehicleCharging then
                     RequestModel('electric_charger')
                     while not HasModelLoaded('electric_charger') do
                         Wait(50)
-                        if Config.FuelDebug then
-                            print("Loading Electric Charger Model.")
-                        end
                     end
                     Config.GasStations[i].electriccharger = CreateObject('electric_charger', Config.GasStations[i].electricchargercoords.x, Config.GasStations[i].electricchargercoords.y, Config.GasStations[i].electricchargercoords.z, false, true, true)
                     if Config.FuelDebug then print("Created Electric Charger @ Location #"..i) end
