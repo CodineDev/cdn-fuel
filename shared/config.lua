@@ -1331,10 +1331,10 @@ Config.GasStations = { -- Configuration options for various gas station related 
     },
     [26] = {
         zones = {
-            vector2(-1838.64, 787.12),
-            vector2(-1796.97, 821.97),
-            vector2(-1770.08, 797.73),
-            vector2(-1813.26, 762.50)
+            vector2(-1820.41, 767.31),
+            vector2(-1775.49, 802.95),
+            vector2(-1798.5, 828.42),
+            vector2(-1841.71, 791.66)
         },
         minz = 136.64,
         maxz = 139.9,
