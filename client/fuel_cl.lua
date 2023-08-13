@@ -30,7 +30,7 @@ if Config.FuelDebug then
 		SetFuel(vehicle, tonumber(args[1]))
 		QBCore.Functions.Notify(Lang:t("set_fuel_debug")..' '..args[1]..'L', 'success')
 	end, false)
-
+	
 	RegisterCommand('getCachedFuelPrice', function()
 		print(CachedFuelPrice)
 	end, false)
@@ -1756,19 +1756,16 @@ RegisterNetEvent('cdn-syphoning:syphon:menu', function(itemData)
 	if IsPedInAnyVehicle(PlayerPedId(), false) then QBCore.Functions.Notify(Lang:t("syphon_inside_vehicle"), 'error') return end
 	if Config.SyphonDebug then print("Item Data: " .. json.encode(itemData)) end
 	local vehicle = GetClosestVehicle()
-	local vehiclename = GetEntityModel(vehicle)
+	local vehModel = GetEntityModel(vehicle)
+	local vehiclename = string.lower(GetDisplayNameFromVehicleModel(vehModel))
 	local vehiclecoords = GetEntityCoords(vehicle)
 	local pedcoords = GetEntityCoords(PlayerPedId())
 	if Config.ElectricVehicleCharging then
 		NotElectric = true
-		for i = 1, #Config.ElectricVehicles do
-			local current = joaat(Config.ElectricVehicles[i])
-			if Config.SyphonDebug then print("^5Current Search: ^2"..current.." ^5Player's Vehicle: ^2"..vehiclename) end
-			if current == vehiclename then
-				NotElectric = false
-				if Config.SyphonDebug then print("^2"..current.. "^5 has been found. It ^2matches ^5the Player's Vehicle: ^2"..vehiclename..". ^5This means syphoning will not be allowed.") end
-				QBCore.Functions.Notify(Lang:t("syphon_electric_vehicle"), 'error', 7500) return
-			end
+		if Config.ElectricVehicles[vehiclename] and Config.ElectricVehicles[vehiclename].isElectric then
+			NotElectric = false
+			if Config.SyphonDebug then print("^2"..current.. "^5 has been found. It ^2matches ^5the Player's Vehicle: ^2"..vehiclename..". ^5This means syphoning will not be allowed.") end
+			QBCore.Functions.Notify(Lang:t("syphon_electric_vehicle"), 'error', 7500) return
 		end
 	else
 		NotElectric = true
@@ -2465,7 +2462,7 @@ AddEventHandler("QBCore:Client:OnPlayerLoaded", function ()
 					else
 						exports[Config.Core]:DrawText(DrawText, 'left')
 					end
-					
+
 					CreateThread(function()
 						while PlayerInSpecialFuelZone do
 							Wait(3000)
@@ -2481,8 +2478,8 @@ AddEventHandler("QBCore:Client:OnPlayerLoaded", function ()
 							end
 							if IsControlJustReleased(0, Config.AirAndWaterVehicleFueling['refuel_button']) --[[ Control in Config ]] then
 								local vehCoords = GetEntityCoords(vehicle)
-								local dist = #(GetEntityCoords(PlayerPedId()) - vehCoords) 
-								
+								local dist = #(GetEntityCoords(PlayerPedId()) - vehCoords)
+
 								if not HoldingSpecialNozzle then
 									QBCore.Functions.Notify(Lang:t("no_nozzle"), 'error', 1250)
 								elseif dist > 4.5 then
@@ -2730,7 +2727,7 @@ CreateThread(function()
 			},
 			distance = 1.5,
 		})
-	
+
 		exports[Config.TargetResource]:AddTargetModel(props, {
 			options = {
 				{
@@ -2852,21 +2849,36 @@ if Config.VehicleShutoffOnLowFuel['shutOffLevel'] == 0 then
 	Config.VehicleShutoffOnLowFuel['shutOffLevel'] = 0.55
 end
 
--- This loop does use quite a bit of performance, but, is needed due to electric vehicles running without fuel & normal vehicles driving backwards! 
+-- This loop does use quite a bit of performance, but,
+-- is needed due to electric vehicles running without fuel & normal vehicles driving backwards!
 -- You can remove if you need the performance, but we believe it is very important.
 CreateThread(function()
 	while true do
 		Wait(0)
 		local ped = PlayerPedId()
 		local veh = GetVehiclePedIsIn(ped, false)
-		if veh ~= 0 then
+		if veh ~= 0 and veh ~= nil then
 			if not IsVehicleBlacklisted(veh) then
+				-- Check if we are below the threshold for the Fuel Shutoff Level, if so, disable the "W" key, if not, enable it again.
 				if IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == false) or GetFuel(veh) < (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
 					DisableControlAction(0, 71, true)
 				elseif IsPedInVehicle(ped, veh, false) and (GetIsVehicleEngineRunning(veh) == true) and GetFuel(veh) > (Config.VehicleShutoffOnLowFuel['shutOffLevel'] or 1) then
 					EnableControlAction(0, 71, true)
 				end
+				-- Now, we check if the fuel level is currently 5 above the level it should shut off,
+				-- if this is true, we will then enable the "W" key if currently disabled, and then,
+				-- we will add a 5 second wait, in order to reduce system impact.
+				if GetFuel(veh) > (Config.VehicleShutoffOnLowFuel['shutOffLevel'] + 5) then
+					if not IsControlEnabled(0, 71) then
+						-- Enable "W" Key if it is currently disabled.
+						EnableControlAction(0, 71, true)
+					end
+					Wait(5000)
+				end
 			end
+		else
+			-- 1.75 Second Cooldown if the player is not inside of a vehicle.
+			Wait(1750)
 		end
 	end
 end)

@@ -1,6 +1,6 @@
 ![Codine Development Fuel Script Banner](https://i.imgur.com/qVOMMvW.png)
 
-# _CDN-Fuel (2.1.7)_ 
+# _CDN-Fuel (2.1.8)_ 
 
 A highly in-depth fuel system for **FiveM** with support for the **QBCore Framework & QBox Remastered**.
 
@@ -125,6 +125,8 @@ Make sure to **ensure** this new resource as well as _cdn-fuel_ in your _server.
 *Otherwise, navigate to Step 6 & Step 7 below, and finish installation.*
 
 ### Step 6:
+***If you are using OX_Inventory, this step can be ignored.***
+<br><br>
 We will now be installing the Jerry Can & Syphoning Kit items into your server. You don't have to install either, but they are recommended additions. You can install them & disable them in the config, until you want to use them later on! 
 <br> <br>
 If you plan to not use them, you can skip this Step and Step 7!
