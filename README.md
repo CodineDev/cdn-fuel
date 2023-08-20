@@ -11,7 +11,7 @@ Designed to support QBCore/QBox & Now ESX (On the Beta Branch)
 Well, we have gone through and created a unique take on a basic server system. We have many unique features including but, not limited to the following:
 - **Custom** and Original Immersive Sounds Throughout
 - Immersive Props and Animations
-- [Electric Charging]() with a [custom model]()
+- [Electric Charging](https://www.youtube.com/watch?v=_h-66IDs8Kw) with a custom model
 - Useable Jerry Cans
 - [Highly Customizable and Simple Menus](https://i.imgur.com/f64IxpA.png)
 - Land, Air, and Sea Fueling
