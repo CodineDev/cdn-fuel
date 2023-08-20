@@ -1,6 +1,21 @@
 Config = {}
+-- Debug
 Config.FuelDebug = false -- Used for debugging, although there are not many areas in yet (Default: false) + Enables Setfuel Commands (0, 50, 100). 
 Config.PolyDebug = false -- Enables Polyzone Debugging to see PolyZones!
+
+
+-- Framework:
+Config.Core = 'qb-core' -- Change this to your core resource / framework. Supported Enteries: ["qbx-core", "qb-core", "ESX"] (Case Sensitive)
+Config.Ox = { -- For ESX -> You must use all of these!
+    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
+    Menu = false, -- Uses OX Libraries instead of qb-menu.
+    Input = false, -- Uses Ox Input Dialog instead of qb-input.
+    DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText.
+    Progress = false -- Uses Ox ProgressBar instead of progressbar.
+}
+Config.TargetResource = "qb-target" -- Supported: { 'qb-target', 'ox_target'} -- Others must use the same format as QB-Target or manual configuration is required.
+
+
 Config.ShowNearestGasStationOnly = true -- When enabled, only the nearest gas stations will be shown on the map.
 Config.LeaveEngineRunning = false -- When true, the vehicle's engine will be left running upon exit if the player *HOLDS* F.
 Config.VehicleBlowUp = true -- When true, there will be a configurable chance of the vehicle blowing up, if you fuel while the engine is on.
@@ -12,12 +27,10 @@ Config.FuelDecor = "_FUEL_LEVEL" -- Do not touch! (Default: "_FUEL_LEVEL")
 Config.RefuelTime = 600 -- Highly recommended to leave at 600. This value will be multiplied times the amount the player is fueling for the progress bar and cancellation logic! DON'T GO BELOW 250, performance WILL drop!
 Config.FuelTargetExport = false -- DO NOT USE WITH OX_TARGET! This is only used to fix this qb-target issue: https://github.com/CodineDev/cdn-fuel/issues/3. <br> <br> If you don't have this issue and haven't installed this exports in qb-target, then this should be false. Otherwise there will be an error.
 
--- 2.1.1 Update --
 Config.OwnersPickupFuel = false -- If an owner buys fuel, they will have to go pick it up at a configured location.
 Config.PossibleDeliveryTrucks = {
     "hauler",
     "phantom",
-    -- "phantom3", --  This is an fast version of the normal phantom.
     "packer",
 }
 Config.DeliveryTruckSpawns = { -- https://i.imgur.com/VS22i8R.jpeg
@@ -34,14 +47,11 @@ Config.DeliveryTruckSpawns = { -- https://i.imgur.com/VS22i8R.jpeg
         ['maxz'] = 115.0,
     }
 }
--- 2.1.1 End
-
--- 2.1.0 Update
 Config.EmergencyServicesDiscount = {
     ['enabled'] = true, -- Enables Emergency Services Getting a discount based on the value below for Refueling & Electricity Charging Cost
     ['discount'] = 25, -- % Discount off of price.
     ['emergency_vehicles_only'] = true, -- Only allows discounts to be applied to Emergency Vehicles
-    ['ondutyonly'] = true, -- Discount only applies while on duty.
+    ['ondutyonly'] = true, -- Discount only applies while on duty. (Doesn't work with ESX)
     ['job'] = {
         "police",
         "sasp",
@@ -49,15 +59,6 @@ Config.EmergencyServicesDiscount = {
         "ambulance",
     }
 }
-Config.Core = 'qb-core' -- Change this to your core resources (Ex: 'qbx-core' | 'qb-core'), must be qb based!
-Config.Ox = {
-    Inventory = false, -- Uses OX_Inventory's metadata instead of QB-Inventory's.
-    Menu = false, -- Uses OX Libraries instead of qb-menu.
-    Input = false, -- Uses Ox Input Dialog instead of qb-input.
-    DrawText = false, -- Uses Ox DrawText instead of qb-core DrawText.
-    Progress = false -- Uses Ox ProgressBar instead of progressbar.
-}
-Config.TargetResource = "qb-target" -- Supported: { 'qb-target', 'ox_target'} -- Others must use the same format as QB-Target or manual configuration is required.
 Config.PumpHose = false -- If true, it creates a hose from the pump to the nozzle the client is holding, to give it a more realistic feel.
 Config.RopeType = { -- Options: 1-2-3-4-5; 1: Khaki Color, Kind of Thick, 2: Very Thick Khaki Rope, 3: Very Thick Black Rope, 4: Very Thin Black Rope, 5: Same as 3
     ['fuel'] = 1,
@@ -74,9 +75,7 @@ Config.VehicleShutoffOnLowFuel = { -- If enabled, vehicles will turn off when th
     }
 }
 
--- 2.1.0 End
-
--- Phone --
+-- Phone (QB) --
 Config.RenewedPhonePayment = false -- Enables use of Renewed-Phone Payment System and Notifications
 
 -- Syphoning --
@@ -87,7 +86,7 @@ Config.SyphonPoliceCallChance = 25 -- Math.Random(1, 100) Default: 25%
 Config.SyphonDispatchSystem = "ps-dispatch" -- Options: "ps-dispatch", "qb-dispatch", "qb-default" (just blips) or "custom" (Custom: you must configure yourself!)
 
 --- Jerry Can -----
-Config.UseJerryCan = true -- Enable the Jerry Can functionality. Will only work if properly installed.
+Config.UseJerryCan = false -- Enable the Jerry Can functionality. Will only work if properly installed.
 Config.JerryCanCap = 50 -- Maximum amount (in L) the jerrycan can fit! (Default: 50L)
 Config.JerryCanPrice = 200 -- The price of a jerry can, not including tax.
 Config.JerryCanGas = 25 -- The amount of Gas that the Jerry Can you purchase comes with. This should not be bigger that your Config.JerryCanCap!
@@ -1483,7 +1482,6 @@ Config.GasStations = { -- Configuration options for various gas station related 
 }
 
 -- Profanity Dictionary from another source, used for stopping people from putting the words blacklisted as the name of their gas stations. --
-
 Config.ProfanityList = {
     "4r5e",
     "5h1t",

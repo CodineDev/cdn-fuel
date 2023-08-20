@@ -245,3 +245,11 @@ local Translations = {
     syphon_dispatch_string = "(10-90) - Gasoline Theft",
 }
 Lang = Locale:new({phrases = Translations, warnOnMissing = true})
+
+if Config.Core ~= "qb-core" or Config.Core ~= "qbx-core" then
+    function FetchLocale(t)
+        if Translations[t] then
+            return Translations[t]
+        end
+    end
+end

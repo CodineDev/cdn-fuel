@@ -252,3 +252,11 @@ Lang = Locale:new({
     warnOnMissing = true,
     fallbackLang = Lang,
 })
+
+if Config.Core ~= "qb-core" or Config.Core ~= "qbx-core" then
+    function FetchLocale(t)
+        if Translations[t] then
+            return Translations[t]
+        end
+    end
+end

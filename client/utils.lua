@@ -1,3 +1,76 @@
+-- If using ESX, we will force OX DrawText/Input/Inventory/Menu/Progress --
+if Config.Core == "ESX" then
+	ESX = nil
+	CreateThread(function ()
+		while ESX == nil do
+			ESX = exports["es_extended"]:getSharedObject()
+			Wait(1)
+		end
+
+		if ESX.IsPlayerLoaded() then
+			ESX.PlayerData = ESX.GetPlayerData()
+			ESXPlayerLoaded()
+		end
+	end)
+	QBCore = {
+		Functions = {
+			TriggerCallback = function(name, func, ...)
+				if Config.FuelDebug then print("Attempting to trigger callback: "..name) end
+				if ... then
+					print(...)
+				end
+				local result = lib.callback.await(name, 100, ...)
+				if result ~= nil then
+					func(result)
+				else
+					return false
+				end
+			end,
+			GetPlayerData = function()
+				print("Fetching Player Data.")
+				return ESX.GetPlayerData()
+			end,
+		},
+	}
+	Config.Ox.DrawText = true
+	Config.Ox.Input = true
+	Config.Ox.Inventory = true
+	Config.Ox.Menu = true
+	Config.Ox.Progress = true
+	-- Removes things that will not work on ESX:
+	Config.EmergencyServicesDiscount.ondutyonly = false
+
+	RegisterNetEvent('QBCore:Notify', function(msg, msgType, time)
+		Notify(msg, msgType, time or nil)
+	end)
+else
+	QBCore = exports[Config.Core]:GetCoreObject()
+end
+
+function Notify(msg, msgType, time)
+	if not msg then return end
+	if not time then time = 3500 end
+	if not msgType then msgType = "default" end
+	if Config.Core == "qb-core" or Config.Core == "qbx-core" then
+		QBCore.Functions.Notify(msg, msgType, time)
+	else
+		lib.notify({
+			title = 'Notification',
+			description = msg,
+			type = msgType,
+			position = 'top',
+		})
+	end
+end
+
+function Translate(key)
+	if Config.Core == "qb-core" or Config.Core == "qbx-core" then
+		return Lang:t(key)
+	else
+		return FetchLocale(key)
+	end
+end
+
 function GetFuel(vehicle)
 	return DecorGetFloat(vehicle, Config.FuelDecor)
 end
