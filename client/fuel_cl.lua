@@ -1738,13 +1738,13 @@ local function PoliceAlert(coords)
 	if chance < Config.SyphonPoliceCallChance then
 		if Config.SyphonDispatchSystem == "ps-dispatch" then
 			exports['ps-dispatch']:SuspiciousActivity()
-		elseif Config.SyphonDispatchSystem == "cd-dispatch" then
+		elseif Config.SyphonDispatchSystem == "cd_dispatch" then
 			local data = exports['cd_dispatch']:GetPlayerInfo()
 			TriggerServerEvent('cd_dispatch:AddNotification', {
 			    job_table = {'police', }, 
 			    coords = data.coords,
 			    title = 'Suspicious Activity',
-			    message = 'Suspicous Activity in Progress, 
+			    message = 'Suspicious Activity in Progress', 
 			    flash = 0,
 			    unique_id = data.unique_id,
 			    sound = 1,
