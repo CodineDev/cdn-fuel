@@ -6,6 +6,7 @@ if Config.ElectricVehicleCharging then
     local RefuelPossibleAmount = 0 
     local RefuelCancelled = false
     local RefuelPurchaseType = 'bank'
+    local Prop = 'electric_charger' 
 
     if Config.PumpHose then
         Rope = nil
@@ -686,8 +687,8 @@ if Config.ElectricVehicleCharging then
     -- Threads
     if Config.ElectricChargerModel then
         CreateThread(function()
-            RequestModel('electric_charger')
-            while not HasModelLoaded('electric_charger') do
+            RequestModel(Prop)
+            while not HasModelLoaded(Prop) do
                 Wait(50)
             end
 
@@ -699,7 +700,7 @@ if Config.ElectricVehicleCharging then
                 if Config.GasStations[i].electricchargercoords ~= nil then
                     if Config.FuelDebug then print(i) end
                     local heading = Config.GasStations[i].electricchargercoords[4] - 180
-                    Config.GasStations[i].electriccharger = CreateObject('electric_charger', Config.GasStations[i].electricchargercoords.x, Config.GasStations[i].electricchargercoords.y, Config.GasStations[i].electricchargercoords.z, false, true, true)
+                    Config.GasStations[i].electriccharger = CreateObject(Prop, Config.GasStations[i].electricchargercoords.x, Config.GasStations[i].electricchargercoords.y, Config.GasStations[i].electricchargercoords.z, false, true, true)
                     if Config.FuelDebug then print("Created Electric Charger @ Location #"..i) end
                     SetEntityHeading(Config.GasStations[i].electriccharger, heading)
                     FreezeEntityPosition(Config.GasStations[i].electriccharger, 1)
@@ -729,7 +730,7 @@ if Config.ElectricVehicleCharging then
     -- Target --
     if Config.TargetResource ~= "ox_target" then
         -- This assumes your target resource uses the same format as qb-target or has an auto converter.
-        exports[Config.TargetResource]:AddTargetModel('electric_charger', {
+        exports[Config.TargetResource]:AddTargetModel(Prop, {
             options = {
                 {
                     num = 1,
@@ -789,6 +790,6 @@ if Config.ElectricVehicleCharging then
             },
         }
 
-        exports.ox_target:addModel(props, modelOptions)
+        exports.ox_target:addModel(Prop, modelOptions)
     end
 end
