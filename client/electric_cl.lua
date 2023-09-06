@@ -726,43 +726,15 @@ if Config.ElectricVehicleCharging then
         end
     end)
 
-    -- Target --
-    if Config.TargetResource ~= "ox_target" then
-        -- This assumes your target resource uses the same format as qb-target or has an auto converter.
-        exports[Config.TargetResource]:AddTargetModel('electric_charger', {
-            options = {
-                {
-                    num = 1,
-                    type = "client",
-                    event = "cdn-fuel:client:grabelectricnozzle",
-                    icon = "fas fa-bolt",
-                    label = Lang:t("grab_electric_nozzle"),
-                    canInteract = function()
-                        if not IsHoldingElectricNozzle() and not IsPedInAnyVehicle(PlayerPedId()) then
-                            return true
-                        end
-                    end
-                },
-                {
-                    num = 2,
-                    type = "client",
-                    event = "cdn-fuel:client:returnnozzle",
-                    icon = "fas fa-hand",
-                    label = Lang:t("return_nozzle"),
-                    canInteract = function()
-                        if IsHoldingElectricNozzle() and not refueling then
-                            return true
-                        end
-                    end
-                },
-            },
-            distance = 2.0
-        })
-    else
-        -- Using OX_Target:
-        local modelOptions = {
-            [1] = {
-                name = "cdn-fuel:modelOptions:electric:option_1",
+    -- Target
+    local TargetResource = Config.TargetResource
+    if Config.TargetResource == 'ox_target' then
+        TargetResource = 'qb-target'
+    end
+
+    exports[TargetResource]:AddTargetModel('electric_charger', {
+        options = {
+            {
                 num = 1,
                 type = "client",
                 event = "cdn-fuel:client:grabelectricnozzle",
@@ -774,8 +746,7 @@ if Config.ElectricVehicleCharging then
                     end
                 end
             },
-            [2] = {
-                name = "cdn-fuel:modelOptions:electric:option_2",
+            {
                 num = 2,
                 type = "client",
                 event = "cdn-fuel:client:returnnozzle",
@@ -787,8 +758,7 @@ if Config.ElectricVehicleCharging then
                     end
                 end
             },
-        }
-
-        exports.ox_target:addModel(props, modelOptions)
-    end
+        },
+        distance = 2.0
+    })
 end
