@@ -88,9 +88,22 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
+	local cash = player.PlayerData.money['cash']
+    local bank = player.PlayerData.money['bank']
 	local payString = Lang:t("menu_pay_label_1") ..FuelPrice..Lang:t("menu_pay_label_2")
 	if electric then payString = Lang:t("menu_electric_payment_label_1") ..FuelPrice..Lang:t("menu_electric_payment_label_2") end
-	Player.Functions.RemoveMoney(moneyremovetype, total, payString)
+	if (purchasetype ~= "full") then 
+		Player.Functions.RemoveMoney(moneyremovetype, total, payString)
+	else
+		if (total <= cash) then 
+			Player.Functions.RemoveMoney("cash", total, payString)
+		elseif (total > cash) then 
+			-- Need to take money from bank
+			total = total - cash;
+			Player.Functions.RemoveMoney("cash", cash, payString)
+			Player.Functions.RemoveMoney("bank", total, payString)
+		end
+	end
 end)
 
 RegisterNetEvent("cdn-fuel:server:purchase:jerrycan", function(purchasetype)

@@ -84,9 +84,11 @@ local Translations = {
     
     menu_header_cash = "Cash",
     menu_header_bank = "Bank",
+    menu_header_pay_full = "Fill me up",
     menu_header_close = "Cancel",
     menu_pay_with_cash = "Pay with cash.  \nYou have: $",
-    menu_pay_with_bank = "Pay with bank.", 
+    menu_pay_with_bank = "Pay with bank.",
+    menu_pay_full = "Fill up my gas tank fully...",
     menu_refuel_header = "Gas Station",
     menu_refuel_accept = "I would like to purchase the fuel.",
     menu_refuel_cancel = "I actually don't want fuel anymore.",
