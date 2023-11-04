@@ -781,6 +781,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 					})
 				else
 					-- They want to fill up the tank completely...
+					fuel = {};
 					fuel.amount = maxfuel; 
 				end
 			end
@@ -800,6 +801,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 				})
 			else
 				-- They want to fill up the tank completely...
+				fuel = {};
 				fuel.amount = maxfuel;
 			end
 		end
@@ -950,6 +952,8 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 		purchasetype = data.purchasetype
 	elseif data.purchasetype == "cash" then
 		purchasetype = "cash"
+	elseif data.purchasetype == "full" then 
+		purchasetype = "full"
 	else
 		purchasetype = RefuelPurchaseType
 	end
