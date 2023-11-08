@@ -88,8 +88,8 @@ RegisterNetEvent("cdn-fuel:server:PayForFuel", function(amount, purchasetype, Fu
 	elseif purchasetype == "cash" then
 		moneyremovetype = "cash"
 	end
-	local cash = player.PlayerData.money['cash']
-    local bank = player.PlayerData.money['bank']
+	local cash = Player.PlayerData.money['cash']
+        local bank = Player.PlayerData.money['bank']
 	local payString = Lang:t("menu_pay_label_1") ..FuelPrice..Lang:t("menu_pay_label_2")
 	if electric then payString = Lang:t("menu_electric_payment_label_1") ..FuelPrice..Lang:t("menu_electric_payment_label_2") end
 	if (purchasetype ~= "full") then 
