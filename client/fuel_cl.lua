@@ -583,6 +583,7 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 	if Config.FuelDebug then
 		print('cdn-fuel:client:FinalMenu', purchasetype)
 	end
+	-- TODO Handle purchaseType of `full`
 	if RefuelingType == nil then
 		FetchStationInfo("all")
 		Wait(Config.WaitTime)
@@ -596,6 +597,18 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 		end
 	end
 	local money = nil
+	if purchasetype == "full" then 
+		if Config.FillUpWithBank then
+			money = QBCore.Functions.GetPlayerData().money['bank']
+		end
+		if Config.FillUpWithCash then 
+			if money == nil then 
+				money = QBCore.Functions.GetPlayerData().money['cash']
+			else
+				money = money + QBCore.Functions.GetPlayerData().money['cash']
+			end
+		end
+	end
 	if purchasetype == "bank" then money = QBCore.Functions.GetPlayerData().money['bank'] elseif purchasetype == 'cash' then money = QBCore.Functions.GetPlayerData().money['cash'] end
 	if not Config.PlayerOwnedGasStationsEnabled then
 		FuelPrice = (1 * Config.CostMultiplier)
@@ -684,24 +697,34 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 				if not fuel then if Config.FuelDebug then print("Fuel Is Nil! #1") end return end
 				fuelAmount = tonumber(fuel[5])
 			else
-				fuel = lib.inputDialog('Gas Station', {
-					{ type = "input", label = 'Gasoline Price', default = '$'.. FuelPrice .. ' Per Liter', disabled = true },
-					{ type = "input", label = 'Current Fuel', default = finalfuel .. ' Per Liter', disabled = true },
-					{ type = "input", label = 'Required For A Full Tank', default = maxfuel, disabled = true },
-					{ type = "slider", label = 'Full Tank Cost: $' ..wholetankcostwithtax.. '', default = maxfuel, min = 0, max = maxfuel },
-				})
-				if not fuel then if Config.FuelDebug then print("Fuel Is Nil! #2") end return end
-				fuelAmount = tonumber(fuel[4])
+				if (purchasetype ~= "full") then 
+					fuel = lib.inputDialog('Gas Station', {
+						{ type = "input", label = 'Gasoline Price', default = '$'.. FuelPrice .. ' Per Liter', disabled = true },
+						{ type = "input", label = 'Current Fuel', default = finalfuel .. ' Per Liter', disabled = true },
+						{ type = "input", label = 'Required For A Full Tank', default = maxfuel, disabled = true },
+						{ type = "slider", label = 'Full Tank Cost: $' ..wholetankcostwithtax.. '', default = maxfuel, min = 0, max = maxfuel },
+					})
+					if not fuel then if Config.FuelDebug then print("Fuel Is Nil! #2") end return end
+					fuelAmount = tonumber(fuel[4])
+				else
+					-- They want to fill up the tank completely...
+					fuelAmount = maxfuel;
+				end
 			end
 		else
-			fuel = lib.inputDialog('Gas Station', {
-				{ type = "input", label = 'Gasoline Price', default = '$'.. FuelPrice .. ' Per Liter',disabled = true },
-				{ type = "input", label = 'Current Fuel', default = finalfuel .. ' Per Liter',disabled = true },
-				{ type = "input", label = 'Required For A Full Tank', default = maxfuel, disabled = true },
-				{ type = "slider", label = 'Full Tank Cost: $' ..wholetankcostwithtax.. '', default = maxfuel, min = 0, max = maxfuel},
-			})
-			if not fuel then if Config.FuelDebug then print("Fuel Is Nil! #3") end return end
-			fuelAmount = tonumber(fuel[4])
+			if (purchasetype ~= "full") then 
+				fuel = lib.inputDialog('Gas Station', {
+					{ type = "input", label = 'Gasoline Price', default = '$'.. FuelPrice .. ' Per Liter',disabled = true },
+					{ type = "input", label = 'Current Fuel', default = finalfuel .. ' Per Liter',disabled = true },
+					{ type = "input", label = 'Required For A Full Tank', default = maxfuel, disabled = true },
+					{ type = "slider", label = 'Full Tank Cost: $' ..wholetankcostwithtax.. '', default = maxfuel, min = 0, max = maxfuel},
+				});
+				if not fuel then if Config.FuelDebug then print("Fuel Is Nil! #3") end return end
+				fuelAmount = tonumber(fuel[4])
+			else
+				-- They want to fill up the tank completely...
+				fuelAmount = maxfuel;
+			end
 		end
 		if fuel then
 			if not fuelAmount then print("Fuel Amount Nil") return end
@@ -743,6 +766,27 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 					}}
 				})
 			else
+				if (purchasetype ~= "full") then 
+					fuel = exports['qb-input']:ShowInput({
+						header = "Select the Amount of Fuel<br>Current Price: $" ..
+						FuelPrice .. " / Liter <br> Current Fuel: " .. finalfuel .. " Liters <br> Full Tank Cost: $" ..
+						wholetankcostwithtax .. "",
+						submitText = Lang:t("input_insert_nozzle"),
+						inputs = { {
+							type = 'number',
+							isRequired = true,
+							name = 'amount',
+							text = 'The Tank Can Hold ' .. maxfuel .. ' More Liters.'
+						}}
+					})
+				else
+					-- They want to fill up the tank completely...
+					fuel = {};
+					fuel.amount = maxfuel; 
+				end
+			end
+		else
+			if (purchasetype ~= "full") then 
 				fuel = exports['qb-input']:ShowInput({
 					header = "Select the Amount of Fuel<br>Current Price: $" ..
 					FuelPrice .. " / Liter <br> Current Fuel: " .. finalfuel .. " Liters <br> Full Tank Cost: $" ..
@@ -755,20 +799,11 @@ RegisterNetEvent('cdn-fuel:client:FinalMenu', function(purchasetype)
 						text = 'The Tank Can Hold ' .. maxfuel .. ' More Liters.'
 					}}
 				})
+			else
+				-- They want to fill up the tank completely...
+				fuel = {};
+				fuel.amount = maxfuel;
 			end
-		else
-			fuel = exports['qb-input']:ShowInput({
-				header = "Select the Amount of Fuel<br>Current Price: $" ..
-				FuelPrice .. " / Liter <br> Current Fuel: " .. finalfuel .. " Liters <br> Full Tank Cost: $" ..
-				wholetankcostwithtax .. "",
-				submitText = Lang:t("input_insert_nozzle"),
-				inputs = { {
-					type = 'number',
-					isRequired = true,
-					name = 'amount',
-					text = 'The Tank Can Hold ' .. maxfuel .. ' More Liters.'
-				}}
-			})
 		end
 		if fuel then
 			if not fuel.amount then if Config.FuelDebug then print("fuel.amount = nil") end return end
@@ -881,6 +916,15 @@ RegisterNetEvent('cdn-fuel:client:SendMenuToServer', function(type)
 						}
 					},
 					{
+						header = Lang:t("menu_header_pay_full"),
+						txt = Lang:t("menu_pay_full"),
+						icon = "fas fa-fill",
+						params = {
+							event = "cdn-fuel:client:FinalMenu",
+							args = 'full',
+						}
+					},
+					{
 						header = Lang:t("menu_header_close"),
 						txt = Lang:t("menu_refuel_cancel"),
 						icon = "fas fa-times-circle",
@@ -908,6 +952,8 @@ RegisterNetEvent('cdn-fuel:client:RefuelVehicle', function(data)
 		purchasetype = data.purchasetype
 	elseif data.purchasetype == "cash" then
 		purchasetype = "cash"
+	elseif data.purchasetype == "full" then 
+		purchasetype = "full"
 	else
 		purchasetype = RefuelPurchaseType
 	end
