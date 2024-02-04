@@ -149,23 +149,21 @@ Now, we need to format item data in our inventory. Firstly, find the *app.js* lo
 Now we will CTRL+F the following line:
 <br> 
 ```js
-} else if (itemData.name == "harness") {
+case "harness":
 ```
 Once you have found this line, copy the following one line above it:
 <br> 
 ```js
-        } else if (itemData.name == "syphoningkit") { // Syphoning Kit (CDN-Fuel or CDN-Syphoning!)
-            $(".item-info-title").html("<p>" + itemData.label + "</p>");
-            $(".item-info-description").html(
-                "<p>" + "A kit used to syphon gasoline from vehicles! <br><br>" + itemData.info.gasamount + " Liters Inside.</p>" +
-                "</span></p><p style=\"padding-top: .8vh;font-size:11px\"><b>Weight: </b>" + ((itemData.weight * itemData.amount) / 1000).toFixed(1) + " | <b>Amount: </b> " + itemData.amount
-            );
-        } else if (itemData.name == "jerrycan") { // Jerry Can (CDN-Fuel!)
-            $(".item-info-title").html("<p>" + itemData.label + "</p>");
-            $(".item-info-description").html(
-                "<p>" + "A Jerry Can, designed to hold fuel! <br><br>" + itemData.info.gasamount + " Liters Inside.</p>" +
-                "</span></p><p style=\"padding-top: .8vh;font-size:11px\"><b>Weight: </b>" + ((itemData.weight * itemData.amount) / 1000).toFixed(1) + " | <b>Amount: </b> " + itemData.amount
-            );
+        case "syphoningkit":
+            // Syphoning Kit (CDN-Fuel or CDN-Syphoning!)
+            return `<p>${itemData.label}</p>
+            <p>A kit used to syphon gasoline from vehicles! <br><br>${itemData.info.gasamount} Liters Inside.</p>
+            </span></p><p style=\"padding-top: .8vh;font-size:11px\"><b>Weight: </b>${((itemData.weight * itemData.amount) / 1000).toFixed(1)} | <b>Amount: </b> ${itemData.amount}`
+        case "jerrycan":
+            // Jerry Can (CDN-Fuel!)
+            return `<p>${itemData.label}</p>
+            <p>A Jerry Can, designed to hold fuel! <br><br>${itemData.info.gasamount} Liters Inside.</p>
+            </span></p><p style=\"padding-top: .8vh;font-size:11px\"><b>Weight: </b>${((itemData.weight * itemData.amount) / 1000).toFixed(1)} | <b>Amount: </b> ${itemData.amount}`
 ```
 **Again, if you have decay, you must add in the options yourself!**
 <br> <br>
